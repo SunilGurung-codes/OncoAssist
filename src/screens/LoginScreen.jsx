@@ -33,7 +33,7 @@ export function LoginScreen({ onLogin }) {
     }
 
     return (
-        <div data-screen-label="00 Login" style={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff", position: "relative" }}>
+        <div className="login-container" data-screen-label="00 Login">
             <style>{`
                 @keyframes pulse-ring {
                     0% { transform: scale(0.8); opacity: 0.5; }
@@ -42,104 +42,109 @@ export function LoginScreen({ onLogin }) {
             `}</style>
 
             {/* Absolute Top Left Logo */}
-            <div style={{ position: "absolute", top: 40, left: 60 }}>
+            <div style={{ position: "absolute", top: 24, left: 24 }}>
                 {/* The user dropped the explicit logo file into public/images/Mayo-Clinic-Logo 1.png */}
-                <img src="/images/Mayo-Clinic-Logo%201.png" alt="Mayo Clinic" style={{ height: 75 }} onError={(e) => { e.target.onerror = null; e.target.src = "https://upload.wikimedia.org/wikipedia/commons/c/cd/Mayo_Clinic_logo.svg"; }} />
+                <img src="/images/Mayo-Clinic-Logo%201.png" alt="Mayo Clinic" style={{ height: 60 }} onError={(e) => { e.target.onerror = null; e.target.src = "https://upload.wikimedia.org/wikipedia/commons/c/cd/Mayo_Clinic_logo.svg"; }} />
             </div>
 
             {/* Center Box */}
-            <div style={{ width: 1200, height: 720, background: "#fff", borderRadius: 20, display: "flex", overflow: "hidden", boxShadow: "0 16px 56px rgba(0,0,0,0.08)", border: "1px solid rgba(0,0,0,0.06)" }}>
+            <div className="login-card">
 
                 {/* Left side (Form) */}
-                <div style={{ flex: 1, padding: "70px 80px", display: "flex", flexDirection: "column", background: "#fff" }}>
+                <div className="login-left">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 56 }}>
-                        <div style={{ fontSize: 18, fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: 6 }}>
-                            OncoAssist <span style={{ color: "#aaa", fontSize: 14, fontWeight: 400 }}>· v2.4</span>
+                        <div style={{ fontSize: 18, fontWeight: 600, color: "var(--c-text-strong)", display: "flex", alignItems: "center", gap: 6 }}>
+                            OncoAssist <span style={{ color: "var(--c-text-faint)", fontSize: 14, fontWeight: 400 }}>· v2.4</span>
                         </div>
                     </div>
 
-                    <div style={{ fontSize: 32, fontWeight: 500, color: "#111", marginBottom: 16, letterSpacing: "-0.5px" }}>Sign in to your workstation</div>
-                    <div style={{ fontSize: 15, color: "#666", marginBottom: 40, lineHeight: 1.5, paddingRight: 20 }}>Use your Mayo Clinic network credentials. You'll be redirected to your patient dashboard.</div>
+                    <div style={{ fontSize: 32, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 16, letterSpacing: "-0.5px" }}>Sign in to your workstation</div>
+                    <div style={{ fontSize: 15, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.5, paddingRight: 20 }}>Use your Mayo Clinic network credentials. You'll be redirected to your patient dashboard.</div>
 
                     <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "#333" }}>Mayo ID / Username</div>
+                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "var(--c-text-strong)" }}>Mayo ID / Username</div>
                         <div style={{ position: "relative" }}>
-                            <span style={{ position: "absolute", left: 16, top: 14, color: "#ccc" }}>{Icon.user({ s: 20 })}</span>
-                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid #ddd", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "#111", background: "#fff" }} placeholder="e.g. i.riaz" />
+                            <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.user({ s: 20 })}</span>
+                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. i.riaz" />
                         </div>
                     </div>
                     <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "#333" }}>Password</div>
+                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "var(--c-text-strong)" }}>Password</div>
                         <div style={{ position: "relative" }}>
-                            <span style={{ position: "absolute", left: 16, top: 14, color: "#ccc" }}>{Icon.lock({ s: 20 })}</span>
-                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid #ddd", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "#111", background: "#fff" }} placeholder="••••••••" />
-                            <span style={{ position: "absolute", right: 16, top: 14, color: "#ccc", cursor: "pointer" }}>{Icon.eye({ s: 20 })}</span>
+                            <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.lock({ s: 20 })}</span>
+                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="••••••••" />
+                            <span style={{ position: "absolute", right: 16, top: 14, color: "var(--c-text-ghost)", cursor: "pointer" }}>{Icon.eye({ s: 20 })}</span>
                         </div>
                     </div>
 
                     <div style={{ marginBottom: 40 }}>
-                        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#555", cursor: "pointer", marginBottom: 16 }}>
-                            <input type="checkbox" defaultChecked style={{ accentColor: "#062243", width: 16, height: 16 }} />
+                        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--c-text-mute)", cursor: "pointer", marginBottom: 16 }}>
+                            <input type="checkbox" defaultChecked style={{ accentColor: "var(--c-blue-deep)", width: 16, height: 16 }} />
                             Keep me signed in on this workstation
                         </label>
-                        <div style={{ fontSize: 14, color: "#0A4693", fontWeight: 500, cursor: "pointer" }}>Forgot password?</div>
+                        <div style={{ fontSize: 14, color: "var(--c-blue)", fontWeight: 500, cursor: "pointer" }}>Forgot password?</div>
                     </div>
 
-                    {error && <div style={{ color: "#D13030", fontSize: 14, marginBottom: 16 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
-                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "#062243", color: "#fff", fontSize: 16, fontWeight: 500, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
+                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 14, marginBottom: 16 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
+                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "#fff", fontSize: 16, fontWeight: 500, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
                 </div>
 
                 {/* Right side (Tap/Scanner) */}
-                <div style={{ flex: 1, background: "#F5F5ED", borderLeft: "1px solid rgba(0,0,0,0.04)", padding: "70px 80px", display: "flex", flexDirection: "column" }}>
+                <div className="login-right">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#555", letterSpacing: 0.5 }}>TAP-TO-SIGN-IN</span>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--c-text-mute)", letterSpacing: 0.5 }}>TAP-TO-SIGN-IN</span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "#E8EDF5", borderRadius: 14, color: "#0A4693", fontSize: 12, fontWeight: 500 }}>
-                            <span style={{ width: 6, height: 6, borderRadius: 3, background: "#0A4693" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "var(--c-blue-50)", borderRadius: 14, color: "var(--c-blue-deep)", fontSize: 12, fontWeight: 500 }}>
+                            <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-blue-deep)" }} />
                             Scanning
                         </div>
                     </div>
 
-                    <div style={{ fontSize: 24, fontWeight: 500, color: "#222", marginBottom: 12 }}>Tap your Mayo ID badge</div>
-                    <div style={{ fontSize: 15, color: "#666", lineHeight: 1.5, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
+                    <div style={{ fontSize: 24, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 12 }}>Tap your Mayo ID badge</div>
+                    <div style={{ fontSize: 15, color: "var(--c-text-mute)", lineHeight: 1.5, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
 
                     {/* Scanner Animation Area (Solid white card) */}
-                    <div onClick={() => { setUsr("mayo"); setPwd("mayo"); }} style={{ flex: 1, background: "#fff", borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.04)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
+                    <div onClick={() => { setUsr("mayo"); setPwd("mayo"); }} style={{ flex: 1, minHeight: 250, background: "var(--c-surface)", borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.03)", border: "1px solid var(--c-border-faint)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
 
                         {/* Concentric rings */}
                         <div style={{ position: "absolute", width: 280, height: 280, borderRadius: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <div style={{ position: "absolute", width: "100%", height: "100%", borderRadius: "50%", border: "1.5px solid #0A4693", opacity: 0.15, animation: "pulse-ring 2s infinite ease-out" }} />
-                            <div style={{ position: "absolute", width: "65%", height: "65%", borderRadius: "50%", border: "1.5px solid #0A4693", opacity: 0.15, animation: "pulse-ring 2s infinite ease-out", animationDelay: "0.5s" }} />
+                            <div style={{ position: "absolute", width: "100%", height: "100%", borderRadius: "50%", border: "1.5px solid var(--c-blue)", opacity: 0.2, animation: "pulse-ring 2s infinite ease-out" }} />
+                            <div style={{ position: "absolute", width: "65%", height: "65%", borderRadius: "50%", border: "1.5px solid var(--c-blue)", opacity: 0.2, animation: "pulse-ring 2s infinite ease-out", animationDelay: "0.5s" }} />
                         </div>
 
                         {/* Doctor Badge UI Element */}
-                        <div style={{ zIndex: 10, width: 56, height: 72, background: "#fff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", boxShadow: "0 6px 16px rgba(0,0,0,0.06)", marginBottom: 24 }}>
-                            <div style={{ background: "#062243", color: "white", fontSize: 8, width: "100%", textAlign: "center", padding: "3px 0", borderRadius: 3 }}>MAYO</div>
-                            <div style={{ width: 28, height: 28, borderRadius: 14, background: "#E8EDF5", color: "#062243", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
-                            <div style={{ fontSize: 6, color: "#888", textAlign: "center" }}>L.Riaz, MD</div>
+                        <div style={{ zIndex: 10, width: 56, height: 72, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", boxShadow: "0 6px 16px rgba(0,0,0,0.06)", marginBottom: 24 }}>
+                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 8, width: "100%", textAlign: "center", padding: "3px 0", borderRadius: 3 }}>MAYO</div>
+                            <div style={{ width: 28, height: 28, borderRadius: 14, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
+                            <div style={{ fontSize: 6, color: "var(--c-text-soft)", textAlign: "center" }}>L.Riaz, MD</div>
                         </div>
 
-                        <div style={{ zIndex: 20, fontWeight: 500, color: "#333", fontSize: 15 }}>Waiting for badge...</div>
-                        <div style={{ zIndex: 20, marginTop: 4, color: "#888", fontSize: 12 }}>Reader: WS-7212-A · Exam Rm 4</div>
+                        <div style={{ zIndex: 20, fontWeight: 500, color: "var(--c-text-strong)", fontSize: 15 }}>Waiting for badge...</div>
+                        <div style={{ zIndex: 20, marginTop: 4, color: "var(--c-text-soft)", fontSize: 12 }}>Reader: WS-7212-A · Exam Rm 4</div>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginTop: 40 }}>
-                        <div style={{ width: 50, height: 60, background: "#fff", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ background: "#062243", color: "white", fontSize: 6, width: "100%", textAlign: "center", padding: "2px 0", borderRadius: 2 }}>MAYO</div>
-                            <div style={{ width: 18, height: 18, borderRadius: 9, background: "#E8EDF5", color: "#062243", fontSize: 7, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
-                            <div style={{ fontSize: 5, color: "#888", textAlign: "center" }}>L.Riaz, MD</div>
+                        <div style={{ width: 50, height: 60, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 6, width: "100%", textAlign: "center", padding: "2px 0", borderRadius: 2 }}>MAYO</div>
+                            <div style={{ width: 18, height: 18, borderRadius: 9, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 7, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
+                            <div style={{ fontSize: 5, color: "var(--c-text-mute)", textAlign: "center" }}>L.Riaz, MD</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: 14, fontWeight: 500, color: "#222", marginBottom: 6 }}>Don't have an NFC badge?</div>
-                            <div style={{ fontSize: 13, color: "#666", lineHeight: 1.4 }}>Visit the Mayo ID office (Gonda 2-200) or sign in with your password on the left.</div>
+                            <div style={{ fontSize: 14, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 6 }}>Don't have an NFC badge?</div>
+                            <div style={{ fontSize: 13, color: "var(--c-text-mute)", lineHeight: 1.4 }}>Visit the Mayo ID office (Gonda 2-200) or sign in with your password on the left.</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Absolute Bottom Footer */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 60px", fontSize: 11, color: "#888", display: "flex", justifyContent: "space-between", pointerEvents: "auto", background: "transparent" }}>
+            {/* Absolute Bottom Footer - now hidden on small screens so it doesn't overlap */}
+            <div className="footer-links" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 60px", fontSize: 11, color: "var(--c-text-soft)", display: "flex", justifyContent: "space-between", pointerEvents: "auto", background: "transparent" }}>
+                <style>{`
+                  @media (max-width: 1024px) {
+                    .footer-links { display: none !important; }
+                  }
+                `}</style>
                 <div>© Mayo Clinic · Authorized users only. Access is monitored and logged for HIPAA compliance.</div>
                 <div style={{ display: "flex", gap: 24 }}>
                     <span style={{ cursor: "pointer" }}>Privacy</span>

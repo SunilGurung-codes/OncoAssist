@@ -22,19 +22,7 @@ export default function App() {
         }
     }, [theme]);
 
-    useEffect(() => {
-        const r = () => {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            if (!w || !h) return;
-            const s = Math.min(w / 1440, h / 900);
-            document.documentElement.style.setProperty("--scale", s);
-        };
-        r();
-        requestAnimationFrame(r);
-        window.addEventListener("resize", r);
-        return () => window.removeEventListener("resize", r);
-    }, []);
+
 
     const nav = s => setScreen(s);
     const tabFromScreen = { notes: "Notes", labs: "Labs", imaging: "Imaging" }[screen];
