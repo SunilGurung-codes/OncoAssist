@@ -15,7 +15,7 @@ export function CopilotScreen({ onNav, initialTab }) {
     ]);
     return <div className="stage" data-screen-label={`0${({ Notes: 3, Labs: 4, Imaging: 5 })[tab]} Co-pilot · ${tab}`}>
         <TopBar />
-        <div style={{ height: 852, display: "flex" }}>
+        <div className="screen-body">
             <LeftPanel />
             <CopilotCenter onNav={onNav} tab={tab} setTab={setTab} initial={initial} />
             <RightPanel tab={tab} onTab={setTab} />
@@ -36,8 +36,8 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
     };
     const steps = [{ tag: "Q1", q: "Does the PSA drop confirm early Enzalutamide response?" }, { tag: "Q2", q: "Recommended monitoring cadence on Enzalutamide?" }, { tag: "Q3", q: "Any dose adjustments needed given LH/FSH suppression?" }];
 
-    return <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#fff", minWidth: 0 }}>
-        <div style={{ height: 44, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
+    return <div className="panel-main" style={{ background: "#fff" }}>
+        <div style={{ minHeight: 44, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", padding: "8px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 12, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                 <span style={{ color: "var(--c-text-ghost)" }}>/</span>

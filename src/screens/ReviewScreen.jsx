@@ -9,8 +9,8 @@ export function ReviewScreen({ onNav }) {
 
     return <div className="stage" data-screen-label="06 Review">
         <TopBar />
-        <div style={{ height: 852, display: "flex" }}>
-            <div style={{ width: 300, background: "#fff", borderRight: "0.5px solid var(--c-border)" }}>
+        <div className="screen-body">
+            <div className="panel-left" style={{ width: 300 }}>
                 <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 8 }}>
                     <span onClick={() => onNav("notes")} style={{ cursor: "pointer" }}>{Icon.chevLeft({ s: 14 })}</span>
                     <div style={{ fontSize: 13, fontWeight: 500 }}>Review & sign</div>
@@ -32,7 +32,7 @@ export function ReviewScreen({ onNav }) {
                 </div>
             </div>
 
-            <div className="scroll" style={{ flex: 1, background: "var(--c-bg)", overflowY: "auto", padding: "24px 40px" }}>
+            <div className="panel-main scroll" style={{ background: "var(--c-bg)", overflowY: "auto", padding: "24px 40px" }}>
                 <div style={{ maxWidth: 720, margin: "0 auto", background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, padding: "36px 44px", fontSize: 13, lineHeight: 1.6 }}>
                     <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
                     <div style={{ fontSize: 18, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
@@ -53,7 +53,7 @@ export function ReviewScreen({ onNav }) {
                 </div>
             </div>
 
-            <div style={{ width: 340, borderLeft: "0.5px solid var(--c-border)", background: "#fff", display: "flex", flexDirection: "column" }}>
+            <div className="panel-side" style={{ background: "#fff" }}>
                 <div style={{ padding: "14px 16px", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>Review checklist</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>

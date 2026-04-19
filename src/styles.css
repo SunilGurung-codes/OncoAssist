@@ -157,6 +157,66 @@ textarea {
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+}
+
+.panel-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-side,
+.panel-left {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.panel-side {
+  width: 340px;
+  border-left: 0.5px solid var(--c-border-faint);
+  background: #FCFCFA;
+}
+
+.panel-left {
+  width: 320px;
+  border-right: 0.5px solid var(--c-border-faint);
+  background: #fff;
+}
+
+@media (max-width: 1024px) {
+  .screen-body {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .panel-side,
+  .panel-left {
+    width: 100% !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: 0.5px solid var(--c-border-faint);
+    flex: none;
+  }
+
+  /* Make Patient greeting strip stack on phone */
+  .greeting-strip {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
 }
 
 .login-container {

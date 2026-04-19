@@ -17,8 +17,8 @@ export function InitialScreen({ onNav, onEnterNotes }) {
 
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar />
-        <div style={{ height: 852, display: "flex" }}>
-            <div style={{ width: 320, background: "#fff", borderRight: "0.5px solid var(--c-border)", display: "flex", flexDirection: "column" }}>
+        <div className="screen-body">
+            <div className="panel-left">
                 <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
                     <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
                     <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · Visit Apr 17</div></div>
@@ -64,8 +64,8 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                 </div>}
             </div>
 
-            <div style={{ flex: 1, background: "#fff" }}>
-                <div style={{ height: 44, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", padding: "0 16px" }}>
+            <div className="panel-main">
+                <div style={{ minHeight: 44, padding: "8px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
                     <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 12, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                     <span style={{ color: "var(--c-text-ghost)", margin: "0 8px" }}>/</span>
                     <span style={{ fontSize: 12, fontWeight: 500 }}>James Park · Visit</span>

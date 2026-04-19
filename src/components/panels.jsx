@@ -10,7 +10,7 @@ export function LeftPanel() {
     const [c, setC] = useState({ flags: false, psa: false, labs: false, note: false });
     const tog = k => setC(x => ({ ...x, [k]: !x[k] }));
     return (
-        <div style={{ width: 320, background: "#fff", borderRight: "0.5px solid var(--c-border)", display: "flex", flexDirection: "column", height: "100%" }}>
+        <div className="panel-left">
             <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
                 <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
                 <div style={{ flex: 1 }}>
@@ -109,8 +109,8 @@ function PSAChart() {
 // Right panel
 export function RightPanel({ tab, onTab, onDragNote }) {
     const tabs = ["Notes", "Labs", "Imaging"];
-    return <div style={{ width: 360, height: "100%", background: "#fff", borderLeft: "0.5px solid var(--c-border)", display: "flex", flexDirection: "column" }}>
-        <div style={{ height: 36, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex" }}>
+    return <div className="panel-side" style={{ width: 360, background: "#fff" }}>
+        <div style={{ minHeight: 36, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", flexWrap: "wrap" }}>
             {tabs.map(t => <div key={t} onClick={() => onTab(t)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none" }}>
                 {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
                 {t}

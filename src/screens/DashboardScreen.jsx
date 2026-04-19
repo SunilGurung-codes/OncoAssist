@@ -27,7 +27,7 @@ export function DashboardScreen({ onOpen }) {
             <TopBar active="Dashboard" variant="dashboard" />
 
             {/* Greeting strip */}
-            <div style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+            <div className="greeting-strip" style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                 <div>
                     <div style={{ fontSize: 11, color: "var(--c-text-faint)", letterSpacing: "0.06em", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
                     <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", color: "var(--c-text)" }}>Good morning, Dr. Riaz</div>
@@ -39,12 +39,12 @@ export function DashboardScreen({ onOpen }) {
                 </div>
             </div>
 
-            <div style={{ display: "flex", height: "calc(900px - 52px - 89px)" }}>
+            <div className="screen-body">
                 {/* Main */}
-                <div style={{ flex: 1, padding: "20px 40px 24px", display: "flex", flexDirection: "column", gap: 20, overflow: "hidden" }}>
+                <div className="panel-main" style={{ padding: "20px 40px 24px", gap: 20 }}>
 
                     {/* Stat cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
                         <StatCard tone="red" label="Urgent attention" value="1" sub="James Park · CRPC f/u" />
                         <StatCard tone="amber" label="Pending labs" value="3" sub="Results expected today" />
                         <StatCard tone="blue" label="New referrals" value="1" sub="D. Nakamura · biopsy review" />
@@ -53,8 +53,8 @@ export function DashboardScreen({ onOpen }) {
 
                     {/* Patient list */}
                     <div className="card" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1 }}>
-                        <div style={{ height: 40, padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ minHeight: 40, padding: "8px 16px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10, background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
                                 {filters.map(f => (
                                     <span key={f.k} onClick={() => setFilter(f.k)} style={{
                                         padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer",
@@ -67,20 +67,24 @@ export function DashboardScreen({ onOpen }) {
                             <div style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Today · April 17</div>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "8px 16px", fontSize: 10, color: "var(--c-text-faint)", letterSpacing: "0.05em", fontWeight: 500, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "#FCFCFA" }}>
-                            <div>Patient</div><div>Diagnosis</div><div>Status</div><div>Time</div><div />
-                        </div>
+                        <div className="scroll" style={{ overflowX: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
+                            <div style={{ minWidth: 680, display: "flex", flexDirection: "column", flex: 1 }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "8px 16px", fontSize: 10, color: "var(--c-text-faint)", letterSpacing: "0.05em", fontWeight: 500, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "#FCFCFA" }}>
+                                    <div>Patient</div><div>Diagnosis</div><div>Status</div><div>Time</div><div />
+                                </div>
 
-                        <div style={{ overflowY: "auto", flex: 1 }} className="scroll">
-                            {filtered.map((p, i) => (
-                                <PatientRow key={p.mrn} p={p} first={i === 0} onOpen={() => onOpen(p)} />
-                            ))}
+                                <div style={{ overflowY: "auto", flex: 1 }} className="scroll">
+                                    {filtered.map((p, i) => (
+                                        <PatientRow key={p.mrn} p={p} first={i === 0} onOpen={() => onOpen(p)} />
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Side */}
-                <div style={{ width: 340, borderLeft: "0.5px solid var(--c-border-faint)", background: "#FCFCFA", padding: "20px 24px", overflow: "auto" }} className="scroll">
+                <div className="panel-side scroll" style={{ padding: "20px 24px" }}>
                     <div className="label-xs" style={{ marginBottom: 10 }}>APRIL 2026</div>
                     <Calendar />
 
