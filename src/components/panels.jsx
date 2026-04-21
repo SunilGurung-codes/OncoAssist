@@ -108,20 +108,49 @@ function PSAChart() {
 
 // Right panel
 export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
-    const defaultTabs = ["Notes", "Labs", "Imaging"];
-    const tabs = defaultTabs.includes(tab) ? defaultTabs : [...defaultTabs, tab];
+    const [tabs, setTabs] = useState(["Notes", "Labs", "Imaging"]);
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
-    const availableModules = ["Pathology", "Genomics", "Vitals", "Flowsheets", "Timeline", "Care Guidelines"].filter(m => m.toLowerCase().includes(addQuery.toLowerCase()));
+    const availableModules = ["Pathology", "Genomics", "Vitals", "Flowsheets", "Timeline", "Care Guidelines", "WBC Count"].filter(m => m.toLowerCase().includes(addQuery.toLowerCase()) && !tabs.includes(m));
+    const [draggedIdx, setDraggedIdx] = useState(null);
+    const holdTimer = useRef(null);
+
+    // Make sure the active tab is actually selected if a new one is pinned
+    useEffect(() => {
+        if (tab && !tabs.includes(tab)) setTabs([...tabs, tab]);
+    }, [tab]);
+
+    const handleHold = (t) => {
+        holdTimer.current = setTimeout(() => {
+            if (window.confirm(`Are you sure you want to remove the '${t}' module?`)) {
+                const updated = tabs.filter(x => x !== t);
+                setTabs(updated);
+                if (tab === t) onTab(updated[0] || "");
+            }
+        }, 1500); // 1.5s hold (feels better than 3s in modern UX, but serves the same purpose)
+    };
+    const cancelHold = () => clearTimeout(holdTimer.current);
+
+    const onDropTab = (idx) => {
+        if (draggedIdx === null) return;
+        const newTabs = [...tabs];
+        const [moved] = newTabs.splice(draggedIdx, 1);
+        newTabs.splice(idx, 0, moved);
+        setTabs(newTabs);
+        setDraggedIdx(null);
+    };
 
     return <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
         {collapsed ? (
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
                 <div onClick={onToggle} style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
-                    <div onClick={() => { onToggle && onToggle(); onTab("Notes"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.file({ s: 16 })} <span style={{ fontSize: 9 }}>Note</span></div>
-                    <div onClick={() => { onToggle && onToggle(); onTab("Labs"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.lab({ s: 16 })} <span style={{ fontSize: 9 }}>Lab</span></div>
-                    <div onClick={() => { onToggle && onToggle(); onTab("Imaging"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.scan({ s: 16 })} <span style={{ fontSize: 9 }}>Img</span></div>
+                    {tabs.map((t, i) => (
+                        <div key={t} onClick={() => { onToggle && onToggle(); onTab(t); }} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                            {t === "Notes" ? Icon.file({ s: 16 }) : t === "Labs" ? Icon.lab({ s: 16 }) : t === "Imaging" ? Icon.scan({ s: 16 }) : Icon.sparkle({ s: 16 })}
+                            <span style={{ fontSize: 9, textAlign: "center", maxWidth: 50, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.substring(0, 4)}</span>
+                        </div>
+                    ))}
                     <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
                         {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
                         {showAddPopup && (
@@ -146,12 +175,23 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
             <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
                 <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
                     <div onClick={onToggle} style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
-                    <div style={{ flex: 1, display: "flex", marginLeft: 32 }}>
-                        {tabs.map(t => <div key={t} onClick={() => onTab(t)} style={{ flex: 1, height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none" }}>
-                            {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
-                            {t}
-                        </div>)}
-                        <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
+                    <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
+                        {tabs.map((t, idx) =>
+                            <div key={t}
+                                draggable
+                                onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => onDropTab(idx)}
+                                onPointerDown={() => handleHold(t)}
+                                onPointerUp={cancelHold}
+                                onPointerLeave={cancelHold}
+                                onClick={() => onTab(t)}
+                                style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
+                                {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
+                                {t}
+                            </div>
+                        )}
+                        <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, flexShrink: 0, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
                             {Icon.plus({ s: 16 })}
                             {showAddPopup && (
                                 <div style={{ position: "absolute", top: 48, right: 8, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
