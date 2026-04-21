@@ -118,6 +118,7 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                     <div onClick={() => { onToggle && onToggle(); onTab("Notes"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.file({ s: 16 })} <span style={{ fontSize: 9 }}>Note</span></div>
                     <div onClick={() => { onToggle && onToggle(); onTab("Labs"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.lab({ s: 16 })} <span style={{ fontSize: 9 }}>Lab</span></div>
                     <div onClick={() => { onToggle && onToggle(); onTab("Imaging"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.scan({ s: 16 })} <span style={{ fontSize: 9 }}>Img</span></div>
+                    <div style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8 }}>{Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span></div>
                 </div>
             </div>
         ) : (
@@ -129,6 +130,9 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                             {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
                             {t}
                         </div>)}
+                        <div style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none" }}>
+                            {Icon.plus({ s: 16 })}
+                        </div>
                     </div>
                 </div>
                 <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
