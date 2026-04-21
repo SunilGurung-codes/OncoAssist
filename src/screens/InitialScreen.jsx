@@ -29,7 +29,16 @@ export function InitialScreen({ onNav, onEnterNotes }) {
     const tr = data.transcript;
     useEffect(() => { let id; if (state === "recording") id = setInterval(() => setElapsed(e => e + 1), 1000); return () => clearInterval(id); }, [state]);
     useEffect(() => { if (state !== "recording") return; const t = setInterval(() => setVis(v => Math.min(v + 1, tr.length)), 1500); return () => clearInterval(t); }, [state, tr]);
-    useEffect(() => { if (state === "generating") { const t = setTimeout(() => setState("drafted"), 2200); return () => clearTimeout(t); } }, [state]);
+    useEffect(() => {
+        if (state === "generating") {
+            const t = setTimeout(() => {
+                setState("drafted");
+                const draftText = "**DRAFTED NOTE:**\n\n**S:** Mild fatigue, 3 hot flashes/wk.\n**O:** PSA 16.2 (↓), Test < 50. Hgb 12.8.\n**A:** M0 CRPC, early response to Enza.\n**P:** Continue 160mg QD, recheck 4 wks.";
+                setMessages(m => [...m, { role: "ai", text: draftText, t: "now", cites: [] }]);
+            }, 2200);
+            return () => clearTimeout(t);
+        }
+    }, [state]);
     const fmt = s => `00:${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
     const start = () => { setElapsed(0); setVis(0); setState("recording"); };
 
@@ -152,7 +161,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
 
             </div>
             {/* Adding Right Panel for Clinical Context */}
-            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} />
+            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} />
         </div>
     </div>;
 }

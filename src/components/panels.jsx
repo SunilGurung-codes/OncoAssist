@@ -107,7 +107,7 @@ function PSAChart() {
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
+export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
     const [tabs, setTabs] = useState(["Notes", "Labs", "Imaging"]);
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
@@ -196,9 +196,9 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                             </div>
                         </div>
                         <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
-                            {tab === "Notes" ? <NotesTab onDragNote={onDragNote} /> : null}
-                            {tab === "Labs" ? <LabsTab /> : null}
-                            {tab === "Imaging" ? <ImagingTab /> : null}
+                            {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} /> : null}
+                            {tab === "Labs" ? <LabsTab onAddToChat={onAddToChat} /> : null}
+                            {tab === "Imaging" ? <ImagingTab onAddToChat={onAddToChat} /> : null}
                             {!["Notes", "Labs", "Imaging"].includes(tab) && (
                                 <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
                                     <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
@@ -233,7 +233,7 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
     );
 }
 
-function NotesTab({ onDragNote }) {
+function NotesTab({ onAddToChat }) {
     const [f, setF] = useState("All");
     const [q, setQ] = useState("");
     const chips = ["All", "PSA", "Recent", "Oncology", "Urology", "Radiology", "ER", "Lab"];
@@ -254,7 +254,7 @@ function NotesTab({ onDragNote }) {
         <div style={{ padding: "6px 10px", background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", gap: 4 }}>
             {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "3px 7px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "#fff", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
         </div>
-        {notes.map(n => <NoteRow key={n.id} n={n} onDragNote={onDragNote} />)}
+        {notes.map(n => <NoteRow key={n.id} n={n} onAddToChat={onAddToChat} />)}
         <div style={{ padding: "10px 12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
             <button className="btn btn-primary lg" style={{ width: "100%" }}>Edit Note</button>
             <button className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Note</button>
@@ -262,7 +262,7 @@ function NotesTab({ onDragNote }) {
     </div>;
 }
 
-function NoteRow({ n, onDragNote }) {
+function NoteRow({ n, onAddToChat }) {
     const dt = { Oncology: "purple", Radiology: "blue", Urology: "blue", Lab: "green", ER: "red", Pharmacy: "amber", "Primary Care": "neutral" }[n.dept] || "neutral";
     return <div draggable
         onDragStart={e => { e.dataTransfer.setData("application/json", JSON.stringify({ kind: "note", id: n.id, label: n.type })); e.currentTarget.classList.add("dragging"); }}
@@ -276,12 +276,12 @@ function NoteRow({ n, onDragNote }) {
             </div>
             <div style={{ fontSize: 10, color: "var(--c-text-faint)", marginBottom: 4 }}>{n.author}{n.cosign ? ` · ${n.cosign}` : ""} · {n.date}</div>
             <div style={{ fontSize: 11, color: "var(--c-text-mute)", lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.preview}</div>
-            <div style={{ marginTop: 8 }}><span className="micro" onClick={() => onDragNote && onDragNote({ kind: "note", id: n.id, label: n.type })}>+ Add to chat</span></div>
+            <div style={{ marginTop: 8 }}><span className="micro" onClick={() => onAddToChat && onAddToChat({ kind: "note", id: n.id, label: n.type })}>+ Add to chat</span></div>
         </div>
     </div>;
 }
 
-function LabsTab() {
+function LabsTab({ onAddToChat }) {
     const { labsCBC, labsPSA } = data;
     return <div>
         <div style={{ padding: "10px 12px" }}>
@@ -291,7 +291,7 @@ function LabsTab() {
             <LabTable rows={labsPSA.rows} />
             <div style={{ marginTop: 10, borderRadius: 6, background: "#E1F5EE", border: "0.5px solid #A8D9C5", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
         </div>
-        <div style={{ padding: "10px 12px 14px" }}><button className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add to chat</button></div>
+        <div style={{ padding: "10px 12px 14px" }}><button onClick={() => onAddToChat && onAddToChat({ kind: "lab", label: "PSA + Hormonal Panel" })} className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Panel to Chat</button></div>
     </div>;
 }
 
@@ -312,7 +312,7 @@ function LabTable({ rows }) {
     </div>;
 }
 
-function ImagingTab() {
+function ImagingTab({ onAddToChat }) {
     return <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
         {data.imaging.map(im => <div key={im.id} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, overflow: "hidden" }}>
             <div style={{ height: 88, background: "linear-gradient(135deg,#E8EFF7,#D4E1F0)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
@@ -327,6 +327,7 @@ function ImagingTab() {
                 <div className="label-xs" style={{ marginBottom: 2 }}>IMPRESSION</div>
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.impression}</div>
                 <div style={{ background: "#EDF3FB", border: "0.5px solid #C4D9F0", borderRadius: 6, padding: "6px 8px", fontSize: 11, color: "var(--c-blue-deep)" }}><b>Note:</b> {im.note}</div>
+                <div style={{ marginTop: 12 }}><span className="micro" onClick={() => onAddToChat && onAddToChat({ kind: "imaging", label: im.type })} style={{ cursor: "pointer" }}>+ Add to chat</span></div>
             </div>
         </div>)}
     </div>;
