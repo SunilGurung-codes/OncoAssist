@@ -151,12 +151,11 @@ textarea {
 .stage {
   width: 100%;
   max-width: none;
-  min-height: 100vh;
+  height: 100vh;
   margin: 0;
   background: var(--c-bg);
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -166,6 +165,8 @@ textarea {
   display: flex;
   flex-direction: row;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .panel-main {
@@ -197,9 +198,17 @@ textarea {
 }
 
 @media (max-width: 1024px) {
+  .stage {
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+  }
+
   .screen-body {
     flex-direction: column;
     min-height: auto;
+    height: auto;
+    overflow: visible;
   }
 
   .panel-side,
