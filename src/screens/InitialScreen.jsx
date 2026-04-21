@@ -3,9 +3,11 @@ import { data } from "../data.js";
 import { TopBar } from "../components/ui/TopBar.jsx";
 import { Icon } from "../components/ui/Icon.jsx";
 import { Chip } from "../components/ui/Chip.jsx";
+import { RightPanel } from "../components/panels.jsx";
 
 export function InitialScreen({ onNav, onEnterNotes }) {
     const [state, setState] = useState("ready");
+    const [tab, setTab] = useState("Notes");
     const [elapsed, setElapsed] = useState(0);
     const [vis, setVis] = useState(0);
     const tr = data.transcript;
@@ -58,7 +60,12 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                     <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8 }}>NOTE DRAFTED · AWAITING REVIEW</div>
                     <div style={{ background: "#fff", border: "0.5px solid #C4D9F0", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
-                        <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5 }}>67M with M0 CRPC, Day 14 Enzalutamide. Mild fatigue, HF ~3/wk. PSA 16.2 (↓). Plan: continue, recheck May 15.</div>
+                        <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5 }}>
+                            <b>S:</b> Mild fatigue, 3 hot flashes/wk. <br />
+                            <b>O:</b> PSA 16.2 (↓), Test {"<"} 50. Hgb 12.8.<br />
+                            <b>A:</b> M0 CRPC, early response to Enza.<br />
+                            <b>P:</b> Continue 160mg QD, recheck 4 wks.
+                        </div>
                     </div>
                     <button className="btn btn-primary lg" style={{ width: "100%", marginBottom: 6 }} onClick={() => onNav("review")}>Review & sign →</button>
                 </div>}
@@ -85,6 +92,8 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                     </div>
                 </div>
             </div>
+            {/* Adding Right Panel for Clinical Context */}
+            <RightPanel tab={tab} onTab={setTab} />
         </div>
     </div>;
 }

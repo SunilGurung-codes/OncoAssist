@@ -37,9 +37,9 @@ export function ReviewScreen({ onNav }) {
                     <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
                     <div style={{ fontSize: 18, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginBottom: 20 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
-                    <H>Interval history</H>
+                    <H>Subjective</H>
                     <p><Hl k="amb">Patient tolerating Enzalutamide 160mg QD. Mild fatigue, 3 hot flashes/week. No falls, no seizure activity.</Hl> <Hl k="edit">Denies bone pain or LUTS.</Hl></p>
-                    <H>Results</H>
+                    <H>Objective</H>
                     <p><Hl k="auto">PSA 16.2 ng/mL (Apr 17) — ↓ from 18.4. Testosterone {"<"} 50. Hgb 12.8. LH 0.8, FSH 1.4 (expected suppression).</Hl></p>
                     <H>Assessment</H>
                     <p><Hl k="amb">M0 CRPC, early biochemical response to Enzalutamide.</Hl> <Hl k="edit">12% PSA decline at Day 14 consistent with PCWG3 response.</Hl></p>
