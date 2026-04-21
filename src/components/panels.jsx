@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { data } from "../data.js";
 import { SectionHeader } from "./ui/SectionHeader.jsx";
 import { Chip } from "./ui/Chip.jsx";
