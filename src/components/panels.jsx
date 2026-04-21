@@ -107,20 +107,37 @@ function PSAChart() {
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onDragNote }) {
+export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
     const tabs = ["Notes", "Labs", "Imaging"];
-    return <div className="panel-side" style={{ width: 360, background: "#fff" }}>
-        <div style={{ minHeight: 36, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", flexWrap: "wrap" }}>
-            {tabs.map(t => <div key={t} onClick={() => onTab(t)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none" }}>
-                {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
-                {t}
-            </div>)}
-        </div>
-        <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
-            {tab === "Notes" && <NotesTab onDragNote={onDragNote} />}
-            {tab === "Labs" && <LabsTab />}
-            {tab === "Imaging" && <ImagingTab />}
-        </div>
+
+    return <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
+        {collapsed ? (
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
+                <div onClick={onToggle} style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
+                    <div onClick={() => { onToggle && onToggle(); onTab("Notes"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.file({ s: 16 })} <span style={{ fontSize: 9 }}>Note</span></div>
+                    <div onClick={() => { onToggle && onToggle(); onTab("Labs"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.lab({ s: 16 })} <span style={{ fontSize: 9 }}>Lab</span></div>
+                    <div onClick={() => { onToggle && onToggle(); onTab("Imaging"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.scan({ s: 16 })} <span style={{ fontSize: 9 }}>Img</span></div>
+                </div>
+            </div>
+        ) : (
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
+                <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
+                    <div onClick={onToggle} style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
+                    <div style={{ flex: 1, display: "flex", marginLeft: 32 }}>
+                        {tabs.map(t => <div key={t} onClick={() => onTab(t)} style={{ flex: 1, height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none" }}>
+                            {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
+                            {t}
+                        </div>)}
+                    </div>
+                </div>
+                <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
+                    {tab === "Notes" && <NotesTab onDragNote={onDragNote} />}
+                    {tab === "Labs" && <LabsTab />}
+                    {tab === "Imaging" && <ImagingTab />}
+                </div>
+            </div>
+        )}
     </div>;
 }
 
