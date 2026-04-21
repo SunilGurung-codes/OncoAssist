@@ -115,7 +115,6 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
     const [draggedIdx, setDraggedIdx] = useState(null);
     const holdTimer = useRef(null);
 
-    // Make sure the active tab is actually selected if a new one is pinned
     useEffect(() => {
         if (tab && !tabs.includes(tab)) setTabs([...tabs, tab]);
     }, [tab]);
@@ -127,7 +126,7 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                 setTabs(updated);
                 if (tab === t) onTab(updated[0] || "");
             }
-        }, 1500); // 1.5s hold (feels better than 3s in modern UX, but serves the same purpose)
+        }, 1500);
     };
     const cancelHold = () => clearTimeout(holdTimer.current);
 
@@ -140,104 +139,98 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
         setDraggedIdx(null);
     };
 
-    return <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
-        {collapsed ? (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
-                <div onClick={onToggle} style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
-                    {tabs.map((t, i) => (
-                        <div key={t} onClick={() => { onToggle && onToggle(); onTab(t); }} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                            {t === "Notes" ? Icon.file({ s: 16 }) : t === "Labs" ? Icon.lab({ s: 16 }) : t === "Imaging" ? Icon.scan({ s: 16 }) : Icon.sparkle({ s: 16 })}
-                            <span style={{ fontSize: 9, textAlign: "center", maxWidth: 50, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.substring(0, 4)}</span>
-                        </div>
-                    ))}
-                    <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
-                        {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
-                    </div>
-                </div>
-            </div>
-            {showAddPopup && (
-            <>
-                <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
-                <div style={{ position: "absolute", top: 16, right: 64, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
-                        {Icon.search({ s: 14 })}
-                        <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
-                        <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
-                        {availableModules.map(m =>
-                            <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent" }}>
-                                <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+    return (
+        <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
+            {collapsed ? (
+                <>
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
+                        <div onClick={onToggle} style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
+                            {tabs.map((t, i) => (
+                                <div key={t} onClick={() => { onToggle && onToggle(); onTab(t); }} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                                    {t === "Notes" ? Icon.file({ s: 16 }) : t === "Labs" ? Icon.lab({ s: 16 }) : t === "Imaging" ? Icon.scan({ s: 16 }) : Icon.sparkle({ s: 16 })}
+                                    <span style={{ fontSize: 9, textAlign: "center", maxWidth: 50, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.substring(0, 4)}</span>
+                                </div>
+                            ))}
+                            <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
+                                {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
                             </div>
-                        )}
-                        {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
-                    </div>
-                </div>
-            </>
-        )}
-        ) : (
-        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
-            <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
-                <div onClick={onToggle} style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
-                <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
-                    {tabs.map((t, idx) =>
-                        <div key={t}
-                            draggable
-                            onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={() => onDropTab(idx)}
-                            onPointerDown={() => handleHold(t)}
-                            onPointerUp={cancelHold}
-                            onPointerLeave={cancelHold}
-                            onClick={() => onTab(t)}
-                            style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
-                            {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
-                            {t}
                         </div>
+                    </div>
+                    {showAddPopup && (
+                        <>
+                            <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
+                            <div style={{ position: "absolute", top: 16, right: 64, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
+                                    {Icon.search({ s: 14 })}
+                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
+                                    <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
+                                    {availableModules.map(m =>
+                                        <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                        </div>
+                                    )}
+                                    {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
+                                </div>
+                            </div>
+                        </>
                     )}
-                    <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, flexShrink: 0, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
-                        {Icon.plus({ s: 16 })}
-                    </div>
-                </div>
-                {showAddPopup && (
-                    <>
-                        <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
-                        <div style={{ position: "absolute", top: 48, right: 16, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
-                                {Icon.search({ s: 14 })}
-                                <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
-                                <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
-                                {availableModules.map(m =>
-                                    <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent" }}>
-                                        <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                </>
+            ) : (
+                <>
+                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
+                        <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
+                            <div onClick={onToggle} style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
+                            <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
+                                {tabs.map((t, idx) =>
+                                    <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
+                                        {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
+                                        {t}
                                     </div>
                                 )}
-                                {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
+                                <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, flexShrink: 0, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
+                                    {Icon.plus({ s: 16 })}
+                                </div>
                             </div>
                         </div>
-                    </>
-                )}
-            </div>
-        </div>
-        <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
-            {showAddPopup && <div style={{ position: "absolute", inset: 0, zIndex: 90 }} onClick={() => setShowAddPopup(false)} />}
-            {tab === "Notes" ? <NotesTab onDragNote={onDragNote} /> : null}
-            {tab === "Labs" ? <LabsTab /> : null}
-            {tab === "Imaging" ? <ImagingTab /> : null}
-            {!["Notes", "Labs", "Imaging"].includes(tab) && (
-                <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
-                    <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
-                    <b>{tab}</b> module successfully pinned.<br />Patient history is synchronizing...
-                </div>
+                        <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
+                            {tab === "Notes" ? <NotesTab onDragNote={onDragNote} /> : null}
+                            {tab === "Labs" ? <LabsTab /> : null}
+                            {tab === "Imaging" ? <ImagingTab /> : null}
+                            {!["Notes", "Labs", "Imaging"].includes(tab) && (
+                                <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
+                                    <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
+                                    <b>{tab}</b> module pinned.<br />History synchronizing...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {showAddPopup && (
+                        <>
+                            <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
+                            <div style={{ position: "absolute", top: 48, right: 16, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
+                                    {Icon.search({ s: 14 })}
+                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
+                                    <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
+                                    {availableModules.map(m =>
+                                        <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                        </div>
+                                    )}
+                                    {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </>
             )}
         </div>
-    </div>
-        )
-}
-    </div >;
+    );
 }
 
 function NotesTab({ onDragNote }) {
