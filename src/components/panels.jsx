@@ -108,7 +108,11 @@ function PSAChart() {
 
 // Right panel
 export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
-    const tabs = ["Notes", "Labs", "Imaging"];
+    const defaultTabs = ["Notes", "Labs", "Imaging"];
+    const tabs = defaultTabs.includes(tab) ? defaultTabs : [...defaultTabs, tab];
+    const [showAddPopup, setShowAddPopup] = useState(false);
+    const [addQuery, setAddQuery] = useState("");
+    const availableModules = ["Pathology", "Genomics", "Vitals", "Flowsheets", "Timeline", "Care Guidelines"].filter(m => m.toLowerCase().includes(addQuery.toLowerCase()));
 
     return <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
         {collapsed ? (
@@ -118,7 +122,24 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                     <div onClick={() => { onToggle && onToggle(); onTab("Notes"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.file({ s: 16 })} <span style={{ fontSize: 9 }}>Note</span></div>
                     <div onClick={() => { onToggle && onToggle(); onTab("Labs"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.lab({ s: 16 })} <span style={{ fontSize: 9 }}>Lab</span></div>
                     <div onClick={() => { onToggle && onToggle(); onTab("Imaging"); }} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>{Icon.scan({ s: 16 })} <span style={{ fontSize: 9 }}>Img</span></div>
-                    <div style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8 }}>{Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span></div>
+                    <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
+                        {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
+                        {showAddPopup && (
+                            <div style={{ position: "absolute", top: 0, left: 32, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
+                                    {Icon.search({ s: 12 })}
+                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                    {availableModules.map(m =>
+                                        <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
+                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         ) : (
@@ -130,15 +151,37 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                             {t === "Notes" && Icon.file({ s: 12 })}{t === "Labs" && Icon.lab({ s: 12 })}{t === "Imaging" && Icon.scan({ s: 12 })}
                             {t}
                         </div>)}
-                        <div style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none" }}>
+                        <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
                             {Icon.plus({ s: 16 })}
+                            {showAddPopup && (
+                                <div style={{ position: "absolute", top: 48, right: 8, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
+                                        {Icon.search({ s: 12 })}
+                                        <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column" }}>
+                                        {availableModules.map(m =>
+                                            <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
+                                                <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
-                <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
+                <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
+                    {showAddPopup && <div style={{ position: "absolute", inset: 0, zIndex: 90 }} onClick={() => setShowAddPopup(false)} />}
                     {tab === "Notes" && <NotesTab onDragNote={onDragNote} />}
                     {tab === "Labs" && <LabsTab />}
                     {tab === "Imaging" && <ImagingTab />}
+                    {!defaultTabs.includes(tab) && (
+                        <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
+                            <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
+                            <b>{tab}</b> module successfully pinned.<br />Patient history is synchronizing...
+                        </div>
+                    )}
                 </div>
             </div>
         )}
