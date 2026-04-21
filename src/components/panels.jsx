@@ -213,10 +213,10 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                 </div>
                 <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
                     {showAddPopup && <div style={{ position: "absolute", inset: 0, zIndex: 90 }} onClick={() => setShowAddPopup(false)} />}
-                    {tab === "Notes" && <NotesTab onDragNote={onDragNote} />}
-                    {tab === "Labs" && <LabsTab />}
-                    {tab === "Imaging" && <ImagingTab />}
-                    {!defaultTabs.includes(tab) && (
+                    {tab === "Notes" ? <NotesTab onDragNote={onDragNote} /> : null}
+                    {tab === "Labs" ? <LabsTab /> : null}
+                    {tab === "Imaging" ? <ImagingTab /> : null}
+                    {!["Notes", "Labs", "Imaging"].includes(tab) && (
                         <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
                             <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
                             <b>{tab}</b> module successfully pinned.<br />Patient history is synchronizing...
