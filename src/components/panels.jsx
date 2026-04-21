@@ -154,19 +154,23 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                     <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
                         {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
                         {showAddPopup && (
-                            <div style={{ position: "absolute", top: 0, left: 32, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
-                                    {Icon.search({ s: 12 })}
-                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                            <>
+                                <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
+                                <div style={{ position: "absolute", top: 0, right: 48, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
+                                        {Icon.search({ s: 12 })}
+                                        <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", maxHeight: 200, overflowY: "auto" }}>
+                                        {availableModules.map(m =>
+                                            <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
+                                                <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                            </div>
+                                        )}
+                                        {availableModules.length === 0 && <div style={{ padding: 12, textAlign: "center", color: "var(--c-text-mute)", fontSize: 11 }}>No matches found.</div>}
+                                    </div>
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column" }}>
-                                    {availableModules.map(m =>
-                                        <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
-                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                            </>
                         )}
                     </div>
                 </div>
@@ -194,19 +198,23 @@ export function RightPanel({ tab, onTab, onDragNote, collapsed, onToggle }) {
                         <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, flexShrink: 0, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
                             {Icon.plus({ s: 16 })}
                             {showAddPopup && (
-                                <div style={{ position: "absolute", top: 48, right: 8, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
-                                        {Icon.search({ s: 12 })}
-                                        <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                                <>
+                                    <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
+                                    <div style={{ position: "absolute", top: 48, right: 8, width: 220, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 20px rgba(0,0,0,0.15)", padding: 10, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "4px 8px", borderRadius: 6, marginBottom: 8 }}>
+                                            {Icon.search({ s: 12 })}
+                                            <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 12, outline: "none", color: "var(--c-text)" }} />
+                                        </div>
+                                        <div style={{ display: "flex", flexDirection: "column", maxHeight: 200, overflowY: "auto" }}>
+                                            {availableModules.map(m =>
+                                                <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
+                                                    <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                                                </div>
+                                            )}
+                                            {availableModules.length === 0 && <div style={{ padding: 12, textAlign: "center", color: "var(--c-text-mute)", fontSize: 11 }}>No matches found.</div>}
+                                        </div>
                                     </div>
-                                    <div style={{ display: "flex", flexDirection: "column" }}>
-                                        {availableModules.map(m =>
-                                            <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 10px", fontSize: 12, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 8, color: "var(--c-text)", background: "transparent" }}>
-                                                <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                </>
                             )}
                         </div>
                     </div>
