@@ -124,28 +124,47 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
-                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", position: "relative" }}>
+                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", display: "flex", gap: 0 }}>
 
-                        {/* Grok-style visual timeline scrubber */}
-                        <div style={{ position: "fixed", right: 24, top: 120, bottom: 24, width: 24, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <div style={{ width: 1, flex: 1, background: "var(--c-border-soft)", position: "relative" }}>
-                                <div style={{ position: "absolute", top: "10%", left: -4, width: 9, height: 2, background: "var(--c-text-mute)", borderRadius: 1 }} />
-                                <div style={{ position: "absolute", top: "25%", left: -3, width: 7, height: 1, background: "var(--c-border-faint)" }} />
-                                <div style={{ position: "absolute", top: "40%", left: -4, width: 9, height: 2, background: "var(--c-text-mute)", borderRadius: 1 }} />
-                                <div style={{ position: "absolute", top: "65%", left: -3, width: 7, height: 1, background: "var(--c-border-faint)" }} />
-                                <div style={{ position: "absolute", top: "85%", left: -4, width: 9, height: 2, background: "var(--c-blue)", borderRadius: 1 }} />
-                            </div>
+                        {/* Chat messages column */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            {messages.map((m, i) => m.role === "user" ?
+                                <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                                    <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
+                                </div>
+                                : <div key={i} className="fade-in" style={{ marginBottom: 14 }}>
+                                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
+                                    <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                                    {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
+                                    <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
+                                </div>
+                            )}
                         </div>
 
-                        {messages.map((m, i) => m.role === "user" ?
-                            <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                                <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
-                            </div>
-                            : <div key={i} className="fade-in" style={{ marginBottom: 14 }}>
-                                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
-                                <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
-                                {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
-                                <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
+                        {/* Grok-style timeline scrubber — inside the chat column */}
+                        {messages.length > 0 && (
+                            <div style={{ width: 20, flexShrink: 0, marginLeft: 10, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 4, paddingBottom: 4 }}>
+                                <div style={{ width: 1, flex: 1, background: "var(--c-border-soft)", position: "relative" }}>
+                                    {messages.map((m, i) => {
+                                        const pct = messages.length < 2 ? 50 : (i / (messages.length - 1)) * 100;
+                                        return (
+                                            <div key={i} style={{
+                                                position: "absolute",
+                                                top: `${pct}%`,
+                                                left: m.role === "user" ? -5 : -4,
+                                                width: m.role === "user" ? 7 : 9,
+                                                height: m.role === "user" ? 7 : 2,
+                                                borderRadius: m.role === "user" ? "50%" : 1,
+                                                background: m.role === "user" ? "var(--c-text-mute)" : "var(--c-blue)",
+                                                transform: "translateY(-50%)",
+                                                cursor: "pointer",
+                                                transition: "background 0.2s"
+                                            }}
+                                                title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
+                                            />
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
                     </div>
