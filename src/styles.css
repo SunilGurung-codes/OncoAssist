@@ -190,7 +190,7 @@ textarea {
 .panel-side {
   width: 360px;
   border-left: 0.5px solid var(--c-border-faint);
-  background: #FCFCFA;
+  background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
