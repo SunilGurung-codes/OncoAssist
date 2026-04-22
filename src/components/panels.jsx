@@ -107,7 +107,7 @@ function PSAChart() {
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
+export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360 }) {
     const [tabs, setTabs] = useState(["Notes", "Labs", "Imaging"]);
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
@@ -191,7 +191,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
     );
 
     return (
-        <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
+        <div className={`panel-side ${collapsed ? "collapsed" : ""}`} style={{ width: collapsed ? undefined : width, transition: collapsed ? "width 0.3s ease" : "none" }}>
             {collapsed ? (
                 <>
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
@@ -211,7 +211,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                 </>
             ) : (
                 <>
-                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
+                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
                         <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
                             <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
                             <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">

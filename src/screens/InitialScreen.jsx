@@ -12,6 +12,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
     const [tab, setTab] = useState("Notes");
     const [lCol, setLCol] = useState(false);
     const [rCol, setRCol] = useState(false);
+    const [rightW, setRightW] = useState(360);
 
     // Chat state
     const [messages, setMessages] = useState([]);
@@ -54,7 +55,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                         {state === "recording" && <span className="pulse-red" style={{ width: 10, height: 10, borderRadius: 5, background: "var(--c-red)" }} />}
                     </div>
                 ) : (
-                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 320, overflow: "hidden" }}>
+                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
                         <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
                             <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
                             <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · Visit Apr 17</div></div>
@@ -160,9 +161,30 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                 </div>
 
             </div>
+            {!lCol && !rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
             {/* Adding Right Panel for Clinical Context */}
-            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} />
+            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
         </div>
+    </div>;
+}
+
+function Resizer({ onPosChange }) {
+    const handleMouseDown = (e) => {
+        e.preventDefault();
+        const handleMouseMove = (moveEvent) => {
+            onPosChange(moveEvent.clientX);
+        };
+        const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = "default";
+        };
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = "col-resize";
+    };
+    return <div className="resizer" onMouseDown={handleMouseDown} style={{ width: 8, margin: "0 -4px", zIndex: 50, cursor: "col-resize", position: "relative" }}>
+        <div style={{ position: "absolute", left: 3, top: 0, bottom: 0, width: 2, background: "transparent", transition: "background 0.2s" }} className="resizer-bar" />
     </div>;
 }
 
