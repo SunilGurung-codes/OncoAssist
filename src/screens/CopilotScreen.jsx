@@ -36,7 +36,7 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
     };
     const steps = [{ tag: "Q1", q: "Does the PSA drop confirm early Enzalutamide response?" }, { tag: "Q2", q: "Recommended monitoring cadence on Enzalutamide?" }, { tag: "Q3", q: "Any dose adjustments needed given LH/FSH suppression?" }];
 
-    return <div className="panel-main" style={{ background: "#fff" }}>
+    return <div className="panel-main" style={{ background: "var(--c-surface)" }}>
         <div style={{ minHeight: 44, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", padding: "8px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 12, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
@@ -66,16 +66,16 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
                     <div style={{ flex: 1, fontSize: 13 }}>{s.q}</div>
                     <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                 </div>)}
-                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: "#F0F5FC" }}>
+                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: "var(--c-blue-50)" }}>
                     <span style={{ width: 7, height: 7, borderRadius: 4, background: "var(--c-blue)" }} />
                     <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "var(--c-blue-deep)" }}>Help me draft the follow-up note</div>
-                    <span className="micro" style={{ background: "#fff", color: "var(--c-blue-deep)" }} onClick={() => send("Draft follow-up note")}>Run →</span>
+                    <span className="micro" style={{ background: "var(--c-surface)", color: "var(--c-blue-deep)" }} onClick={() => send("Draft follow-up note")}>Run →</span>
                 </div>
             </div>
 
             {messages.map((m, i) => m.role === "user" ?
                 <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                    <div style={{ maxWidth: "74%", background: "#F2F2F0", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
+                    <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
                 </div>
                 : <div key={i} className="fade-in" style={{ marginBottom: 14 }}>
                     <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
@@ -89,7 +89,7 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
         <div style={{ borderTop: "0.5px solid var(--c-border-faint)" }}>
             <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
-                {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "#EDF3FB" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "#C4D9F0" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
+                {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                     {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
                     <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
                 </span>)}
@@ -99,7 +99,7 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
                     <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
                     <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
                     <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
-                    <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
+                    <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
                 </div>
             </div>
         </div>

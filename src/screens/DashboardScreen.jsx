@@ -90,11 +90,11 @@ export function DashboardScreen({ onOpen }) {
 
                     <div className="label-xs" style={{ marginTop: 24, marginBottom: 10 }}>ATTENTION</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "#FCEBEB", border: "0.5px solid #F7C1C1", fontSize: 11, color: "var(--c-red-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
+                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, color: "var(--c-red-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-red)", marginTop: 5, flexShrink: 0 }} />
                             <div>James Park's PSA came in at 16.2 ng/mL — <b>first decrease in 7 months</b>. Review trajectory in today's 09:00 visit.</div>
                         </div>
-                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "#FDF4E5", border: "0.5px solid #F3D7A2", fontSize: 11, color: "var(--c-amber-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
+                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--c-amber-100)", border: "0.5px solid #F3D7A2", fontSize: 11, color: "var(--c-amber-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-amber)", marginTop: 5, flexShrink: 0 }} />
                             <div>3 notes from Dr. Barker awaiting your co-sign from yesterday's clinic.</div>
                         </div>
@@ -124,10 +124,10 @@ export function DashboardScreen({ onOpen }) {
 
 function StatCard({ tone, label, value, sub }) {
     const t = {
-        red: { bg: "#FCEBEB", border: "#F7C1C1", val: "var(--c-red-deep)" },
-        amber: { bg: "#FDF4E5", border: "#F3D7A2", val: "var(--c-amber-deep)" },
-        blue: { bg: "#EDF3FB", border: "#C4D9F0", val: "var(--c-blue-deep)" },
-        neutral: { bg: "#fff", border: "var(--c-border)", val: "var(--c-text)" }
+        red: { bg: "var(--c-red-100)", border: "var(--c-red-300)", val: "var(--c-red-deep)" },
+        amber: { bg: "var(--c-amber-100)", border: "var(--c-amber-300)", val: "var(--c-amber-deep)" },
+        blue: { bg: "var(--c-blue-100)", border: "var(--c-blue-250)", val: "var(--c-blue-deep)" },
+        neutral: { bg: "var(--c-surface)", border: "var(--c-border)", val: "var(--c-text)" }
     }[tone];
     return (
         <div style={{ padding: "14px 16px", borderRadius: 10, background: t.bg, border: "0.5px solid " + t.border }}>
@@ -140,10 +140,10 @@ function StatCard({ tone, label, value, sub }) {
 
 function PatientRow({ p, first, onOpen }) {
     const statusColor = {
-        red: { bg: "#FCEBEB", fg: "var(--c-red-deep)", border: "#F7C1C1" },
-        amber: { bg: "#FDF4E5", fg: "var(--c-amber-deep)", border: "#F3D7A2" },
-        green: { bg: "#E1F5EE", fg: "var(--c-green-deep)", border: "#A8D9C5" },
-        blue: { bg: "#EDF3FB", fg: "var(--c-blue-deep)", border: "#C4D9F0" },
+        red: { bg: "var(--c-red-100)", fg: "var(--c-red-deep)", border: "var(--c-red-300)" },
+        amber: { bg: "var(--c-amber-100)", fg: "var(--c-amber-deep)", border: "var(--c-amber-300)" },
+        green: { bg: "var(--c-green-100)", fg: "var(--c-green-deep)", border: "var(--c-green-300)" },
+        blue: { bg: "var(--c-blue-100)", fg: "var(--c-blue-deep)", border: "var(--c-blue-250)" },
         neutral: { bg: "#F5F4F0", fg: "var(--c-text-mute)", border: "var(--c-border)" }
     }[p.statusColor];
     return (
@@ -155,7 +155,7 @@ function PatientRow({ p, first, onOpen }) {
                 padding: "12px 16px",
                 alignItems: "center",
                 borderBottom: "0.5px solid var(--c-border-faint)",
-                background: p.primary ? "#FBFCFE" : "#fff",
+                background: p.primary ? "var(--c-surface-alt)" : "#fff",
                 cursor: "pointer"
             }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -187,7 +187,7 @@ function Calendar() {
     const pad = [2, 3, 4, 5, 6];
     const leading = 3;
     return (
-        <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "14px 12px", background: "#fff" }}>
+        <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "14px 12px", background: "var(--c-surface)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 500 }}>{month}</span>
                 <div style={{ display: "flex", gap: 4, color: "var(--c-text-faint)" }}>

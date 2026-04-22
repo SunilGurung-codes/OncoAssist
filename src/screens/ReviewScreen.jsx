@@ -27,13 +27,13 @@ export function ReviewScreen({ onNav }) {
                     </div>
                     <div className="label-xs" style={{ marginTop: 20, marginBottom: 10 }}>READING GUIDE</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#D4E8F9", border: "0.5px solid var(--c-blue)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Ambience captured</span></div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#FDF4E5", border: "0.5px solid var(--c-amber)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Fellow edited</span></div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#fff", border: "0.5px dashed var(--c-border)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Auto-pulled</span></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "var(--c-amber-100)", border: "0.5px solid var(--c-amber)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Fellow edited</span></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "var(--c-surface)", border: "0.5px dashed var(--c-border)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Auto-pulled</span></div>
                 </div>
             </div>
 
             <div className="panel-main scroll" style={{ background: "var(--c-bg)", overflowY: "auto", padding: "24px 40px" }}>
-                <div style={{ maxWidth: 720, margin: "0 auto", background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, padding: "36px 44px", fontSize: 13, lineHeight: 1.6 }}>
+                <div style={{ maxWidth: 720, margin: "0 auto", background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 10, padding: "36px 44px", fontSize: 13, lineHeight: 1.6 }}>
                     <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
                     <div style={{ fontSize: 18, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginBottom: 20 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
@@ -53,7 +53,7 @@ export function ReviewScreen({ onNav }) {
                 </div>
             </div>
 
-            <div className="panel-side" style={{ background: "#fff" }}>
+            <div className="panel-side" style={{ background: "var(--c-surface)" }}>
                 <div style={{ padding: "14px 16px", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 10 }}>Review checklist</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
@@ -63,7 +63,7 @@ export function ReviewScreen({ onNav }) {
                 </div>
                 <div style={{ flex: 1 }}>
                     {items.map(c => <div key={c.k} onClick={() => setChk(x => ({ ...x, [c.k]: !x[c.k] }))} style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-                        <span style={{ width: 16, height: 16, borderRadius: 4, border: "1px solid " + (chk[c.k] ? "var(--c-green)" : "var(--c-border)"), background: chk[c.k] ? "var(--c-green)" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>{chk[c.k] && Icon.check({ s: 10 })}</span>
+                        <span style={{ width: 16, height: 16, borderRadius: 4, border: "1px solid " + (chk[c.k] ? "var(--c-green)" : "var(--c-border)"), background: chk[c.k] ? "var(--c-green)" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff" }}>{chk[c.k] && Icon.check({ s: 10 })}</span>
                         <span style={{ fontSize: 12 }}>{c.l}</span>
                     </div>)}
                 </div>
@@ -77,4 +77,4 @@ export function ReviewScreen({ onNav }) {
 }
 
 function H({ children }) { return <div className="label-xs" style={{ marginTop: 14, marginBottom: 4 }}>{children}</div>; }
-function Hl({ k, children }) { const bg = k === "amb" ? "#E6F1FB" : k === "edit" ? "#FDF4E5" : "transparent"; if (k === "auto") return <span style={{ borderBottom: "1px dashed var(--c-border)" }}>{children}</span>; return <span style={{ background: bg, padding: "1px 3px", borderRadius: 2 }}>{children}</span>; }
+function Hl({ k, children }) { const bg = k === "amb" ? "#E6F1FB" : k === "edit" ? "var(--c-amber-100)" : "transparent"; if (k === "auto") return <span style={{ borderBottom: "1px dashed var(--c-border)" }}>{children}</span>; return <span style={{ background: bg, padding: "1px 3px", borderRadius: 2 }}>{children}</span>; }

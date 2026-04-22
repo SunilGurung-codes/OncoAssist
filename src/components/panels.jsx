@@ -61,7 +61,7 @@ export function LeftPanel() {
                     </div>
                     <span style={{ fontSize: 10, fontWeight: 500, color: "var(--c-blue)" }}>Draft</span>
                 </div>
-                <div style={{ padding: "10px 16px", background: "#fff" }}>
+                <div style={{ padding: "10px 16px", background: "var(--c-surface)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
                         <Chip tone="purple" size="sm">Oncology</Chip>
                         <div style={{ fontSize: 12, fontWeight: 500 }}>Follow-up · Day 14 Enzalutamide</div>
@@ -102,7 +102,7 @@ function PSAChart() {
                 {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="9" fontWeight="500" fill={p.drop ? "#085041" : "#A32D2D"}>{p.v}</text>}
             </g>)}
         </svg>
-        <div style={{ marginTop: 6, borderRadius: 4, background: "#E1F5EE", border: "0.5px solid #A8D9C5", padding: "4px 8px", fontSize: 10, fontWeight: 500, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
+        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid #A8D9C5", padding: "4px 8px", fontSize: 10, fontWeight: 500, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
     </div>;
 }
 
@@ -143,7 +143,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
     const TabManagerPopup = () => (
         <>
             <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
-            <div style={{ position: "absolute", top: collapsed ? 16 : 48, right: collapsed ? 64 : 16, width: 260, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
+            <div style={{ position: "absolute", top: collapsed ? 16 : 48, right: collapsed ? 64 : 16, width: 260, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
                 <div className="label-xs" style={{ marginBottom: 8, marginTop: 4 }}>ACTIVE TABS</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
                     {tabs.map((t, idx) =>
@@ -301,7 +301,7 @@ function LabsTab({ onAddToChat }) {
             <LabTable rows={labsCBC.rows} />
             <div className="label-xs" style={{ marginTop: 16, marginBottom: 6 }}>PSA + HORMONAL · {labsPSA.date}</div>
             <LabTable rows={labsPSA.rows} />
-            <div style={{ marginTop: 10, borderRadius: 6, background: "#E1F5EE", border: "0.5px solid #A8D9C5", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
+            <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid #A8D9C5", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
         </div>
         <div style={{ padding: "10px 12px 14px" }}><button onClick={() => onAddToChat && onAddToChat({ kind: "lab", label: "PSA + Hormonal Panel" })} className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Panel to Chat</button></div>
     </div>;
@@ -318,7 +318,7 @@ function LabTable({ rows }) {
                 <div><div style={{ fontWeight: 500 }}>{r.name}</div>{r.note && <div style={{ fontSize: 10, color: "var(--c-green-deep)", marginTop: 2 }}>{r.note}</div>}</div>
                 <div style={{ color: c, fontWeight: 500 }}>{r.v} <span style={{ color: "var(--c-text-faint)", fontWeight: 400, fontSize: 10 }}>{r.unit}</span></div>
                 <div style={{ color: "var(--c-text-mute)", fontSize: 10 }}>{r.ref}</div>
-                <div>{r.flag && <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16, borderRadius: 4, background: r.tone === "high" ? "#FCEBEB" : "#FDF4E5", fontSize: 9, fontWeight: 500, color: c }}>{r.flag}</span>}</div>
+                <div>{r.flag && <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16, borderRadius: 4, background: r.tone === "high" ? "var(--c-red-100)" : "var(--c-amber-100)", fontSize: 9, fontWeight: 500, color: c }}>{r.flag}</span>}</div>
             </div>;
         })}
     </div>;
@@ -338,7 +338,7 @@ function ImagingTab({ onAddToChat }) {
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.findings}</div>
                 <div className="label-xs" style={{ marginBottom: 2 }}>IMPRESSION</div>
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.impression}</div>
-                <div style={{ background: "#EDF3FB", border: "0.5px solid #C4D9F0", borderRadius: 6, padding: "6px 8px", fontSize: 11, color: "var(--c-blue-deep)" }}><b>Note:</b> {im.note}</div>
+                <div style={{ background: "var(--c-blue-100)", border: "0.5px solid #C4D9F0", borderRadius: 6, padding: "6px 8px", fontSize: 11, color: "var(--c-blue-deep)" }}><b>Note:</b> {im.note}</div>
                 <div style={{ marginTop: 12 }}><span className="micro" onClick={() => onAddToChat && onAddToChat({ kind: "imaging", label: im.type })} style={{ cursor: "pointer" }}>+ Add to chat</span></div>
             </div>
         </div>)}

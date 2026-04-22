@@ -35,7 +35,12 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
         if (state === "generating") {
             const t = setTimeout(() => {
                 setState("drafted");
-                const draftText = "**DRAFTED NOTE:**\n\n**S:** Mild fatigue, 3 hot flashes/wk.\n**O:** PSA 16.2 (↓), Test < 50. Hgb 12.8.\n**A:** M0 CRPC, early response to Enza.\n**P:** Continue 160mg QD, recheck 4 wks.";
+                const draftText = `**Oncology SOAP Note**\n\n` +
+                    `**Patient Information**\nName: James Park\nMRN: 8820194\nDOB / Age: Oct 12, 1958 / 67\nSex: Male\nDate of Visit: Apr 17, 2026\nProvider: Dr. I. Riaz\n\n` +
+                    `**S — Subjective**\nChief Complaint (CC): Follow-up on new ADT.\nHistory of Present Illness (HPI): Patient tolerating Enzalutamide 160mg QD. Denies bone pain or LUTS.\nDiagnosis (type, stage): Prostate adenocarcinoma, CRPC.\nDate of diagnosis: 2022\nCurrent treatment regimen: Enzalutamide\nCycle/day: Day 14\nSymptoms (onset, duration, severity): Mild fatigue, 3 hot flashes/week. No falls or seizure activity.\nFunctional status (e.g., ECOG): ECOG 0\n\nReview of Systems (ROS):\nConstitutional: Endorses fatigue.\nHEENT: Unremarkable.\nCardiovascular: Negative.\nRespiratory: Negative.\nGastrointestinal: Negative.\nGenitourinary: Normal.\nMusculoskeletal: Negative for bone pain.\nNeurologic: No seizure activity.\nPsychiatric: Normal.\nMedications: Enzalutamide 160mg QD, Leuprolide.\nAllergies: NKDA\n\n` +
+                    `**O — Objective**\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: Hgb 12.8 (L)\nCMP: WNL\nTumor markers: PSA 16.2 ng/mL (Apparent decrease from 18.4)\n\nImaging/Diagnostics:\nCT/MRI/PET: Stable.\nPathology: N/A\n\n` +
+                    `**A — Assessment**\nPrimary cancer diagnosis: Metastatic CRPC.\nStage: IV.\nTreatment response: Early PCWG3 biochemical response to Enzalutamide.\nToxicities / adverse effects: Mild fatigue and systemic flashes.\nComorbidities: None active.\n\n` +
+                    `**P — Plan**\nTreatment Plan:\nContinue / modify / hold therapy: Continue Enzalutamide 160mg QD.\nNext cycle: Continuous.\nMedications: Refill authorized.\n\nMonitoring:\nLabs: Recheck PSA + CBC in 4 weeks (May 15).\nImaging: None currently.\n\nSupportive Care:\nPain management: N/A\nNutrition: Standard diet.\nPsychosocial support: Coping well.\n\nFollow-Up:\nNext visit: June 12.\nReferrals: N/A\n\n**Notes:**\nECOG Performance Status: 0\nAdvance directives discussed: No changes.`;
                 setMessages(m => [...m, { role: "ai", text: draftText, t: "now", cites: [] }]);
             }, 2200);
             return () => clearTimeout(t);
@@ -63,22 +68,22 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             <div onClick={() => setLCol(true)} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
                         </div>
                         {state === "ready" && <div>
-                            <div style={{ height: 36, background: "#FFEBEB", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
+                            <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · READY</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "#FCEBEB", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>00:00:00</span>
+                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>00:00:00</span>
                             </div>
-                            <div style={{ padding: "10px 14px" }}><button onClick={start} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "#fff" }}>Start recording</button></div>
+                            <div style={{ padding: "10px 14px" }}><button onClick={start} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "#ffffff" }}>Start recording</button></div>
                         </div>}
                         {state === "recording" && <div>
-                            <div style={{ height: 36, background: "#FFEBEB", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
+                            <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span className="pulse-red" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · RECORDING</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "#FCEBEB", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>{fmt(elapsed)}</span>
+                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>{fmt(elapsed)}</span>
                             </div>
                             <div style={{ padding: "10px 14px" }}>
                                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 3, height: 22, marginBottom: 10 }}>
                                     {Array.from({ length: 28 }).map((_, i) => <span key={i} className="wave-bar" style={{ height: Math.abs(Math.sin(i * 0.6 + elapsed * 0.8) * 16) + 4 + "px", animation: `wave ${0.8 + (i % 4) * 0.2}s ease-in-out infinite`, animationDelay: `${i * 0.05}s` }} />)}
                                 </div>
-                                <button onClick={() => setState("generating")} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "#fff" }}>{Icon.square({ s: 8 })} Stop</button>
+                                <button onClick={() => setState("generating")} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "#ffffff" }}>{Icon.square({ s: 8 })} Stop</button>
                             </div>
                             <div style={{ padding: "12px 16px", borderTop: "0.5px solid var(--c-border-faint)", flex: 1, overflowY: "auto" }}>
                                 <div className="label-xs" style={{ marginBottom: 8 }}>LIVE TRANSCRIPT</div>
@@ -93,15 +98,14 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
                             Generating structured note…
                         </div>}
-                        {state === "drafted" && <div style={{ padding: "12px 16px", borderTop: "0.5px solid #C4D9F0", background: "#EDF3FB", flex: 1 }}>
+                        {state === "drafted" && <div style={{ padding: "12px 16px", borderTop: "0.5px solid #C4D9F0", background: "var(--c-blue-100)", flex: 1 }}>
                             <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8 }}>NOTE DRAFTED · AWAITING REVIEW</div>
-                            <div style={{ background: "#fff", border: "0.5px solid #C4D9F0", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+                            <div style={{ background: "var(--c-surface)", border: "0.5px solid #C4D9F0", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
-                                <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5 }}>
-                                    <b>S:</b> Mild fatigue, 3 hot flashes/wk. <br />
-                                    <b>O:</b> PSA 16.2 (↓), Test {"<"} 50. Hgb 12.8.<br />
-                                    <b>A:</b> M0 CRPC, early response to Enza.<br />
-                                    <b>P:</b> Continue 160mg QD, recheck 4 wks.
+                                <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5, maxHeight: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                                    <b>S:</b> Chief Complaint: Follow-up on new ADT. Tolerating Enzalutamide 160mg QD...<br />
+                                    <b>O:</b> PSA 16.2 (decrease), Test {"<"} 50. Hgb 12.8...<br />
+                                    <b>A:</b> Metastatic CRPC, early biochemical response.
                                 </div>
                             </div>
                             <button className="btn btn-primary lg" style={{ width: "100%", marginBottom: 6 }} onClick={() => onNav("review")}>Review & sign →</button>
@@ -124,7 +128,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     <div className="card" style={{ marginBottom: 18 }}>
                         <div style={{ height: 38, padding: "0 14px", display: "flex", alignItems: "center", background: "var(--c-surface-alt)", fontWeight: 500, fontSize: 13, gap: 6 }}><span style={{ color: "var(--c-blue)" }}>{Icon.sparkle({ s: 12 })}</span>Smart steps · AI-suggested</div>
                         {[{ q: "Think through next steps for this patient", primary: true }, { q: "Compare today's PSA to the last 7 readings", tag: "Q1" }, { q: "Side-effect profile at Day 14 Enzalutamide", tag: "Q2" }].map((s, i) =>
-                            <div key={i} style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: s.primary ? "#F0F5FC" : "#fff" }}>
+                            <div key={i} style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: s.primary ? "var(--c-blue-50)" : "#fff" }}>
                                 {s.primary ? <span style={{ width: 7, height: 7, borderRadius: 4, background: "var(--c-blue)" }} /> : <Chip tone="blue" size="xs">{s.tag}</Chip>}
                                 <div style={{ flex: 1, fontSize: 13, color: s.primary ? "var(--c-blue-deep)" : "var(--c-text)", fontWeight: s.primary ? 500 : 400 }}>{s.q}</div>
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
@@ -132,7 +136,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     </div>
                     {messages.map((m, i) => m.role === "user" ?
                         <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                            <div style={{ maxWidth: "74%", background: "#F2F2F0", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
+                            <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
                         </div>
                         : <div key={i} className="fade-in" style={{ marginBottom: 14 }}>
                             <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
@@ -144,10 +148,10 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                 </div>
 
                 {/* Chat Input */}
-                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "#fff", zIndex: 10 }}>
+                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
                     <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
                         <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
-                        {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "#EDF3FB" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "#C4D9F0" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
+                        {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                             {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
                             <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
                         </span>)}
@@ -158,7 +162,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
                             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
                             <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
-                            <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
+                            <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
                         </div>
                     </div>
                 </div>

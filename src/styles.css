@@ -39,10 +39,15 @@
   --c-red-200: #F5B8B7;
   --c-red-300: #F7C1C1;
 
+  --c-amber: #DD9817;
+  --c-amber-deep: #B87A0B;
+  --c-amber-100: #FDF4E5;
+  --c-amber-300: #F3D7A2;
+
   --c-green: #1D9E75;
   --c-green-deep: #085041;
-
-  --c-amber: #DD9817;
+  --c-green-100: #E1F5EE;
+  --c-green-300: #A8D9C5;
   --c-amber-deep: #633806;
 
   --c-purple: #3C3489;
@@ -90,10 +95,15 @@ html.dark-theme {
   --c-red-100: #331A1A;
 
   --c-green: #20C997;
-  --c-green-deep: #40C057;
-
   --c-amber: #FCC419;
   --c-amber-deep: #FFD43B;
+  --c-amber-100: #332610;
+  --c-amber-300: #5C4314;
+
+  --c-green: #20C997;
+  --c-green-deep: #40C057;
+  --c-green-100: #102B21;
+  --c-green-300: #1A543A;
 
   --c-purple: #845EF7;
   --c-purple-50: #2B2050;
