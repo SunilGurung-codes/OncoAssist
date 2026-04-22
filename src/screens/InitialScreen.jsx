@@ -149,7 +149,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
-                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", display: "flex", gap: 0 }}>
+                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", display: "flex", gap: 0, position: "relative" }}>
 
                         {/* Chat messages column */}
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -166,72 +166,83 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             )}
                         </div>
 
-                        {/* Grok-style interactive timeline scrubber */}
+                        {/* Grok-style interactive timeline scrubber — sticky-centered in right gutter */}
                         {messages.length > 0 && (
-                            <div style={{ width: 28, flexShrink: 0, marginLeft: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                            <div style={{ width: 36, flexShrink: 0, alignSelf: "stretch", position: "relative" }}>
+                                <div style={{
+                                    position: "sticky",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    padding: "4px 0"
+                                }}>
 
-                                {/* Up arrow — previous response */}
-                                <button
-                                    onClick={navPrev}
-                                    disabled={activeMsg === 0}
-                                    style={{
-                                        width: 22, height: 22, borderRadius: "50%",
-                                        background: activeMsg === 0 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
-                                        border: "0.5px solid var(--c-border)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: activeMsg === 0 ? "default" : "pointer",
-                                        flexShrink: 0, color: activeMsg === 0 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
-                                        transition: "opacity 0.15s"
-                                    }}
-                                    title="Previous response">
-                                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                                </button>
+                                    {/* Up arrow — previous response */}
+                                    <button
+                                        onClick={navPrev}
+                                        disabled={activeMsg === 0}
+                                        style={{
+                                            width: 22, height: 22, borderRadius: "50%",
+                                            background: activeMsg === 0 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                            border: "0.5px solid var(--c-border)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            cursor: activeMsg === 0 ? "default" : "pointer",
+                                            flexShrink: 0, color: activeMsg === 0 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
+                                            transition: "opacity 0.15s"
+                                        }}
+                                        title="Previous response">
+                                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                    </button>
 
-                                {/* Bars — one per message */}
-                                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, alignItems: "center", padding: "2px 0", minHeight: 0 }}>
-                                    {messages.map((m, i) => (
-                                        <div
-                                            key={i}
-                                            onClick={() => navTo(i)}
-                                            title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
-                                            style={{
-                                                width: i === activeMsg ? 10 : (m.role === "user" ? 6 : 8),
-                                                height: 2,
-                                                borderRadius: 1,
-                                                background: i === activeMsg
-                                                    ? "var(--c-blue)"
-                                                    : m.role === "user"
-                                                        ? "var(--c-text-ghost)"
-                                                        : "var(--c-border)",
-                                                cursor: "pointer",
-                                                flexShrink: 0,
-                                                transition: "width 0.15s, background 0.15s"
-                                            }}
-                                        />
-                                    ))}
+                                    {/* Bars — one per message */}
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, alignItems: "center", padding: "2px 0", minHeight: 0 }}>
+                                        {messages.map((m, i) => (
+                                            <div
+                                                key={i}
+                                                onClick={() => navTo(i)}
+                                                title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
+                                                style={{
+                                                    width: i === activeMsg ? 10 : (m.role === "user" ? 6 : 8),
+                                                    height: 2,
+                                                    borderRadius: 1,
+                                                    background: i === activeMsg
+                                                        ? "var(--c-blue)"
+                                                        : m.role === "user"
+                                                            ? "var(--c-text-ghost)"
+                                                            : "var(--c-border)",
+                                                    cursor: "pointer",
+                                                    flexShrink: 0,
+                                                    transition: "width 0.15s, background 0.15s"
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Down arrow — next response */}
+                                    <button
+                                        onClick={navNext}
+                                        disabled={activeMsg === messages.length - 1}
+                                        style={{
+                                            width: 22, height: 22, borderRadius: "50%",
+                                            background: activeMsg === messages.length - 1 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                            border: "0.5px solid var(--c-border)",
+                                            display: "flex", alignItems: "center", justifyContent: "center",
+                                            cursor: activeMsg === messages.length - 1 ? "default" : "pointer",
+                                            flexShrink: 0, color: activeMsg === messages.length - 1 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
+                                            transition: "opacity 0.15s"
+                                        }}
+                                        title="Next response">
+                                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                    </button>
+
                                 </div>
-
-                                {/* Down arrow — next response */}
-                                <button
-                                    onClick={navNext}
-                                    disabled={activeMsg === messages.length - 1}
-                                    style={{
-                                        width: 22, height: 22, borderRadius: "50%",
-                                        background: activeMsg === messages.length - 1 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
-                                        border: "0.5px solid var(--c-border)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        cursor: activeMsg === messages.length - 1 ? "default" : "pointer",
-                                        flexShrink: 0, color: activeMsg === messages.length - 1 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
-                                        transition: "opacity 0.15s"
-                                    }}
-                                    title="Next response">
-                                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                                </button>
-
                             </div>
                         )}
-                    </div>
-                </div>
+                    </div>{/* end flex row */}
+                </div>{/* end scroll container */}
 
                 {/* Highlight tool bounds to DOM selection natively! */}
                 <TextSelectionPopup onExplaining={t => send(`Explain or search details regarding: "${t}"`)} />
@@ -273,17 +284,19 @@ function Resizer({ onPosChange }) {
             onPosChange(moveEvent.clientX);
         };
         const handleMouseUp = () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
             document.body.style.cursor = "default";
         };
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
         document.body.style.cursor = "col-resize";
     };
-    return <div className="resizer" onMouseDown={handleMouseDown} style={{ width: 8, margin: "0 -4px", zIndex: 50, cursor: "col-resize", position: "relative" }}>
-        <div style={{ position: "absolute", left: 3, top: 0, bottom: 0, width: 2, background: "transparent", transition: "background 0.2s" }} className="resizer-bar" />
-    </div>;
+    return (
+        <div className="resizer" onMouseDown={handleMouseDown} style={{ width: 8, margin: "0 -4px", zIndex: 50, cursor: "col-resize", position: "relative" }}>
+            <div style={{ position: "absolute", left: 3, top: 0, bottom: 0, width: 2, background: "transparent", transition: "background 0.2s" }} className="resizer-bar" />
+        </div>
+    );
 }
 
 function ans(q) {
