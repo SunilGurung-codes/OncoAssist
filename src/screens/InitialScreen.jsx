@@ -168,7 +168,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
 
                         {/* Grok-style interactive timeline scrubber — sticky-centered in right gutter */}
                         {messages.length > 0 && (
-                            <div style={{ width: 36, flexShrink: 0, alignSelf: "stretch", position: "relative" }}>
+                            <div style={{ width: 60, flexShrink: 0, alignSelf: "stretch", position: "relative", marginLeft: 24 }}>
                                 <div style={{
                                     position: "sticky",
                                     top: "50%",
@@ -176,8 +176,8 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
-                                    gap: 4,
-                                    padding: "4px 0"
+                                    gap: 8,
+                                    padding: "6px 0"
                                 }}>
 
                                     {/* Up arrow — previous response */}
@@ -185,7 +185,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                         onClick={navPrev}
                                         disabled={activeMsg === 0}
                                         style={{
-                                            width: 22, height: 22, borderRadius: "50%",
+                                            width: 26, height: 26, borderRadius: "50%",
                                             background: activeMsg === 0 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
                                             border: "0.5px solid var(--c-border)",
                                             display: "flex", alignItems: "center", justifyContent: "center",
@@ -194,20 +194,20 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                             transition: "opacity 0.15s"
                                         }}
                                         title="Previous response">
-                                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                        <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
                                     </button>
 
                                     {/* Bars — one per message */}
-                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, alignItems: "center", padding: "2px 0", minHeight: 0 }}>
+                                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", padding: "4px 0", minHeight: 0 }}>
                                         {messages.map((m, i) => (
                                             <div
                                                 key={i}
                                                 onClick={() => navTo(i)}
                                                 title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
                                                 style={{
-                                                    width: i === activeMsg ? 10 : (m.role === "user" ? 6 : 8),
-                                                    height: 2,
-                                                    borderRadius: 1,
+                                                    width: i === activeMsg ? 18 : (m.role === "user" ? 10 : 14),
+                                                    height: 3,
+                                                    borderRadius: 2,
                                                     background: i === activeMsg
                                                         ? "var(--c-blue)"
                                                         : m.role === "user"
@@ -226,7 +226,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                         onClick={navNext}
                                         disabled={activeMsg === messages.length - 1}
                                         style={{
-                                            width: 22, height: 22, borderRadius: "50%",
+                                            width: 26, height: 26, borderRadius: "50%",
                                             background: activeMsg === messages.length - 1 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
                                             border: "0.5px solid var(--c-border)",
                                             display: "flex", alignItems: "center", justifyContent: "center",
@@ -235,7 +235,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                             transition: "opacity 0.15s"
                                         }}
                                         title="Next response">
-                                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                        <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
                                     </button>
 
                                 </div>
