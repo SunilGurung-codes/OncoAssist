@@ -192,6 +192,8 @@ textarea {
   border-left: 0.5px solid var(--c-border-faint);
   background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-side.collapsed {
@@ -203,6 +205,8 @@ textarea {
   border-right: 0.5px solid var(--c-border-faint);
   background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-left.collapsed {
@@ -719,3 +723,11 @@ textarea {
   background: var(--c-blue-150) !important;
   box-shadow: inset 0 0 0 1.5px var(--c-blue) !important;
 }
+.note-row {
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.note-row:hover {
+  background: var(--c-surface-alt);
+}
+

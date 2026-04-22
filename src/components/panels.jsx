@@ -276,10 +276,10 @@ function NotesTab({ onAddToChat }) {
 
 function NoteRow({ n, onAddToChat }) {
     const dt = { Oncology: "purple", Radiology: "blue", Urology: "blue", Lab: "green", ER: "red", Pharmacy: "amber", "Primary Care": "neutral" }[n.dept] || "neutral";
-    return <div draggable
+    return <div className="note-row" draggable
         onDragStart={e => { e.dataTransfer.setData("application/json", JSON.stringify({ kind: "note", id: n.id, label: n.type })); e.currentTarget.classList.add("dragging"); }}
         onDragEnd={e => e.currentTarget.classList.remove("dragging")}
-        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "var(--c-surface-alt)" : "var(--c-surface)" }}>
+        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab" }}>
         <span style={{ color: "var(--c-text-ghost)", marginTop: 3 }}>{Icon.drag({ s: 12 })}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
