@@ -3,6 +3,7 @@ import { data } from "../data.js";
 import { TopBar } from "../components/ui/TopBar.jsx";
 import { Icon } from "../components/ui/Icon.jsx";
 import { Chip } from "../components/ui/Chip.jsx";
+import { TextSelectionPopup } from "../components/ui/TextSelectionPopup.jsx";
 import { LeftPanel, RightPanel } from "../components/panels.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
 import { Micro } from "../components/ui/Micro.jsx";
@@ -123,7 +124,19 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
-                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px" }}>
+                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", position: "relative" }}>
+
+                        {/* Grok-style visual timeline scrubber */}
+                        <div style={{ position: "fixed", right: 24, top: 120, bottom: 24, width: 24, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <div style={{ width: 1, flex: 1, background: "var(--c-border-soft)", position: "relative" }}>
+                                <div style={{ position: "absolute", top: "10%", left: -4, width: 9, height: 2, background: "var(--c-text-mute)", borderRadius: 1 }} />
+                                <div style={{ position: "absolute", top: "25%", left: -3, width: 7, height: 1, background: "var(--c-border-faint)" }} />
+                                <div style={{ position: "absolute", top: "40%", left: -4, width: 9, height: 2, background: "var(--c-text-mute)", borderRadius: 1 }} />
+                                <div style={{ position: "absolute", top: "65%", left: -3, width: 7, height: 1, background: "var(--c-border-faint)" }} />
+                                <div style={{ position: "absolute", top: "85%", left: -4, width: 9, height: 2, background: "var(--c-blue)", borderRadius: 1 }} />
+                            </div>
+                        </div>
+
                         {messages.map((m, i) => m.role === "user" ?
                             <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                                 <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
@@ -137,6 +150,9 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         )}
                     </div>
                 </div>
+
+                {/* Highlight tool bounds to DOM selection natively! */}
+                <TextSelectionPopup onExplaining={t => send(`Explain or search details regarding: "${t}"`)} />
 
                 {/* Chat Input */}
                 <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
