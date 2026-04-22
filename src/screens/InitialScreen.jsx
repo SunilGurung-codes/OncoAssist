@@ -134,7 +134,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
-                    <div style={{ width: "100%", maxWidth: 800, margin: "0 auto", padding: "0 24px" }}>
+                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px" }}>
                         {messages.map((m, i) => m.role === "user" ?
                             <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                                 <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
@@ -151,7 +151,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
 
                 {/* Chat Input */}
                 <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
-                    <div style={{ maxWidth: 800, margin: "0 auto", width: "100%" }}>
+                    <div style={{ maxWidth: 1080, margin: "0 auto", width: "100%" }}>
                         <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
                             <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
                             {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
