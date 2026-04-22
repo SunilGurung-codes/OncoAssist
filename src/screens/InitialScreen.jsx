@@ -146,9 +146,11 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         </div>
                     )}
                 </div>
+            </div>
 
-                {/* Chat Input */}
-                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
+            {/* Chat Input */}
+            <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
+                <div style={{ maxWidth: 800, margin: "0 auto", width: "100%" }}>
                     <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
                         <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
                         {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
@@ -166,13 +168,14 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         </div>
                     </div>
                 </div>
-
             </div>
-            {!lCol && !rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
-            {/* Adding Right Panel for Clinical Context */}
-            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
+
         </div>
-    </div>;
+        {!lCol && !rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
+        {/* Adding Right Panel for Clinical Context */}
+        <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
+    </div>
+    </div >;
 }
 
 function Resizer({ onPosChange }) {
