@@ -22,7 +22,32 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const [ctx, setCtx] = useState([]);
     const drop = useDrop(d => setCtx(c => [...c, { kind: d.kind, label: d.label }]));
     const ref = useRef(null);
+    const msgRefs = useRef([]);
+    const [activeMsg, setActiveMsg] = useState(0);
     useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [messages]);
+    useEffect(() => {
+        // Track which message is most visible in the scroll area
+        if (!ref.current) return;
+        const observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        const idx = msgRefs.current.indexOf(e.target);
+                        if (idx !== -1) setActiveMsg(idx);
+                    }
+                });
+            },
+            { root: ref.current, threshold: 0.5 }
+        );
+        msgRefs.current.forEach(el => el && observer.observe(el));
+        return () => observer.disconnect();
+    }, [messages]);
+    const navTo = idx => {
+        const el = msgRefs.current[idx];
+        if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); setActiveMsg(idx); }
+    };
+    const navPrev = () => navTo(Math.max(0, activeMsg - 1));
+    const navNext = () => navTo(Math.min(messages.length - 1, activeMsg + 1));
     const send = t => {
         if (!t.trim()) return; setMessages(m => [...m, { role: "user", text: t, t: "now" }]); setInput("");
         setTimeout(() => setMessages(m => [...m, { role: "ai", text: ans(t), t: "now", cites: [] }]), 500);
@@ -129,10 +154,10 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         {/* Chat messages column */}
                         <div style={{ flex: 1, minWidth: 0 }}>
                             {messages.map((m, i) => m.role === "user" ?
-                                <div key={i} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                                <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                                     <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
                                 </div>
-                                : <div key={i} className="fade-in" style={{ marginBottom: 14 }}>
+                                : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
                                     <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
                                     <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
                                     {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
@@ -141,30 +166,68 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             )}
                         </div>
 
-                        {/* Grok-style timeline scrubber — inside the chat column */}
+                        {/* Grok-style interactive timeline scrubber */}
                         {messages.length > 0 && (
-                            <div style={{ width: 20, flexShrink: 0, marginLeft: 10, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 4, paddingBottom: 4 }}>
-                                <div style={{ width: 1, flex: 1, background: "var(--c-border-soft)", position: "relative" }}>
-                                    {messages.map((m, i) => {
-                                        const pct = messages.length < 2 ? 50 : (i / (messages.length - 1)) * 100;
-                                        return (
-                                            <div key={i} style={{
-                                                position: "absolute",
-                                                top: `${pct}%`,
-                                                left: m.role === "user" ? -5 : -4,
-                                                width: m.role === "user" ? 7 : 9,
-                                                height: m.role === "user" ? 7 : 2,
-                                                borderRadius: m.role === "user" ? "50%" : 1,
-                                                background: m.role === "user" ? "var(--c-text-mute)" : "var(--c-blue)",
-                                                transform: "translateY(-50%)",
+                            <div style={{ width: 28, flexShrink: 0, marginLeft: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+
+                                {/* Up arrow — previous response */}
+                                <button
+                                    onClick={navPrev}
+                                    disabled={activeMsg === 0}
+                                    style={{
+                                        width: 22, height: 22, borderRadius: "50%",
+                                        background: activeMsg === 0 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                        border: "0.5px solid var(--c-border)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        cursor: activeMsg === 0 ? "default" : "pointer",
+                                        flexShrink: 0, color: activeMsg === 0 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
+                                        transition: "opacity 0.15s"
+                                    }}
+                                    title="Previous response">
+                                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                </button>
+
+                                {/* Bars — one per message */}
+                                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, alignItems: "center", padding: "2px 0", minHeight: 0 }}>
+                                    {messages.map((m, i) => (
+                                        <div
+                                            key={i}
+                                            onClick={() => navTo(i)}
+                                            title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
+                                            style={{
+                                                width: i === activeMsg ? 10 : (m.role === "user" ? 6 : 8),
+                                                height: 2,
+                                                borderRadius: 1,
+                                                background: i === activeMsg
+                                                    ? "var(--c-blue)"
+                                                    : m.role === "user"
+                                                        ? "var(--c-text-ghost)"
+                                                        : "var(--c-border)",
                                                 cursor: "pointer",
-                                                transition: "background 0.2s"
+                                                flexShrink: 0,
+                                                transition: "width 0.15s, background 0.15s"
                                             }}
-                                                title={m.role === "user" ? "Your message" : `OncoAssist · ${m.t || ""}`}
-                                            />
-                                        );
-                                    })}
+                                        />
+                                    ))}
                                 </div>
+
+                                {/* Down arrow — next response */}
+                                <button
+                                    onClick={navNext}
+                                    disabled={activeMsg === messages.length - 1}
+                                    style={{
+                                        width: 22, height: 22, borderRadius: "50%",
+                                        background: activeMsg === messages.length - 1 ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                        border: "0.5px solid var(--c-border)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        cursor: activeMsg === messages.length - 1 ? "default" : "pointer",
+                                        flexShrink: 0, color: activeMsg === messages.length - 1 ? "var(--c-text-ghost)" : "var(--c-text-mute)",
+                                        transition: "opacity 0.15s"
+                                    }}
+                                    title="Next response">
+                                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                </button>
+
                             </div>
                         )}
                     </div>
