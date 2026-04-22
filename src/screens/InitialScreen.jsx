@@ -48,7 +48,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
             <div className={`panel-left ${lCol ? "collapsed" : ""}`}>
                 {lCol ? (
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
-                        <div onClick={() => setLCol(false)} data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
+                        <div onClick={() => setLCol(false)} title="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
                         <div className="avatar sm" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
                         <div style={{ flex: 1 }} />
                         {state === "recording" && <span className="pulse-red" style={{ width: 10, height: 10, borderRadius: 5, background: "var(--c-red)" }} />}
@@ -58,7 +58,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                         <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
                             <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
                             <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · Visit Apr 17</div></div>
-                            <div onClick={() => setLCol(true)} data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
+                            <div onClick={() => setLCol(true)} title="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
                         </div>
                         {state === "ready" && <div>
                             <div style={{ height: 36, background: "#FFEBEB", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>

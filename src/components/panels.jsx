@@ -146,9 +146,15 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
             <div style={{ position: "absolute", top: collapsed ? 16 : 48, right: collapsed ? 64 : 16, width: 260, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
                 <div className="label-xs" style={{ marginBottom: 8, marginTop: 4 }}>ACTIVE TABS</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
-                    {tabs.map(t =>
-                        <div key={t} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: "var(--c-surface-warm)", borderRadius: 6, fontSize: 13, color: "var(--c-text-strong)" }}>
+                    {tabs.map((t, idx) =>
+                        <div key={t}
+                            draggable
+                            onDragStart={e => { setDraggedIdx(idx); e.dataTransfer.effectAllowed = "move"; }}
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={e => { e.preventDefault(); onDropTab(idx); }}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: draggedIdx === idx ? "var(--c-blue-50)" : "var(--c-surface-warm)", borderRadius: 6, fontSize: 13, color: "var(--c-text-strong)", cursor: "grab", opacity: draggedIdx === idx ? 0.5 : 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ color: "var(--c-text-ghost)", marginTop: 2, cursor: "grab" }}>{Icon.drag({ s: 12 })}</span>
                                 <span style={{ color: "var(--c-text-mute)" }}>{t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}</span>
                                 {t}
                             </div>
@@ -156,7 +162,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                                 const updated = tabs.filter(x => x !== t);
                                 setTabs(updated);
                                 if (tab === t) onTab(updated[0] || "");
-                            }} style={{ cursor: "pointer", color: "var(--c-text-mute)", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            }} style={{ cursor: "pointer", color: "var(--c-text-mute)", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }} onMouseEnter={e => e.currentTarget.style.color = "var(--c-red)"} onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-mute)"}>
                                 {Icon.x({ s: 12 })}
                             </div>
                         </div>
@@ -189,7 +195,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
             {collapsed ? (
                 <>
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 24 }}>
-                        <div onClick={onToggle} data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
+                        <div onClick={onToggle} title="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
                             {tabs.map((t, i) => (
                                 <div key={t} onClick={() => { onToggle && onToggle(); onTab(t); }} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -207,7 +213,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                 <>
                     <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 360, overflow: "hidden" }}>
                         <div style={{ minHeight: 44, background: "var(--c-surface-warm)", borderBottom: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", position: "relative" }}>
-                            <div onClick={onToggle} data-tooltip="Collapse panel" style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
+                            <div onClick={onToggle} title="Collapse panel" style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
                             <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
                                 {tabs.map((t, idx) =>
                                     <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
