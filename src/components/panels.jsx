@@ -45,7 +45,7 @@ export function LeftPanel() {
                         <Chip tone="blue" size="sm">Lab</Chip>
                         <div style={{ fontSize: 12, fontWeight: 500 }}>PSA + T panel</div>
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--c-text-faint)", marginBottom: 8 }}>Lab · Apr 17 · 07:45</div>
+                    <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 8 }}>Lab · Apr 17 · 07:45</div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", lineHeight: 1.5, marginBottom: 10 }}>PSA 16.2 ng/mL (H). Testosterone {"<"} 50 ng/dL. LH 0.8, FSH 1.4.</div>
                     <div style={{ display: "flex", gap: 8 }}>
                         <span className="btn btn-soft sm" style={{ flex: 1 }}>+ Add to chat</span>
@@ -81,7 +81,7 @@ export function LeftPanel() {
 function Stat({ n, v, tone, icon }) {
     const c = tone === "red" ? "var(--c-red-deep)" : tone === "green" ? "var(--c-green-deep)" : "var(--c-text)";
     return <div>
-        <div style={{ fontSize: 10, color: "var(--c-text-faint)", marginBottom: 3 }}>{n}</div>
+        <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 3 }}>{n}</div>
         <div style={{ fontSize: 12, fontWeight: 500, color: c, display: "flex", gap: 4 }}>{v} {icon && <span>{icon}</span>}</div>
     </div>;
 }
@@ -216,7 +216,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
                             <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
                                 {tabs.map((t, idx) =>
-                                    <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#F8F8F8" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
+                                    <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "var(--c-surface-alt)" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
                                         {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
                                         {t}
                                     </div>
@@ -279,14 +279,14 @@ function NoteRow({ n, onAddToChat }) {
     return <div draggable
         onDragStart={e => { e.dataTransfer.setData("application/json", JSON.stringify({ kind: "note", id: n.id, label: n.type })); e.currentTarget.classList.add("dragging"); }}
         onDragEnd={e => e.currentTarget.classList.remove("dragging")}
-        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "#F8F8F8" : "var(--c-surface)" }}>
+        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "var(--c-surface-alt)" : "var(--c-surface)" }}>
         <span style={{ color: "var(--c-text-ghost)", marginTop: 3 }}>{Icon.drag({ s: 12 })}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                 <Chip tone={dt} size="sm">{n.dept}</Chip>
                 <span style={{ fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.type}</span>
             </div>
-            <div style={{ fontSize: 10, color: "var(--c-text-faint)", marginBottom: 4 }}>{n.author}{n.cosign ? ` · ${n.cosign}` : ""} · {n.date}</div>
+            <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 4 }}>{n.author}{n.cosign ? ` · ${n.cosign}` : ""} · {n.date}</div>
             <div style={{ fontSize: 11, color: "var(--c-text-mute)", lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.preview}</div>
             <div style={{ marginTop: 8 }}><span className="micro" onClick={() => onAddToChat && onAddToChat({ kind: "note", id: n.id, label: n.type })}>+ Add to chat</span></div>
         </div>
@@ -316,7 +316,7 @@ function LabTable({ rows }) {
             const c = r.tone === "high" ? "var(--c-red-deep)" : r.tone === "low" ? "var(--c-amber-deep)" : "var(--c-text)";
             return <div key={i} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 18px", padding: "7px 10px", fontSize: 11, borderTop: "0.5px solid var(--c-border-faint)", alignItems: "center" }}>
                 <div><div style={{ fontWeight: 500 }}>{r.name}</div>{r.note && <div style={{ fontSize: 10, color: "var(--c-green-deep)", marginTop: 2 }}>{r.note}</div>}</div>
-                <div style={{ color: c, fontWeight: 500 }}>{r.v} <span style={{ color: "var(--c-text-faint)", fontWeight: 400, fontSize: 10 }}>{r.unit}</span></div>
+                <div style={{ color: c, fontWeight: 500 }}>{r.v} <span style={{ color: "var(--c-text-mute)", fontWeight: 400, fontSize: 10 }}>{r.unit}</span></div>
                 <div style={{ color: "var(--c-text-mute)", fontSize: 10 }}>{r.ref}</div>
                 <div>{r.flag && <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16, borderRadius: 4, background: r.tone === "high" ? "var(--c-red-100)" : "var(--c-amber-100)", fontSize: 9, fontWeight: 500, color: c }}>{r.flag}</span>}</div>
             </div>;
@@ -333,7 +333,7 @@ function ImagingTab({ onAddToChat }) {
             </div>
             <div style={{ padding: "10px 12px" }}>
                 <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 2 }}>{im.type}</div>
-                <div style={{ fontSize: 10, color: "var(--c-text-faint)", marginBottom: 8 }}>{im.date} · {im.author}</div>
+                <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 8 }}>{im.date} · {im.author}</div>
                 <div className="label-xs" style={{ marginBottom: 2 }}>FINDINGS</div>
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.findings}</div>
                 <div className="label-xs" style={{ marginBottom: 2 }}>IMPRESSION</div>

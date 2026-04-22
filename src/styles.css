@@ -64,9 +64,9 @@
 
 html.dark-theme {
   --c-bg: #121212;
-  --c-surface: #1E1E1E;
-  --c-surface-alt: #2A2A2A;
-  --c-surface-warm: #242424;
+  --c-surface: #2A2A2A;
+  --c-surface-alt: #333333;
+  --c-surface-warm: #2A2A2A;
   --c-surface-ivory: #2D2D2D;
 
   --c-text: #F5F5F5;

@@ -29,7 +29,7 @@ export function DashboardScreen({ onOpen }) {
             {/* Greeting strip */}
             <div className="greeting-strip" style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                 <div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-faint)", letterSpacing: "0.06em", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", letterSpacing: "0.06em", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
                     <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", color: "var(--c-text)" }}>Good morning, Dr. Riaz</div>
                     <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginTop: 4 }}>8 patients scheduled · 3 notes awaiting your co-sign · morning clinic starts at 09:00</div>
                 </div>
@@ -59,7 +59,7 @@ export function DashboardScreen({ onOpen }) {
                                     <span key={f.k} onClick={() => setFilter(f.k)} style={{
                                         padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer",
                                         color: filter === f.k ? "var(--c-text)" : "var(--c-text-mute)",
-                                        background: filter === f.k ? "#fff" : "transparent",
+                                        background: filter === f.k ? "var(--c-surface)" : "transparent",
                                         border: "0.5px solid " + (filter === f.k ? "var(--c-border)" : "transparent")
                                     }}>{f.k} · {f.count}</span>
                                 ))}
@@ -69,7 +69,7 @@ export function DashboardScreen({ onOpen }) {
 
                         <div className="scroll" style={{ overflowX: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
                             <div style={{ minWidth: 680, display: "flex", flexDirection: "column", flex: 1 }}>
-                                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "8px 16px", fontSize: 10, color: "var(--c-text-faint)", letterSpacing: "0.05em", fontWeight: 500, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "#FCFCFA" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "8px 16px", fontSize: 10, color: "var(--c-text-mute)", letterSpacing: "0.05em", fontWeight: 500, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "#FCFCFA" }}>
                                     <div>Patient</div><div>Diagnosis</div><div>Status</div><div>Time</div><div />
                                 </div>
 
@@ -111,7 +111,7 @@ export function DashboardScreen({ onOpen }) {
                                 <div className="avatar">{m.initials}</div>
                                 <div>
                                     <div style={{ fontSize: 12, fontWeight: 500 }}>{m.n}</div>
-                                    <div style={{ fontSize: 10, color: "var(--c-text-faint)" }}>{m.r}</div>
+                                    <div style={{ fontSize: 10, color: "var(--c-text-mute)" }}>{m.r}</div>
                                 </div>
                             </div>
                         ))}
@@ -162,7 +162,7 @@ function PatientRow({ p, first, onOpen }) {
                 <div style={{ width: 36, height: 36, borderRadius: 18, background: p.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "var(--c-text)", border: "0.5px solid rgba(0,0,0,0.05)" }}>{p.initials}</div>
                 <div>
                     <div style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
-                    <div style={{ fontSize: 10, color: "var(--c-text-faint)" }}>{p.demo} · {p.mrn} · {p.type}</div>
+                    <div style={{ fontSize: 10, color: "var(--c-text-mute)" }}>{p.demo} · {p.mrn} · {p.type}</div>
                 </div>
             </div>
             <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.4, paddingRight: 12 }}>{p.dx}</div>
@@ -190,12 +190,12 @@ function Calendar() {
         <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "14px 12px", background: "var(--c-surface)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 500 }}>{month}</span>
-                <div style={{ display: "flex", gap: 4, color: "var(--c-text-faint)" }}>
+                <div style={{ display: "flex", gap: 4, color: "var(--c-text-mute)" }}>
                     {Icon.chevLeft({ s: 12 })}{Icon.chevRight({ s: 12 })}
                 </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2, marginBottom: 4 }}>
-                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 9, color: "var(--c-text-faint)", padding: "2px 0" }}>{d}</div>)}
+                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 9, color: "var(--c-text-mute)", padding: "2px 0" }}>{d}</div>)}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
                 {Array.from({ length: leading }).map((_, i) => <div key={"pad" + i} />)}
@@ -206,7 +206,7 @@ function Calendar() {
                         <div key={d} style={{
                             aspectRatio: "1/1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                             fontSize: 11, fontWeight: isToday ? 500 : 400,
-                            color: isToday ? "#fff" : "var(--c-text)",
+                            color: isToday ? "var(--c-surface)" : "var(--c-text)",
                             background: isToday ? "var(--c-blue)" : "transparent",
                             borderRadius: 6, position: "relative"
                         }}>

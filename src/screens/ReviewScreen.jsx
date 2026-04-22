@@ -18,12 +18,12 @@ export function ReviewScreen({ onNav }) {
                 <div style={{ padding: "14px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                         <div className="avatar" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
-                        <div><div style={{ fontSize: 13, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 10, color: "var(--c-text-faint)" }}>67M · MRN-003291</div></div>
+                        <div><div style={{ fontSize: 13, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 10, color: "var(--c-text-mute)" }}>67M · MRN-003291</div></div>
                     </div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", lineHeight: 1.6 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-faint)" }}>Visit</span><span>Apr 17 · 09:00</span></div>
-                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-faint)" }}>Drafted</span><span>Ambience AI</span></div>
-                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-faint)" }}>Signing</span><span style={{ color: "var(--c-blue)", fontWeight: 500 }}>Dr. I. Riaz</span></div>
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-mute)" }}>Visit</span><span>Apr 17 · 09:00</span></div>
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-mute)" }}>Drafted</span><span>Ambience AI</span></div>
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ color: "var(--c-text-mute)" }}>Signing</span><span style={{ color: "var(--c-blue)", fontWeight: 500 }}>Dr. I. Riaz</span></div>
                     </div>
                     <div className="label-xs" style={{ marginTop: 20, marginBottom: 10 }}>READING GUIDE</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#D4E8F9", border: "0.5px solid var(--c-blue)" }} /><span style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Ambience captured</span></div>
