@@ -7,7 +7,7 @@ import { RightPanel } from "../components/panels.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
 import { Micro } from "../components/ui/Micro.jsx";
 
-export function InitialScreen({ onNav, onEnterNotes }) {
+export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const [state, setState] = useState("ready");
     const [tab, setTab] = useState("Notes");
     const [lCol, setLCol] = useState(false);
