@@ -78,7 +78,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} />
+            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} state={state} />
             {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">

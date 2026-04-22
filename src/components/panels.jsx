@@ -5,7 +5,7 @@ import { Chip } from "./ui/Chip.jsx";
 import { Icon } from "./ui/Icon.jsx";
 
 // Left Panel
-export function LeftPanel({ collapsed, onToggle, width = 260 }) {
+export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" }) {
     const d = data;
     const [c, setC] = useState({ flags: false, psa: false, labs: false, note: false });
     const tog = k => setC(x => ({ ...x, [k]: !x[k] }));
@@ -65,27 +65,30 @@ export function LeftPanel({ collapsed, onToggle, width = 260 }) {
                     </div>
                 </div>}
             </div>
-            <div style={{ borderTop: "0.5px solid var(--c-blue-250)", background: "var(--c-blue-200)" }}>
-                <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span className="pulse-blue" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
-                        <span className="label-xs" style={{ color: "var(--c-text)" }}>CURRENTLY EDITING</span>
+            {/* Only show the active note edit block once the ambient session produces a draft */}
+            {(state === "drafted") && (
+                <div style={{ borderTop: "0.5px solid var(--c-blue-250)", background: "var(--c-blue-200)" }}>
+                    <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span className="pulse-blue" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
+                            <span className="label-xs" style={{ color: "var(--c-text)" }}>CURRENTLY EDITING</span>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 500, color: "var(--c-blue)" }}>Draft</span>
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 500, color: "var(--c-blue)" }}>Draft</span>
+                    <div style={{ padding: "10px 16px", background: "var(--c-surface)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+                            <Chip tone="purple" size="sm">Oncology</Chip>
+                            <div style={{ fontSize: 12, fontWeight: 500 }}>Follow-up · Day 14 Enzalutamide</div>
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--c-blue)", marginBottom: 6 }}>Dr. I. Riaz · Today · Draft</div>
+                        <div style={{ fontSize: 11, color: "var(--c-blue-deep)", lineHeight: 1.5, marginBottom: 10 }}>Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…</div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <span className="btn btn-primary sm" style={{ flex: 1 }}>Continue</span>
+                            <span className="btn btn-outline sm" style={{ flex: 1 }}>+ Add to Notes</span>
+                        </div>
+                    </div>
                 </div>
-                <div style={{ padding: "10px 16px", background: "var(--c-surface)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
-                        <Chip tone="purple" size="sm">Oncology</Chip>
-                        <div style={{ fontSize: 12, fontWeight: 500 }}>Follow-up · Day 14 Enzalutamide</div>
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--c-blue)", marginBottom: 6 }}>Dr. I. Riaz · Today · Draft</div>
-                    <div style={{ fontSize: 11, color: "var(--c-blue-deep)", lineHeight: 1.5, marginBottom: 10 }}>Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…</div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                        <span className="btn btn-primary sm" style={{ flex: 1 }}>Continue</span>
-                        <span className="btn btn-outline sm" style={{ flex: 1 }}>+ Add to Notes</span>
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 }
