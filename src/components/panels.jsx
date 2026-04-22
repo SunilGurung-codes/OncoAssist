@@ -139,6 +139,50 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
         setDraggedIdx(null);
     };
 
+    const TabManagerPopup = () => (
+        <>
+            <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
+            <div style={{ position: "absolute", top: collapsed ? 16 : 48, right: collapsed ? 64 : 16, width: 260, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
+                <div className="label-xs" style={{ marginBottom: 8, marginTop: 4 }}>ACTIVE TABS</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
+                    {tabs.map(t =>
+                        <div key={t} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: "var(--c-surface-warm)", borderRadius: 6, fontSize: 13, color: "var(--c-text-strong)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ color: "var(--c-text-mute)" }}>{t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}</span>
+                                {t}
+                            </div>
+                            <div onClick={() => {
+                                const updated = tabs.filter(x => x !== t);
+                                setTabs(updated);
+                                if (tab === t) onTab(updated[0] || "");
+                            }} style={{ cursor: "pointer", color: "var(--c-text-mute)", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                {Icon.x({ s: 12 })}
+                            </div>
+                        </div>
+                    )}
+                    {tabs.length === 0 && <div style={{ fontSize: 12, color: "var(--c-text-mute)", fontStyle: "italic", padding: "4px 8px" }}>No active tabs</div>}
+                </div>
+
+                <div style={{ height: 1, background: "var(--c-border-faint)", margin: "0 -12px 12px" }} />
+
+                <div className="label-xs" style={{ marginBottom: 8 }}>ADD MODULE</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12, border: "0.5px solid var(--c-border-soft)" }}>
+                    {Icon.search({ s: 14 })}
+                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Search modules…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
+                    <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", maxHeight: 180, overflowY: "auto" }}>
+                    {availableModules.map(m =>
+                        <div key={m} onClick={() => { if (collapsed && onToggle) onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "8px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
+                        </div>
+                    )}
+                    {availableModules.length === 0 && <div style={{ padding: 12, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <div className={`panel-side ${collapsed ? "collapsed" : ""}`}>
             {collapsed ? (
@@ -153,30 +197,10 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                                 </div>
                             ))}
                             <div onClick={() => setShowAddPopup(true)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, marginTop: 8, position: "relative" }}>
-                                {Icon.plus({ s: 16 })} <span style={{ fontSize: 9 }}>Add</span>
+                                {Icon.edit({ s: 16 })} <span style={{ fontSize: 9 }}>Edit</span>
                             </div>
                         </div>
                     </div>
-                    {showAddPopup && (
-                        <>
-                            <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
-                            <div style={{ position: "absolute", top: 16, right: 64, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default" }} onClick={e => e.stopPropagation()}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
-                                    {Icon.search({ s: 14 })}
-                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
-                                    <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
-                                </div>
-                                <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
-                                    {availableModules.map(m =>
-                                        <div key={m} onClick={() => { onToggle && onToggle(); onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
-                                        </div>
-                                    )}
-                                    {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
-                                </div>
-                            </div>
-                        </>
-                    )}
                 </>
             ) : (
                 <>
@@ -191,7 +215,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                                     </div>
                                 )}
                                 <div onClick={() => setShowAddPopup(!showAddPopup)} style={{ width: 44, flexShrink: 0, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--c-text-mute)", borderBottom: "none", position: "relative" }}>
-                                    {Icon.plus({ s: 16 })}
+                                    {Icon.edit({ s: 16 })}
                                 </div>
                             </div>
                         </div>
@@ -207,28 +231,9 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle }) {
                             )}
                         </div>
                     </div>
-                    {showAddPopup && (
-                        <>
-                            <div style={{ position: "fixed", inset: 0, zIndex: 90 }} onClick={(e) => { e.stopPropagation(); setShowAddPopup(false); }} />
-                            <div style={{ position: "absolute", top: 48, right: 16, width: 240, background: "#fff", border: "0.5px solid var(--c-border)", borderRadius: 10, boxShadow: "0 10px 25px rgba(0,0,0,0.15)", padding: 12, zIndex: 100, cursor: "default", textAlign: "left" }} onClick={e => e.stopPropagation()}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--c-surface-alt)", padding: "6px 10px", borderRadius: 8, marginBottom: 12 }}>
-                                    {Icon.search({ s: 14 })}
-                                    <input autoFocus value={addQuery} onChange={e => setAddQuery(e.target.value)} placeholder="Type module name…" style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, outline: "none", color: "var(--c-text)" }} />
-                                    <div onClick={() => setShowAddPopup(false)} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.x({ s: 12 })}</div>
-                                </div>
-                                <div style={{ display: "flex", flexDirection: "column", maxHeight: 240, overflowY: "auto" }}>
-                                    {availableModules.map(m =>
-                                        <div key={m} onClick={() => { onTab(m); setShowAddPopup(false); setAddQuery(""); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, color: "var(--c-text)", background: "transparent", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-                                            <span style={{ color: "var(--c-blue)" }}>{Icon.plus({ s: 12 })}</span> {m}
-                                        </div>
-                                    )}
-                                    {availableModules.length === 0 && <div style={{ padding: 16, textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>No matching modules.</div>}
-                                </div>
-                            </div>
-                        </>
-                    )}
                 </>
             )}
+            {showAddPopup && <TabManagerPopup />}
         </div>
     );
 }
