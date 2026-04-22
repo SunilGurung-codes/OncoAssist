@@ -216,7 +216,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ position: "absolute", left: 8, zIndex: 10, cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
                             <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
                                 {tabs.map((t, idx) =>
-                                    <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#fff" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
+                                    <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "#F8F8F8" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
                                         {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
                                         {t}
                                     </div>
@@ -279,7 +279,7 @@ function NoteRow({ n, onAddToChat }) {
     return <div draggable
         onDragStart={e => { e.dataTransfer.setData("application/json", JSON.stringify({ kind: "note", id: n.id, label: n.type })); e.currentTarget.classList.add("dragging"); }}
         onDragEnd={e => e.currentTarget.classList.remove("dragging")}
-        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "#FBFCFE" : "#fff" }}>
+        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "#F8F8F8" : "#FFFFFF" }}>
         <span style={{ color: "var(--c-text-ghost)", marginTop: 3 }}>{Icon.drag({ s: 12 })}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>

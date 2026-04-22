@@ -6,11 +6,11 @@
 }
 
 :root {
-  --c-bg: #F8F7F4;
+  --c-bg: #FFFFFF;
   --c-surface: #FFFFFF;
   --c-surface-alt: #F8F8F8;
-  --c-surface-warm: #F5F4F0;
-  --c-surface-ivory: #F1EFE8;
+  --c-surface-warm: #FFFFFF;
+  --c-surface-ivory: #FFFFFF;
 
   --c-text: #1A1A18;
   --c-text-strong: #2C2C2A;
