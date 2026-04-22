@@ -56,28 +56,28 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                 {lCol ? (
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
                         <div onClick={() => setLCol(false)} className="has-tooltip" data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
-                        <div className="avatar sm" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
+                        <div className="avatar sm" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
                         <div style={{ flex: 1 }} />
                         {state === "recording" && <span className="pulse-red" style={{ width: 10, height: 10, borderRadius: 5, background: "var(--c-red)" }} />}
                     </div>
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
                         <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
-                            <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
+                            <div className="avatar lg" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
                             <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · Visit Apr 17</div></div>
                             <div onClick={() => setLCol(true)} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
                         </div>
                         {state === "ready" && <div>
                             <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · READY</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>00:00:00</span>
+                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>00:00:00</span>
                             </div>
                             <div style={{ padding: "10px 14px" }}><button onClick={start} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "var(--c-surface)" }}>Start recording</button></div>
                         </div>}
                         {state === "recording" && <div>
                             <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span className="pulse-red" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · RECORDING</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>{fmt(elapsed)}</span>
+                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>{fmt(elapsed)}</span>
                             </div>
                             <div style={{ padding: "10px 14px" }}>
                                 <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 3, height: 22, marginBottom: 10 }}>
@@ -98,9 +98,9 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
                             Generating structured note…
                         </div>}
-                        {state === "drafted" && <div style={{ padding: "12px 16px", borderTop: "0.5px solid #C4D9F0", background: "var(--c-blue-100)", flex: 1 }}>
+                        {state === "drafted" && <div style={{ padding: "12px 16px", borderTop: "0.5px solid var(--c-blue-250)", background: "var(--c-blue-100)", flex: 1 }}>
                             <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8 }}>NOTE DRAFTED · AWAITING REVIEW</div>
-                            <div style={{ background: "var(--c-surface)", border: "0.5px solid #C4D9F0", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+                            <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
                                 <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5, maxHeight: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
                                     <b>S:</b> Chief Complaint: Follow-up on new ADT. Tolerating Enzalutamide 160mg QD...<br />

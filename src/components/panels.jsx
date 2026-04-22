@@ -12,7 +12,7 @@ export function LeftPanel() {
     return (
         <div className="panel-left">
             <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
-                <div className="avatar lg" style={{ background: "#C7D9EB", color: "var(--c-blue-deep)" }}>JP</div>
+                <div className="avatar lg" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · MRN-003291</div>
@@ -53,7 +53,7 @@ export function LeftPanel() {
                     </div>
                 </div>}
             </div>
-            <div style={{ borderTop: "0.5px solid #C4D9F0", background: "#D4E8F9" }}>
+            <div style={{ borderTop: "0.5px solid var(--c-blue-250)", background: "var(--c-blue-200)" }}>
                 <div style={{ padding: "8px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span className="pulse-blue" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
@@ -102,7 +102,7 @@ function PSAChart() {
                 {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="9" fontWeight="500" fill={p.drop ? "#085041" : "#A32D2D"}>{p.v}</text>}
             </g>)}
         </svg>
-        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid #A8D9C5", padding: "4px 8px", fontSize: 10, fontWeight: 500, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
+        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "4px 8px", fontSize: 10, fontWeight: 500, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
     </div>;
 }
 
@@ -301,7 +301,7 @@ function LabsTab({ onAddToChat }) {
             <LabTable rows={labsCBC.rows} />
             <div className="label-xs" style={{ marginTop: 16, marginBottom: 6 }}>PSA + HORMONAL · {labsPSA.date}</div>
             <LabTable rows={labsPSA.rows} />
-            <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid #A8D9C5", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
+            <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
         </div>
         <div style={{ padding: "10px 12px 14px" }}><button onClick={() => onAddToChat && onAddToChat({ kind: "lab", label: "PSA + Hormonal Panel" })} className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Panel to Chat</button></div>
     </div>;
@@ -327,7 +327,7 @@ function LabTable({ rows }) {
 function ImagingTab({ onAddToChat }) {
     return <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
         {data.imaging.map(im => <div key={im.id} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, overflow: "hidden" }}>
-            <div style={{ height: 88, background: "linear-gradient(135deg,#E8EFF7,#D4E1F0)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+            <div style={{ height: 88, background: "linear-gradient(135deg,var(--c-blue-50),var(--c-blue-200))", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="22" stroke="#0C447C" strokeOpacity=".4" strokeWidth="1.5" fill="#0C447C" fillOpacity=".08" /></svg>
                 <div style={{ position: "absolute", top: 6, left: 8 }}><Chip tone="blue" size="sm">{im.dept}</Chip></div>
             </div>
@@ -338,7 +338,7 @@ function ImagingTab({ onAddToChat }) {
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.findings}</div>
                 <div className="label-xs" style={{ marginBottom: 2 }}>IMPRESSION</div>
                 <div style={{ fontSize: 11, lineHeight: 1.45, marginBottom: 8 }}>{im.impression}</div>
-                <div style={{ background: "var(--c-blue-100)", border: "0.5px solid #C4D9F0", borderRadius: 6, padding: "6px 8px", fontSize: 11, color: "var(--c-blue-deep)" }}><b>Note:</b> {im.note}</div>
+                <div style={{ background: "var(--c-blue-100)", border: "0.5px solid var(--c-blue-250)", borderRadius: 6, padding: "6px 8px", fontSize: 11, color: "var(--c-blue-deep)" }}><b>Note:</b> {im.note}</div>
                 <div style={{ marginTop: 12 }}><span className="micro" onClick={() => onAddToChat && onAddToChat({ kind: "imaging", label: im.type })} style={{ cursor: "pointer" }}>+ Add to chat</span></div>
             </div>
         </div>)}
