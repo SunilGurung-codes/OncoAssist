@@ -188,7 +188,7 @@ textarea {
 }
 
 .panel-side {
-  width: 360px;
+  width: 436px;
   border-left: 0.5px solid var(--c-border-faint);
   background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -199,7 +199,7 @@ textarea {
 }
 
 .panel-left {
-  width: 320px;
+  width: 260px;
   border-right: 0.5px solid var(--c-border-faint);
   background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
