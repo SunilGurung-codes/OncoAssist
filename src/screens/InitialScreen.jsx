@@ -11,6 +11,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
     const [state, setState] = useState("ready");
     const [tab, setTab] = useState("Notes");
     const [lCol, setLCol] = useState(false);
+    const [leftW, setLeftW] = useState(360);
     const [rCol, setRCol] = useState(false);
     const [rightW, setRightW] = useState(360);
 
@@ -44,9 +45,9 @@ export function InitialScreen({ onNav, onEnterNotes }) {
     const start = () => { setElapsed(0); setVis(0); setState("recording"); };
 
     return <div className="stage" data-screen-label="02 Initial · Ambience">
-        <TopBar />
+        <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <div className={`panel-left ${lCol ? "collapsed" : ""}`}>
+            <div className={`panel-left ${lCol ? "collapsed" : ""}`} style={{ width: lCol ? undefined : leftW, flexShrink: 0, transition: lCol ? "width 0.3s ease" : "none" }}>
                 {lCol ? (
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
                         <div onClick={() => setLCol(false)} className="has-tooltip" data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
@@ -108,6 +109,7 @@ export function InitialScreen({ onNav, onEnterNotes }) {
                     </div>
                 )}
             </div>
+            {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">
                 <div style={{ minHeight: 44, padding: "8px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
@@ -143,14 +145,15 @@ export function InitialScreen({ onNav, onEnterNotes }) {
 
                 {/* Chat Input */}
                 <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "#fff", zIndex: 10 }}>
-                    {ctx.length > 0 && <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
                         <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
                         {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "#EDF3FB" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "#C4D9F0" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                             {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
                             <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
                         </span>)}
-                    </div>}
-                    <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "10px 16px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
+                    </div>
+                    <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 16px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
                             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
