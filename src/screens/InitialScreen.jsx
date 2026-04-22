@@ -3,7 +3,7 @@ import { data } from "../data.js";
 import { TopBar } from "../components/ui/TopBar.jsx";
 import { Icon } from "../components/ui/Icon.jsx";
 import { Chip } from "../components/ui/Chip.jsx";
-import { RightPanel } from "../components/panels.jsx";
+import { LeftPanel, RightPanel } from "../components/panels.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
 import { Micro } from "../components/ui/Micro.jsx";
 
@@ -52,67 +52,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <div className={`panel-left ${lCol ? "collapsed" : ""}`} style={{ width: lCol ? undefined : leftW, flexShrink: 0, transition: lCol ? "width 0.3s ease" : "none" }}>
-                {lCol ? (
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
-                        <div onClick={() => setLCol(false)} className="has-tooltip" data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
-                        <div className="avatar sm" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
-                        <div style={{ flex: 1 }} />
-                        {state === "recording" && <span className="pulse-red" style={{ width: 10, height: 10, borderRadius: 5, background: "var(--c-red)" }} />}
-                    </div>
-                ) : (
-                    <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }}>
-                        <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
-                            <div className="avatar lg" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
-                            <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div><div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · Visit Apr 17</div></div>
-                            <div onClick={() => setLCol(true)} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>
-                        </div>
-                        {state === "ready" && <div>
-                            <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · READY</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>00:00:00</span>
-                            </div>
-                            <div style={{ padding: "10px 14px" }}><button onClick={start} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "var(--c-surface)" }}>Start recording</button></div>
-                        </div>}
-                        {state === "recording" && <div>
-                            <div style={{ height: 36, background: "var(--c-red-100)", padding: "0 12px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span className="pulse-red" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · RECORDING</span></div>
-                                <span style={{ padding: "2px 8px", borderRadius: 6, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 11, fontWeight: 500, color: "var(--c-red-deep)" }}>{fmt(elapsed)}</span>
-                            </div>
-                            <div style={{ padding: "10px 14px" }}>
-                                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 3, height: 22, marginBottom: 10 }}>
-                                    {Array.from({ length: 28 }).map((_, i) => <span key={i} className="wave-bar" style={{ height: Math.abs(Math.sin(i * 0.6 + elapsed * 0.8) * 16) + 4 + "px", animation: `wave ${0.8 + (i % 4) * 0.2}s ease-in-out infinite`, animationDelay: `${i * 0.05}s` }} />)}
-                                </div>
-                                <button onClick={() => setState("generating")} className="btn sm" style={{ width: "100%", background: "var(--c-red)", color: "var(--c-surface)" }}>{Icon.square({ s: 8 })} Stop</button>
-                            </div>
-                            <div style={{ padding: "12px 16px", borderTop: "0.5px solid var(--c-border-faint)", flex: 1, overflowY: "auto" }}>
-                                <div className="label-xs" style={{ marginBottom: 8 }}>LIVE TRANSCRIPT</div>
-                                {tr.slice(0, vis).map((l, i) => <div key={i} className="fade-in" style={{ marginBottom: 10, fontSize: 11, lineHeight: 1.5 }}>
-                                    <div style={{ color: "var(--c-blue)", fontWeight: 500, fontSize: 10, marginBottom: 2 }}>{l.speaker}</div>
-                                    <div>{l.text}</div>
-                                </div>)}
-                            </div>
-                        </div>}
-                        {state === "generating" && <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>
-                            <div style={{ margin: "0 auto 14px", width: 36, height: 36, borderRadius: 18, border: "2px solid var(--c-blue-200)", borderTopColor: "var(--c-blue)", animation: "spin 1s linear infinite" }} />
-                            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-                            Generating structured note…
-                        </div>}
-                        {state === "drafted" && <div style={{ padding: "12px 16px", borderTop: "0.5px solid var(--c-blue-250)", background: "var(--c-blue-100)", flex: 1 }}>
-                            <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8 }}>NOTE DRAFTED · AWAITING REVIEW</div>
-                            <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
-                                <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5, maxHeight: 60, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
-                                    <b>S:</b> Chief Complaint: Follow-up on new ADT. Tolerating Enzalutamide 160mg QD...<br />
-                                    <b>O:</b> PSA 16.2 (decrease), Test {"<"} 50. Hgb 12.8...<br />
-                                    <b>A:</b> Metastatic CRPC, early biochemical response.
-                                </div>
-                            </div>
-                            <button className="btn btn-primary lg" style={{ width: "100%", marginBottom: 6 }} onClick={() => onNav("review")}>Review & sign →</button>
-                        </div>}
-                    </div>
-                )}
-            </div>
+            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} />
             {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">
@@ -125,6 +65,55 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · APR 17 · 09:00</div>
                     <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>Follow-up · Day 14 of Enzalutamide</div>
                     <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.55 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
+
+                    {/* Ambient Controls */}
+                    {state === "ready" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-red-300)", borderRadius: 10, overflow: "hidden" }}>
+                        <div style={{ padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--c-surface)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} /><span className="label-xs" style={{ color: "var(--c-red-deep)" }}>AMBIENT · READY</span></div>
+                            <button onClick={start} className="btn sm" style={{ background: "var(--c-red)", color: "var(--c-surface)" }}>Start recording</button>
+                        </div>
+                    </div>}
+
+                    {state === "recording" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-red-300)", borderRadius: 10, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                        <div style={{ padding: "12px 14px", background: "var(--c-red-100)", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "0.5px solid var(--c-border-faint)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <span className="pulse-red" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-red)" }} />
+                                <span className="label-xs" style={{ color: "var(--c-red-deep)" }}>RECORDING · {fmt(elapsed)}</span>
+                                <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 14 }}>
+                                    {Array.from({ length: 8 }).map((_, i) => <span key={i} className="wave-bar" style={{ width: 3, background: "var(--c-red)", height: Math.abs(Math.sin(i * 0.6 + elapsed * 0.8) * 10) + 4 + "px", animation: `wave ${0.8 + (i % 4) * 0.2}s ease-in-out infinite`, animationDelay: `${i * 0.05}s` }} />)}
+                                </div>
+                            </div>
+                            <button onClick={() => setState("generating")} className="btn sm" style={{ background: "var(--c-red)", color: "var(--c-surface)" }}>{Icon.square({ s: 8 })} Stop</button>
+                        </div>
+                        <div className="scroll" style={{ maxHeight: 180, overflowY: "auto", padding: "12px 16px", background: "var(--c-surface)" }}>
+                            <div className="label-xs" style={{ marginBottom: 8 }}>LIVE TRANSCRIPT</div>
+                            {tr.slice(0, vis).map((l, i) => <div key={i} className="fade-in" style={{ marginBottom: 10, fontSize: 11, lineHeight: 1.5 }}>
+                                <div style={{ color: "var(--c-blue)", fontWeight: 500, fontSize: 10, marginBottom: 2 }}>{l.speaker}</div>
+                                <div>{l.text}</div>
+                            </div>)}
+                        </div>
+                    </div>}
+
+                    {state === "generating" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "32px 16px", textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>
+                        <div style={{ margin: "0 auto 14px", width: 36, height: 36, borderRadius: 18, border: "2px solid var(--c-blue-200)", borderTopColor: "var(--c-blue)", animation: "spin 1s linear infinite" }} />
+                        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                        Generating structured note…
+                    </div>}
+
+                    {state === "drafted" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-blue-250)", borderRadius: 10, overflow: "hidden" }}>
+                        <div style={{ padding: "12px 16px", background: "var(--c-blue-100)" }}>
+                            <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span>NOTE DRAFTED · MATCHES TEMPLATE</span>
+                                <button className="btn btn-primary sm" onClick={() => onNav("review")}>Review & sign →</button>
+                            </div>
+                            <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
+                                <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5, maxHeight: 64, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
+                                    {messages.find(m => m.role === "ai" && m.text.includes("**Oncology SOAP Note**"))?.text.substring(0, 160) || "Review full note structure..."}
+                                </div>
+                            </div>
+                        </div>
+                    </div>}
                     <div className="card" style={{ marginBottom: 18 }}>
                         <div style={{ height: 38, padding: "0 14px", display: "flex", alignItems: "center", background: "var(--c-surface-alt)", fontWeight: 500, fontSize: 13, gap: 6 }}><span style={{ color: "var(--c-blue)" }}>{Icon.sparkle({ s: 12 })}</span>Smart steps · AI-suggested</div>
                         {[{ q: "Think through next steps for this patient", primary: true }, { q: "Compare today's PSA to the last 7 readings", tag: "Q1" }, { q: "Side-effect profile at Day 14 Enzalutamide", tag: "Q2" }].map((s, i) =>

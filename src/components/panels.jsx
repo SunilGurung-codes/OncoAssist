@@ -5,18 +5,30 @@ import { Chip } from "./ui/Chip.jsx";
 import { Icon } from "./ui/Icon.jsx";
 
 // Left Panel
-export function LeftPanel() {
+export function LeftPanel({ collapsed, onToggle, width = 260 }) {
     const d = data;
     const [c, setC] = useState({ flags: false, psa: false, labs: false, note: false });
     const tog = k => setC(x => ({ ...x, [k]: !x[k] }));
+
+    if (collapsed) return (
+        <div className="panel-left collapsed">
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
+                <div onClick={onToggle} className="has-tooltip" data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
+                <div className="avatar sm" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
+                <div style={{ flex: 1 }} />
+            </div>
+        </div>
+    );
+
     return (
-        <div className="panel-left">
+        <div className="panel-left" style={{ width, flexShrink: 0, transition: "width 0.3s ease", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
                 <div className="avatar lg" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div>
                     <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · MRN-003291</div>
                 </div>
+                {onToggle && <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>}
             </div>
             <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
                 <SectionHeader label="KEY FLAGS" collapsed={c.flags} onToggle={() => tog("flags")} />
