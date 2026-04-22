@@ -201,7 +201,7 @@ textarea {
 .panel-left {
   width: 320px;
   border-right: 0.5px solid var(--c-border-faint);
-  background: #fff;
+  background: var(--c-surface);
   transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -376,7 +376,7 @@ textarea {
 .topbar {
   height: 48px;
   border-bottom: 0.5px solid var(--c-border);
-  background: #fff;
+  background: var(--c-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -518,7 +518,7 @@ textarea {
 }
 
 .chip-neutral {
-  background: #fff;
+  background: var(--c-surface);
   border-color: var(--c-border);
   color: var(--c-text-mute);
 }
@@ -549,7 +549,7 @@ textarea {
 }
 
 .btn-outline {
-  background: #fff;
+  background: var(--c-surface);
   border-color: var(--c-blue);
   color: var(--c-blue-deep);
 }
@@ -608,7 +608,7 @@ textarea {
 }
 
 .card {
-  background: #fff;
+  background: var(--c-surface);
   border-radius: var(--r-card);
   border: 0.5px solid var(--c-border);
   overflow: hidden;

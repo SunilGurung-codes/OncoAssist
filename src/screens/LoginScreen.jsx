@@ -86,7 +86,7 @@ export function LoginScreen({ onLogin }) {
                     </div>
 
                     {error && <div style={{ color: "var(--c-red-deep)", fontSize: 14, marginBottom: 16 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
-                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "#ffffff", fontSize: 16, fontWeight: 500, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
+                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 500, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
                 </div>
 
                 {/* Right side (Tap/Scanner) */}

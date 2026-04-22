@@ -97,7 +97,7 @@ function PSAChart() {
             {[5, 10, 15, 20].map(g => <text key={g} x={pL - 4} y={y(g) + 3} textAnchor="end" fontSize="8" fill="#B4B2A9">{g}</text>)}
             <path d={path} fill="none" stroke="#378ADD" strokeWidth="1.5" />
             {d.map((p, i) => <g key={i}>
-                <circle cx={x(i)} cy={y(p.v)} r={p.drop ? 4 : 2.5} fill={p.drop ? "#1D9E75" : (i === d.length - 2 ? "#E24B4A" : "#378ADD")} stroke="#fff" strokeWidth="1" />
+                <circle cx={x(i)} cy={y(p.v)} r={p.drop ? 4 : 2.5} fill={p.drop ? "#1D9E75" : (i === d.length - 2 ? "#E24B4A" : "#378ADD")} stroke="var(--c-surface)" strokeWidth="1" />
                 <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" fill="#888780">{p.m}</text>
                 {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="9" fontWeight="500" fill={p.drop ? "#085041" : "#A32D2D"}>{p.v}</text>}
             </g>)}
@@ -264,7 +264,7 @@ function NotesTab({ onAddToChat }) {
             <div style={{ width: 30, height: 28, borderRadius: 7, background: "var(--c-surface-alt)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)" }}>{Icon.filter({ s: 14 })}</div>
         </div>
         <div style={{ padding: "6px 10px", background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", gap: 4 }}>
-            {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "3px 7px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "#fff", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
+            {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "3px 7px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "var(--c-surface)", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
         </div>
         {notes.map(n => <NoteRow key={n.id} n={n} onAddToChat={onAddToChat} />)}
         <div style={{ padding: "10px 12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -279,7 +279,7 @@ function NoteRow({ n, onAddToChat }) {
     return <div draggable
         onDragStart={e => { e.dataTransfer.setData("application/json", JSON.stringify({ kind: "note", id: n.id, label: n.type })); e.currentTarget.classList.add("dragging"); }}
         onDragEnd={e => e.currentTarget.classList.remove("dragging")}
-        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "#F8F8F8" : "#FFFFFF" }}>
+        style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", gap: 8, cursor: "grab", background: n.pinned ? "#F8F8F8" : "var(--c-surface)" }}>
         <span style={{ color: "var(--c-text-ghost)", marginTop: 3 }}>{Icon.drag({ s: 12 })}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>

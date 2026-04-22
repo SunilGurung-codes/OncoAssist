@@ -155,7 +155,7 @@ function PatientRow({ p, first, onOpen }) {
                 padding: "12px 16px",
                 alignItems: "center",
                 borderBottom: "0.5px solid var(--c-border-faint)",
-                background: p.primary ? "var(--c-surface-alt)" : "#fff",
+                background: p.primary ? "var(--c-surface-alt)" : "var(--c-surface)",
                 cursor: "pointer"
             }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

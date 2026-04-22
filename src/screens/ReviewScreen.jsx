@@ -63,7 +63,7 @@ export function ReviewScreen({ onNav }) {
                 </div>
                 <div style={{ flex: 1 }}>
                     {items.map(c => <div key={c.k} onClick={() => setChk(x => ({ ...x, [c.k]: !x[c.k] }))} style={{ padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-                        <span style={{ width: 16, height: 16, borderRadius: 4, border: "1px solid " + (chk[c.k] ? "var(--c-green)" : "var(--c-border)"), background: chk[c.k] ? "var(--c-green)" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff" }}>{chk[c.k] && Icon.check({ s: 10 })}</span>
+                        <span style={{ width: 16, height: 16, borderRadius: 4, border: "1px solid " + (chk[c.k] ? "var(--c-green)" : "var(--c-border)"), background: chk[c.k] ? "var(--c-green)" : "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-surface)" }}>{chk[c.k] && Icon.check({ s: 10 })}</span>
                         <span style={{ fontSize: 12 }}>{c.l}</span>
                     </div>)}
                 </div>
