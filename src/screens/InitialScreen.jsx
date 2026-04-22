@@ -12,9 +12,9 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const [state, setState] = useState("ready");
     const [tab, setTab] = useState("Notes");
     const [lCol, setLCol] = useState(false);
-    const [leftW, setLeftW] = useState(260);
+    const [leftW, setLeftW] = useState(359);
     const [rCol, setRCol] = useState(false);
-    const [rightW, setRightW] = useState(436);
+    const [rightW, setRightW] = useState(610);
 
     // Chat state
     const [messages, setMessages] = useState([]);
