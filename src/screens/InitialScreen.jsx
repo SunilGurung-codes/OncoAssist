@@ -348,6 +348,8 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
     const [editMenuOpen, setEditMenuOpen] = React.useState(false);
     const [editAction, setEditAction] = React.useState(null);
     const sectionRefs = React.useRef({});
+    const originalNote = React.useRef(parseNoteToSections(text));
+    const changedSections = SOAP_SECTIONS.filter(s => note[s.id] !== originalNote.current[s.id]);
 
     const navToSection = (id) => {
         const el = sectionRefs.current[id];
@@ -380,6 +382,53 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
                         </div>
                     </div>
 
+                    <div style={{ marginBottom: 20, padding: "14px 16px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border-faint)" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: changedSections.length > 0 ? 12 : 0 }}>
+                            <div>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 2 }}>Edit review</div>
+                                <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.45 }}>
+                                    {changedSections.length > 0
+                                        ? `You changed ${changedSections.length} section${changedSections.length > 1 ? "s" : ""} in this note.`
+                                        : "No edits yet. Changes will appear here before you leave edit mode."}
+                                </div>
+                            </div>
+                            {changedSections.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 6 }}>
+                                    {changedSections.map(s => (
+                                        <span key={s.id} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 999, background: "var(--c-blue-50)", border: "0.5px solid var(--c-blue-250)", color: "var(--c-blue-deep)", fontSize: 11, fontWeight: 600 }}>
+                                            {s.label}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {changedSections.length > 0 && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                {changedSections.map(s => (
+                                    <div key={s.id} style={{ borderRadius: 10, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", overflow: "hidden" }}>
+                                        <div style={{ padding: "10px 12px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                                            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--c-text-strong)" }}>{s.label}</div>
+                                            <button className="micro" onClick={() => setNote(n => ({ ...n, [s.id]: originalNote.current[s.id] }))}>Reset section</button>
+                                        </div>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+                                            <DiffBlock
+                                                title="Before"
+                                                tone="neutral"
+                                                text={originalNote.current[s.id]}
+                                            />
+                                            <DiffBlock
+                                                title="After"
+                                                tone="blue"
+                                                text={note[s.id]}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     {SOAP_SECTIONS.map(s => (
                         <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 16 }}>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 4 }}>{s.label}</div>
@@ -402,15 +451,15 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
             </div>
 
             {/* Sticky edit rail */}
-            <div style={{ width: 56, flexShrink: 0, alignSelf: "stretch", position: "relative" }}>
+            <div style={{ width: 72, flexShrink: 0, alignSelf: "stretch", position: "relative", marginRight: 4 }}>
                 <div style={{
                     position: "sticky",
-                    top: "50%",
-                    transform: "translateY(-50%)",
+                    top: 88,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: 16
+                    gap: 16,
+                    maxHeight: "calc(100vh - 220px)"
                 }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                         <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SOAP_SECTIONS[idx - 1].id); }}
@@ -418,10 +467,17 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
                             style={{ width: 28, height: 28, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[0].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
                             <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
                         </button>
-                        <div style={{ padding: "10px 0", background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 36 }}>
+                        <div style={{ padding: "10px 0", background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 36 }}>
                             {SOAP_SECTIONS.map(s => (
-                                <div key={s.id} onClick={() => navToSection(s.id)} title={s.label}
-                                    style={{ width: s.id === activeSection ? 18 : 10, height: 3, borderRadius: 2, background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)", cursor: "pointer", transition: "width 0.15s, background 0.15s" }} />
+                                <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                                    <div onClick={() => navToSection(s.id)} title={s.label}
+                                        style={{ width: s.id === activeSection ? 18 : 10, height: 3, borderRadius: 2, background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)", cursor: "pointer", transition: "width 0.15s, background 0.15s" }} />
+                                    {s.id === activeSection && (
+                                        <div style={{ fontSize: 10, color: "var(--c-text-mute)", whiteSpace: "nowrap", lineHeight: 1 }}>
+                                            {s.label.split(" — ")[0]}
+                                        </div>
+                                    )}
+                                </div>
                             ))}
                         </div>
                         <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx < SOAP_SECTIONS.length - 1) navToSection(SOAP_SECTIONS[idx + 1].id); }}
@@ -463,6 +519,24 @@ function InlineEditBtn({ icon, label, active, onClick }) {
             onMouseEnter={e => e.currentTarget.style.background = "var(--c-surface-alt)"}
             onMouseLeave={e => e.currentTarget.style.background = active ? "var(--c-blue-50)" : "transparent"}>
             {icon}
+        </div>
+    );
+}
+
+function DiffBlock({ title, tone, text }) {
+    const isBlue = tone === "blue";
+    return (
+        <div style={{
+            padding: "12px 14px",
+            background: isBlue ? "var(--c-blue-50)" : "var(--c-surface)",
+            borderLeft: isBlue ? "0.5px solid var(--c-blue-250)" : "none"
+        }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: isBlue ? "var(--c-blue-deep)" : "var(--c-text-soft)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                {title}
+            </div>
+            <div style={{ fontSize: 12, lineHeight: 1.55, color: "var(--c-text-mute)", whiteSpace: "pre-wrap" }}>
+                {text || "No content"}
+            </div>
         </div>
     );
 }
