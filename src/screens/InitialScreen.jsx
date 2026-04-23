@@ -25,6 +25,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const msgRefs = useRef([]);
     const [activeMsg, setActiveMsg] = useState(0);
     const [editingIdx, setEditingIdx] = useState(null); // which message index is in canvas edit mode
+    const [notes, setNotes] = useState(data.notes);
     useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [messages]);
     useEffect(() => {
         // Track which message is most visible in the scroll area
@@ -75,11 +76,52 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     }, [state]);
     const fmt = s => `00:${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
     const start = () => { setElapsed(0); setVis(0); setState("recording"); };
+    const getDraftMessageIndex = React.useCallback(() => messages.map((m, i) => ({ m, i })).filter(({ m }) => m.role === "ai" && m.text.includes("**Oncology SOAP Note**")).at(-1)?.i ?? null, [messages]);
+    const toDraftPreview = (text) => {
+        const clean = text
+            .replace(/\*\*/g, "")
+            .replace(/\n+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        return clean.slice(0, 110) + (clean.length > 110 ? "…" : "");
+    };
+    const buildDraftNote = React.useCallback((text) => ({
+        id: "draft-note",
+        dept: "Oncology",
+        type: "Follow-up · Day 14 Enzalutamide",
+        author: "Dr. I. Riaz",
+        date: "Today · Draft",
+        status: "Draft",
+        pinned: true,
+        preview: toDraftPreview(text),
+    }), []);
+    const draftMessageIndex = getDraftMessageIndex();
+    const currentDraftNote = draftMessageIndex !== null ? buildDraftNote(messages[draftMessageIndex].text) : null;
+    const openCurrentDraft = React.useCallback(() => {
+        const idx = getDraftMessageIndex();
+        if (idx === null) return;
+        setEditingIdx(idx);
+        requestAnimationFrame(() => navTo(idx));
+    }, [getDraftMessageIndex]);
+    const addOrUpdateDraftNote = React.useCallback((draftText) => {
+        const nextDraft = buildDraftNote(draftText);
+        setNotes(existing => {
+            const hasDraft = existing.some(n => n.id === nextDraft.id);
+            return hasDraft
+                ? existing.map(n => n.id === nextDraft.id ? { ...n, ...nextDraft } : n)
+                : [nextDraft, ...existing];
+        });
+    }, [buildDraftNote]);
+    const addCurrentDraftToNotes = React.useCallback(() => {
+        const idx = getDraftMessageIndex();
+        if (idx === null) return;
+        addOrUpdateDraftNote(messages[idx].text);
+    }, [addOrUpdateDraftNote, getDraftMessageIndex, messages]);
 
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} state={state} />
+            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} state={state} draftNote={currentDraftNote} onContinueDraft={openCurrentDraft} onAddDraftToNotes={addCurrentDraftToNotes} />
             {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">
@@ -144,10 +186,10 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     <div className="card" style={{ marginBottom: 18 }}>
                         <div style={{ height: 38, padding: "0 14px", display: "flex", alignItems: "center", background: "var(--c-surface-alt)", fontWeight: 500, fontSize: 13, gap: 6 }}><span style={{ color: "var(--c-blue)" }}>{Icon.sparkle({ s: 12 })}</span>Smart steps · AI-suggested</div>
                         {[{ q: "Think through next steps for this patient", primary: true }, { q: "Compare today's PSA to the last 7 readings", tag: "Q1" }, { q: "Side-effect profile at Day 14 Enzalutamide", tag: "Q2" }].map((s, i) =>
-                            <div key={i} style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: s.primary ? "var(--c-blue-50)" : "var(--c-surface)" }}>
+                            <div key={i} className="note-row" onClick={() => send(s.q)} style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: s.primary ? "var(--c-blue-50)" : "var(--c-surface)", cursor: "pointer" }}>
                                 {s.primary ? <span style={{ width: 7, height: 7, borderRadius: 4, background: "var(--c-blue)" }} /> : <Chip tone="blue" size="xs">{s.tag}</Chip>}
                                 <div style={{ flex: 1, fontSize: 13, color: s.primary ? "var(--c-blue-deep)" : "var(--c-text)", fontWeight: s.primary ? 500 : 400 }}>{s.q}</div>
-                                <span className="micro" onClick={() => send(s.q)}>Ask →</span>
+                                <span className="micro">Ask →</span>
                             </div>)}
                     </div>
 
@@ -163,12 +205,16 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                     <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
                                 </div>
                                 : editingIdx === i ?
-                                    <InlineSoapEditor key={i} ref={el => msgRefs.current[i] = el} text={m.text} onClose={() => setEditingIdx(null)} onSave={newText => { setMessages(ms => ms.map((mm, j) => j === i ? { ...mm, text: newText } : mm)); setEditingIdx(null); }} />
+                                    <InlineSoapEditor key={i} ref={el => msgRefs.current[i] = el} text={m.text} onClose={() => setEditingIdx(null)} onSave={newText => {
+                                        setMessages(ms => ms.map((mm, j) => j === i ? { ...mm, text: newText } : mm));
+                                        if (notes.some(n => n.id === "draft-note") || i === draftMessageIndex) addOrUpdateDraftNote(newText);
+                                        setEditingIdx(null);
+                                    }} />
                                     : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
                                         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
                                         <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.text}</div>
                                         {m.cites && <div style={{ marginTop: 8, fontSize: 11, color: "var(--c-blue-deep)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
-                                        <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
+                                        <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })} onClick={() => addOrUpdateDraftNote(m.text)}>Add to Note</Micro></div>
                                     </div>
                             )}
                         </div>
@@ -260,7 +306,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
             </div>
             {!rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
             {/* Adding Right Panel for Clinical Context */}
-            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
+            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} notes={notes} />
         </div>
     </div>;
 }
@@ -416,11 +462,15 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
                                                 title="Before"
                                                 tone="neutral"
                                                 text={originalNote.current[s.id]}
+                                                compareText={note[s.id]}
+                                                mode="before"
                                             />
                                             <DiffBlock
                                                 title="After"
                                                 tone="blue"
                                                 text={note[s.id]}
+                                                compareText={originalNote.current[s.id]}
+                                                mode="after"
                                             />
                                         </div>
                                     </div>
@@ -523,8 +573,60 @@ function InlineEditBtn({ icon, label, active, onClick }) {
     );
 }
 
-function DiffBlock({ title, tone, text }) {
+function tokenizeDiffText(text) {
+    return (text || "").match(/\S+|\s+/g) || [];
+}
+
+function buildDiffParts(sourceText, compareText, mode) {
+    const source = tokenizeDiffText(sourceText);
+    const compare = tokenizeDiffText(compareText);
+    const dp = Array.from({ length: source.length + 1 }, () => Array(compare.length + 1).fill(0));
+
+    for (let i = source.length - 1; i >= 0; i -= 1) {
+        for (let j = compare.length - 1; j >= 0; j -= 1) {
+            dp[i][j] = source[i] === compare[j]
+                ? dp[i + 1][j + 1] + 1
+                : Math.max(dp[i + 1][j], dp[i][j + 1]);
+        }
+    }
+
+    const parts = [];
+    let i = 0;
+    let j = 0;
+
+    while (i < source.length && j < compare.length) {
+        if (source[i] === compare[j]) {
+            parts.push({ text: source[i], changed: false });
+            i += 1;
+            j += 1;
+            continue;
+        }
+
+        if (dp[i + 1][j] >= dp[i][j + 1]) {
+            if (mode === "before") parts.push({ text: source[i], changed: !/^\s+$/.test(source[i]) });
+            i += 1;
+        } else {
+            if (mode === "after") parts.push({ text: compare[j], changed: !/^\s+$/.test(compare[j]) });
+            j += 1;
+        }
+    }
+
+    while (i < source.length) {
+        if (mode === "before") parts.push({ text: source[i], changed: !/^\s+$/.test(source[i]) });
+        i += 1;
+    }
+
+    while (j < compare.length) {
+        if (mode === "after") parts.push({ text: compare[j], changed: !/^\s+$/.test(compare[j]) });
+        j += 1;
+    }
+
+    return parts;
+}
+
+function DiffBlock({ title, tone, text, compareText = "", mode = "after" }) {
     const isBlue = tone === "blue";
+    const parts = buildDiffParts(mode === "before" ? text : compareText, mode === "before" ? compareText : text, mode);
     return (
         <div style={{
             padding: "12px 14px",
@@ -534,8 +636,21 @@ function DiffBlock({ title, tone, text }) {
             <div style={{ fontSize: 11, fontWeight: 600, color: isBlue ? "var(--c-blue-deep)" : "var(--c-text-soft)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
                 {title}
             </div>
-            <div style={{ fontSize: 12, lineHeight: 1.55, color: "var(--c-text-mute)", whiteSpace: "pre-wrap" }}>
-                {text || "No content"}
+            <div style={{ fontSize: 12, lineHeight: 1.7, color: "var(--c-text-mute)", whiteSpace: "pre-wrap" }}>
+                {parts.length > 0 ? parts.map((part, idx) => (
+                    <span
+                        key={`${title}-${idx}`}
+                        style={part.changed ? {
+                            background: isBlue ? "rgba(43, 120, 202, 0.18)" : "rgba(226, 75, 74, 0.14)",
+                            color: isBlue ? "var(--c-blue-deep)" : "var(--c-red-deep)",
+                            borderRadius: 4,
+                            padding: "1px 2px",
+                            fontWeight: 600
+                        } : undefined}
+                    >
+                        {part.text}
+                    </span>
+                )) : (text || "No content")}
             </div>
         </div>
     );

@@ -741,3 +741,11 @@ textarea::placeholder {
 .note-row:hover {
   background: var(--c-surface-alt);
 }
+
+.patient-row {
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.patient-row:hover {
+  background: var(--c-blue-50) !important;
+}

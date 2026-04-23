@@ -5,7 +5,7 @@ import { Chip } from "./ui/Chip.jsx";
 import { Icon } from "./ui/Icon.jsx";
 
 // Left Panel
-export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" }) {
+export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", draftNote, onContinueDraft, onAddDraftToNotes }) {
     const d = data;
     const [c, setC] = useState({ flags: false, psa: false, labs: false, note: false });
     const tog = k => setC(x => ({ ...x, [k]: !x[k] }));
@@ -78,13 +78,13 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" })
                     <div style={{ padding: "10px 16px", background: "var(--c-surface)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
                             <Chip tone="purple" size="sm">Oncology</Chip>
-                            <div style={{ fontSize: 13, fontWeight: 600 }}>Follow-up · Day 14 Enzalutamide</div>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{draftNote?.type || "Follow-up · Day 14 Enzalutamide"}</div>
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 6 }}>Dr. I. Riaz · Today · Draft</div>
-                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", lineHeight: 1.55, marginBottom: 10 }}>Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…</div>
+                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 6 }}>{draftNote?.author || "Dr. I. Riaz"} · {draftNote?.date || "Today · Draft"}</div>
+                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", lineHeight: 1.55, marginBottom: 10 }}>{draftNote?.preview || "Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…"}</div>
                         <div style={{ display: "flex", gap: 8 }}>
-                            <span className="btn btn-primary sm" style={{ flex: 1 }}>Continue</span>
-                            <span className="btn btn-outline sm" style={{ flex: 1 }}>+ Add to Notes</span>
+                            <button className="btn btn-primary sm" style={{ flex: 1 }} onClick={onContinueDraft}>Continue</button>
+                            <button className="btn btn-outline sm" style={{ flex: 1 }} onClick={onAddDraftToNotes}>+ Add to Notes</button>
                         </div>
                     </div>
                 </div>
@@ -102,27 +102,58 @@ function Stat({ n, v, tone, icon }) {
 }
 
 function PSAChart() {
+    const [hoveredIdx, setHoveredIdx] = useState(null);
     const d = data.psa, W = 288, H = 108, max = 20, pL = 20, pR = 6, pT = 8, pB = 22;
     const iw = W - pL - pR, ih = H - pT - pB;
     const x = i => pL + (i * iw) / (d.length - 1), y = v => pT + ih - (v / max) * ih;
     const path = d.map((p, i) => `${i === 0 ? "M" : "L"} ${x(i)} ${y(p.v)}`).join(" ");
-    return <div style={{ padding: "8px 16px 10px" }}>
+    const hovered = hoveredIdx !== null ? d[hoveredIdx] : null;
+    return <div style={{ padding: "8px 16px 10px", position: "relative" }}>
         <svg width={W} height={H} style={{ display: "block" }}>
             {[5, 10, 15, 20].map(g => <line key={g} x1={pL} y1={y(g)} x2={W - pR} y2={y(g)} stroke="#EEEDE8" strokeWidth="0.5" />)}
             {[5, 10, 15, 20].map(g => <text key={g} x={pL - 4} y={y(g) + 3} textAnchor="end" fontSize="9" fill="var(--c-text-ghost)">{g}</text>)}
             <path d={path} fill="none" stroke="#378ADD" strokeWidth="1.5" />
             {d.map((p, i) => <g key={i}>
-                <circle cx={x(i)} cy={y(p.v)} r={p.drop ? 4 : 2.5} fill={p.drop ? "#1D9E75" : (i === d.length - 2 ? "#E24B4A" : "#378ADD")} stroke="var(--c-surface)" strokeWidth="1" />
+                <circle
+                    cx={x(i)}
+                    cy={y(p.v)}
+                    r={hoveredIdx === i ? 5 : (p.drop ? 4 : 2.5)}
+                    fill={p.drop ? "#1D9E75" : (i === d.length - 2 ? "#E24B4A" : "#378ADD")}
+                    stroke="var(--c-surface)"
+                    strokeWidth="1"
+                    onMouseEnter={() => setHoveredIdx(i)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                    style={{ cursor: "pointer" }}
+                />
                 <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="var(--c-text-soft)">{p.m}</text>
                 {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="10" fontWeight="600" fill={p.drop ? "var(--c-green-deep)" : "var(--c-red-deep)"}>{p.v}</text>}
             </g>)}
         </svg>
+        {hovered && (
+            <div style={{
+                position: "absolute",
+                left: x(hoveredIdx) - 32,
+                top: Math.max(0, y(hovered.v) - 34),
+                minWidth: 64,
+                padding: "4px 8px",
+                borderRadius: 6,
+                background: "var(--c-text-strong)",
+                color: "var(--c-surface)",
+                fontSize: 11,
+                fontWeight: 600,
+                textAlign: "center",
+                pointerEvents: "none",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.12)"
+            }}>
+                {hovered.m}: {hovered.v}
+            </div>
+        )}
         <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "6px 8px", fontSize: 11, fontWeight: 600, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
     </div>;
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360 }) {
+export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360, notes = data.notes }) {
     const [tabs, setTabs] = useState(["Notes", "Labs", "Imaging"]);
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
@@ -242,7 +273,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             </div>
                         </div>
                         <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
-                            {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} /> : null}
+                            {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} notes={notes} /> : null}
                             {tab === "Labs" ? <LabsTab onAddToChat={onAddToChat} /> : null}
                             {tab === "Imaging" ? <ImagingTab onAddToChat={onAddToChat} /> : null}
                             {!["Notes", "Labs", "Imaging"].includes(tab) && (
@@ -260,11 +291,11 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
     );
 }
 
-function NotesTab({ onAddToChat }) {
+function NotesTab({ onAddToChat, notes = data.notes }) {
     const [f, setF] = useState("All");
     const [q, setQ] = useState("");
     const chips = ["All", "PSA", "Recent", "Oncology", "Urology", "Radiology", "ER", "Lab"];
-    const notes = data.notes.filter(n => {
+    const filteredNotes = notes.filter(n => {
         if (f === "All") return true; if (f === "Recent") return /Apr/i.test(n.date);
         if (f === "PSA") return /PSA|CRPC/.test(n.preview + n.type);
         return n.dept === f;
@@ -281,7 +312,7 @@ function NotesTab({ onAddToChat }) {
         <div style={{ padding: "6px 10px", background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", gap: 4 }}>
             {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "3px 7px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "var(--c-surface)", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
         </div>
-        {notes.map(n => <NoteRow key={n.id} n={n} onAddToChat={onAddToChat} />)}
+        {filteredNotes.map(n => <NoteRow key={n.id} n={n} onAddToChat={onAddToChat} />)}
         <div style={{ padding: "10px 12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
             <button className="btn btn-primary lg" style={{ width: "100%" }}>Edit Note</button>
             <button className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Note</button>
