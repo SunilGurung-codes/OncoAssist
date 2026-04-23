@@ -26,8 +26,8 @@ export function LoginScreen({ onLogin }) {
                  @keyframes spin { 100% { transform: rotate(360deg); } }
                `}</style>
                 <div style={{ width: 48, height: 48, borderRadius: 24, border: "3px solid #D4E8F9", borderTopColor: "#0A4693", animation: "spin 1s linear infinite", marginBottom: 24 }} />
-                <div style={{ fontSize: 16, fontWeight: 500, color: "#222" }}>Authenticating...</div>
-                <div style={{ fontSize: 13, color: "#666", marginTop: 8 }}>Loading your workspace and patient list</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: "var(--c-text-strong)" }}>Authenticating...</div>
+                <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginTop: 8 }}>Loading your workspace and patient list</div>
             </div>
         );
     }
@@ -59,50 +59,50 @@ export function LoginScreen({ onLogin }) {
                     </div>
 
                     <div style={{ fontSize: 32, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 16, letterSpacing: "-0.5px" }}>Sign in to your workstation</div>
-                    <div style={{ fontSize: 15, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.5, paddingRight: 20 }}>Use your Mayo Clinic network credentials. You'll be redirected to your patient dashboard.</div>
+                    <div style={{ fontSize: 16, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.55, paddingRight: 20 }}>Use your Mayo Clinic network credentials. You'll be redirected to your patient dashboard.</div>
 
                     <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "var(--c-text-strong)" }}>Mayo ID / Username</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Mayo ID / Username</div>
                         <div style={{ position: "relative" }}>
                             <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.user({ s: 20 })}</span>
-                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. i.riaz" />
+                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. i.riaz" aria-label="Mayo ID or username" />
                         </div>
                     </div>
                     <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8, color: "var(--c-text-strong)" }}>Password</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Password</div>
                         <div style={{ position: "relative" }}>
                             <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.lock({ s: 20 })}</span>
-                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="••••••••" />
+                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="••••••••" aria-label="Password" />
                             <span style={{ position: "absolute", right: 16, top: 14, color: "var(--c-text-ghost)", cursor: "pointer" }}>{Icon.eye({ s: 20 })}</span>
                         </div>
                     </div>
 
                     <div style={{ marginBottom: 40 }}>
-                        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--c-text-mute)", cursor: "pointer", marginBottom: 16 }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, color: "var(--c-text-mute)", cursor: "pointer", marginBottom: 16 }}>
                             <input type="checkbox" defaultChecked style={{ accentColor: "var(--c-blue-deep)", width: 16, height: 16 }} />
                             Keep me signed in on this workstation
                         </label>
-                        <div style={{ fontSize: 14, color: "var(--c-blue)", fontWeight: 500, cursor: "pointer" }}>Forgot password?</div>
+                        <div style={{ fontSize: 15, color: "var(--c-blue-deep)", fontWeight: 600, cursor: "pointer" }}>Forgot password?</div>
                     </div>
 
-                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 14, marginBottom: 16 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
-                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 500, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
+                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 15, marginBottom: 16, lineHeight: 1.45 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
+                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 600, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
                 </div>
 
                 {/* Right side (Tap/Scanner) */}
                 <div className="login-right">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--c-text-mute)", letterSpacing: 0.5 }}>TAP-TO-SIGN-IN</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--c-text-mute)", letterSpacing: 0.5 }}>TAP-TO-SIGN-IN</span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "var(--c-blue-50)", borderRadius: 14, color: "var(--c-blue-deep)", fontSize: 12, fontWeight: 500 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "var(--c-blue-50)", borderRadius: 14, color: "var(--c-blue-deep)", fontSize: 13, fontWeight: 600 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-blue-deep)" }} />
                             Scanning
                         </div>
                     </div>
 
                     <div style={{ fontSize: 24, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 12 }}>Tap your Mayo ID badge</div>
-                    <div style={{ fontSize: 15, color: "var(--c-text-mute)", lineHeight: 1.5, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
+                    <div style={{ fontSize: 16, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
 
                     {/* Scanner Animation Area (Solid white card) */}
                     <div onClick={() => { setUsr("mayo"); setPwd("mayo"); }} style={{ flex: 1, minHeight: 250, background: "var(--c-surface)", borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.03)", border: "1px solid var(--c-border-faint)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
@@ -120,8 +120,8 @@ export function LoginScreen({ onLogin }) {
                             <div style={{ fontSize: 6, color: "var(--c-text-soft)", textAlign: "center" }}>L.Riaz, MD</div>
                         </div>
 
-                        <div style={{ zIndex: 20, fontWeight: 500, color: "var(--c-text-strong)", fontSize: 15 }}>Waiting for badge...</div>
-                        <div style={{ zIndex: 20, marginTop: 4, color: "var(--c-text-soft)", fontSize: 12 }}>Reader: WS-7212-A · Exam Rm 4</div>
+                        <div style={{ zIndex: 20, fontWeight: 600, color: "var(--c-text-strong)", fontSize: 16 }}>Waiting for badge...</div>
+                        <div style={{ zIndex: 20, marginTop: 4, color: "var(--c-text-soft)", fontSize: 13 }}>Reader: WS-7212-A · Exam Rm 4</div>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginTop: 40 }}>
@@ -131,15 +131,15 @@ export function LoginScreen({ onLogin }) {
                             <div style={{ fontSize: 5, color: "var(--c-text-mute)", textAlign: "center" }}>L.Riaz, MD</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: 14, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 6 }}>Don't have an NFC badge?</div>
-                            <div style={{ fontSize: 13, color: "var(--c-text-mute)", lineHeight: 1.4 }}>Visit the Mayo ID office (Gonda 2-200) or sign in with your password on the left.</div>
+                            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 6 }}>Don't have an NFC badge?</div>
+                            <div style={{ fontSize: 14, color: "var(--c-text-mute)", lineHeight: 1.5 }}>Visit the Mayo ID office (Gonda 2-200) or sign in with your password on the left.</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Absolute Bottom Footer - now hidden on small screens so it doesn't overlap */}
-            <div className="footer-links" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 60px", fontSize: 11, color: "var(--c-text-soft)", display: "flex", justifyContent: "space-between", pointerEvents: "auto", background: "transparent" }}>
+            <div className="footer-links" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px 60px", fontSize: 12, color: "var(--c-text-soft)", display: "flex", justifyContent: "space-between", pointerEvents: "auto", background: "transparent", lineHeight: 1.45 }}>
                 <style>{`
                   @media (max-width: 1024px) {
                     .footer-links { display: none !important; }

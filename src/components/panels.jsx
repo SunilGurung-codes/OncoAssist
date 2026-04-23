@@ -36,7 +36,7 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" })
                     const t = { red: { d: "var(--c-red)", c: "var(--c-red-deep)" }, green: { d: "var(--c-green)", c: "var(--c-green-deep)" }, blue: { d: "var(--c-blue)", c: "var(--c-blue-deep)" }, amber: { d: "var(--c-amber)", c: "var(--c-amber-deep)" } }[f.tone];
                     return <div key={i} style={{ padding: "6px 16px", display: "flex", gap: 8, alignItems: "flex-start" }}>
                         <span style={{ width: 6, height: 6, borderRadius: 3, background: t.d, marginTop: 5, flexShrink: 0 }} />
-                        <div style={{ fontSize: 11, color: t.c, lineHeight: 1.4 }}>{f.text}</div>
+                        <div style={{ fontSize: 12, color: t.c, lineHeight: 1.5, fontWeight: 500 }}>{f.text}</div>
                     </div>;
                 })}</div>}
 
@@ -55,10 +55,10 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" })
                 {!c.note && <div style={{ padding: "10px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                         <Chip tone="blue" size="sm">Lab</Chip>
-                        <div style={{ fontSize: 12, fontWeight: 500 }}>PSA + T panel</div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>PSA + T panel</div>
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 8 }}>Lab · Apr 17 · 07:45</div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", lineHeight: 1.5, marginBottom: 10 }}>PSA 16.2 ng/mL (H). Testosterone {"<"} 50 ng/dL. LH 0.8, FSH 1.4.</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-soft)", marginBottom: 8 }}>Lab · Apr 17 · 07:45</div>
+                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 10 }}>PSA 16.2 ng/mL (H). Testosterone {"<"} 50 ng/dL. LH 0.8, FSH 1.4.</div>
                     <div style={{ display: "flex", gap: 8 }}>
                         <span className="btn btn-soft sm" style={{ flex: 1 }}>+ Add to chat</span>
                         <span className="btn btn-ghost sm" style={{ flex: 1 }}>View full</span>
@@ -73,15 +73,15 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" })
                             <span className="pulse-blue" style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
                             <span className="label-xs" style={{ color: "var(--c-text)" }}>CURRENTLY EDITING</span>
                         </div>
-                        <span style={{ fontSize: 10, fontWeight: 500, color: "var(--c-blue)" }}>Draft</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--c-blue-deep)" }}>Draft</span>
                     </div>
                     <div style={{ padding: "10px 16px", background: "var(--c-surface)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
                             <Chip tone="purple" size="sm">Oncology</Chip>
-                            <div style={{ fontSize: 12, fontWeight: 500 }}>Follow-up · Day 14 Enzalutamide</div>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>Follow-up · Day 14 Enzalutamide</div>
                         </div>
-                        <div style={{ fontSize: 11, color: "var(--c-blue)", marginBottom: 6 }}>Dr. I. Riaz · Today · Draft</div>
-                        <div style={{ fontSize: 11, color: "var(--c-blue-deep)", lineHeight: 1.5, marginBottom: 10 }}>Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…</div>
+                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 6 }}>Dr. I. Riaz · Today · Draft</div>
+                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", lineHeight: 1.55, marginBottom: 10 }}>Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…</div>
                         <div style={{ display: "flex", gap: 8 }}>
                             <span className="btn btn-primary sm" style={{ flex: 1 }}>Continue</span>
                             <span className="btn btn-outline sm" style={{ flex: 1 }}>+ Add to Notes</span>
@@ -96,8 +96,8 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready" })
 function Stat({ n, v, tone, icon }) {
     const c = tone === "red" ? "var(--c-red-deep)" : tone === "green" ? "var(--c-green-deep)" : "var(--c-text)";
     return <div>
-        <div style={{ fontSize: 10, color: "var(--c-text-mute)", marginBottom: 3 }}>{n}</div>
-        <div style={{ fontSize: 12, fontWeight: 500, color: c, display: "flex", gap: 4 }}>{v} {icon && <span>{icon}</span>}</div>
+        <div style={{ fontSize: 11, color: "var(--c-text-soft)", marginBottom: 3 }}>{n}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: c, display: "flex", gap: 4 }}>{v} {icon && <span>{icon}</span>}</div>
     </div>;
 }
 
@@ -109,15 +109,15 @@ function PSAChart() {
     return <div style={{ padding: "8px 16px 10px" }}>
         <svg width={W} height={H} style={{ display: "block" }}>
             {[5, 10, 15, 20].map(g => <line key={g} x1={pL} y1={y(g)} x2={W - pR} y2={y(g)} stroke="#EEEDE8" strokeWidth="0.5" />)}
-            {[5, 10, 15, 20].map(g => <text key={g} x={pL - 4} y={y(g) + 3} textAnchor="end" fontSize="8" fill="#B4B2A9">{g}</text>)}
+            {[5, 10, 15, 20].map(g => <text key={g} x={pL - 4} y={y(g) + 3} textAnchor="end" fontSize="9" fill="var(--c-text-ghost)">{g}</text>)}
             <path d={path} fill="none" stroke="#378ADD" strokeWidth="1.5" />
             {d.map((p, i) => <g key={i}>
                 <circle cx={x(i)} cy={y(p.v)} r={p.drop ? 4 : 2.5} fill={p.drop ? "#1D9E75" : (i === d.length - 2 ? "#E24B4A" : "#378ADD")} stroke="var(--c-surface)" strokeWidth="1" />
-                <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" fill="#888780">{p.m}</text>
-                {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="9" fontWeight="500" fill={p.drop ? "#085041" : "#A32D2D"}>{p.v}</text>}
+                <text x={x(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="var(--c-text-soft)">{p.m}</text>
+                {(p.drop || i === d.length - 2) && <text x={x(i)} y={y(p.v) - 8} textAnchor="middle" fontSize="10" fontWeight="600" fill={p.drop ? "var(--c-green-deep)" : "var(--c-red-deep)"}>{p.v}</text>}
             </g>)}
         </svg>
-        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "4px 8px", fontSize: 10, fontWeight: 500, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
+        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "6px 8px", fontSize: 11, fontWeight: 600, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
     </div>;
 }
 

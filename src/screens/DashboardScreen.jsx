@@ -29,9 +29,9 @@ export function DashboardScreen({ onOpen }) {
             {/* Greeting strip */}
             <div className="greeting-strip" style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                 <div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", letterSpacing: "0.06em", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
+                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", letterSpacing: "0.06em", fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
                     <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", color: "var(--c-text)" }}>Good morning, Dr. Riaz</div>
-                    <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginTop: 4 }}>8 patients scheduled · 3 notes awaiting your co-sign · morning clinic starts at 09:00</div>
+                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginTop: 4, lineHeight: 1.45 }}>8 patients scheduled · 3 notes awaiting your co-sign · morning clinic starts at 09:00</div>
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                     <button className="btn lg btn-ghost">{Icon.filter({ s: 14 })} Filter</button>
@@ -57,19 +57,19 @@ export function DashboardScreen({ onOpen }) {
                             <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
                                 {filters.map(f => (
                                     <span key={f.k} onClick={() => setFilter(f.k)} style={{
-                                        padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer",
+                                        padding: "6px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
                                         color: filter === f.k ? "var(--c-text)" : "var(--c-text-mute)",
                                         background: filter === f.k ? "var(--c-surface)" : "transparent",
                                         border: "0.5px solid " + (filter === f.k ? "var(--c-border)" : "transparent")
                                     }}>{f.k} · {f.count}</span>
                                 ))}
                             </div>
-                            <div style={{ fontSize: 11, color: "var(--c-text-mute)" }}>Today · April 17</div>
+                            <div style={{ fontSize: 12, color: "var(--c-text-mute)" }}>Today · April 17</div>
                         </div>
 
                         <div className="scroll" style={{ overflowX: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
                             <div style={{ minWidth: 680, display: "flex", flexDirection: "column", flex: 1 }}>
-                                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "8px 16px", fontSize: 10, color: "var(--c-text-mute)", letterSpacing: "0.05em", fontWeight: 500, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "#FCFCFA" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.5fr 0.9fr 0.7fr 120px", padding: "10px 16px", fontSize: 11, color: "var(--c-text-soft)", letterSpacing: "0.05em", fontWeight: 600, textTransform: "uppercase", borderBottom: "0.5px solid var(--c-border-faint)", background: "var(--c-surface-warm)" }}>
                                     <div>Patient</div><div>Diagnosis</div><div>Status</div><div>Time</div><div />
                                 </div>
 
@@ -90,11 +90,11 @@ export function DashboardScreen({ onOpen }) {
 
                     <div className="label-xs" style={{ marginTop: 24, marginBottom: 10 }}>ATTENTION</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--c-red-100)", border: "0.5px solid #F7C1C1", fontSize: 11, color: "var(--c-red-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
+                        <div style={{ padding: "12px 12px", borderRadius: 8, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 12, color: "var(--c-red-deep)", lineHeight: 1.55, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-red)", marginTop: 5, flexShrink: 0 }} />
                             <div>James Park's PSA came in at 16.2 ng/mL — <b>first decrease in 7 months</b>. Review trajectory in today's 09:00 visit.</div>
                         </div>
-                        <div style={{ padding: "10px 12px", borderRadius: 8, background: "var(--c-amber-100)", border: "0.5px solid #F3D7A2", fontSize: 11, color: "var(--c-amber-deep)", lineHeight: 1.5, display: "flex", gap: 8 }}>
+                        <div style={{ padding: "12px 12px", borderRadius: 8, background: "var(--c-amber-100)", border: "0.5px solid var(--c-amber-300)", fontSize: 12, color: "var(--c-amber-text)", lineHeight: 1.55, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-amber)", marginTop: 5, flexShrink: 0 }} />
                             <div>3 notes from Dr. Barker awaiting your co-sign from yesterday's clinic.</div>
                         </div>
@@ -110,8 +110,8 @@ export function DashboardScreen({ onOpen }) {
                             <div key={m.n} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                 <div className="avatar">{m.initials}</div>
                                 <div>
-                                    <div style={{ fontSize: 12, fontWeight: 500 }}>{m.n}</div>
-                                    <div style={{ fontSize: 10, color: "var(--c-text-mute)" }}>{m.r}</div>
+                                    <div style={{ fontSize: 13, fontWeight: 600 }}>{m.n}</div>
+                                    <div style={{ fontSize: 12, color: "var(--c-text-mute)" }}>{m.r}</div>
                                 </div>
                             </div>
                         ))}
@@ -131,9 +131,9 @@ function StatCard({ tone, label, value, sub }) {
     }[tone];
     return (
         <div style={{ padding: "14px 16px", borderRadius: 10, background: t.bg, border: "0.5px solid " + t.border }}>
-            <div className="label-xs" style={{ color: "var(--c-text-mute)", marginBottom: 8 }}>{label}</div>
+            <div className="label-xs" style={{ color: "var(--c-text-soft)", marginBottom: 8 }}>{label}</div>
             <div style={{ fontSize: 28, fontWeight: 500, color: t.val, letterSpacing: "-0.02em", lineHeight: 1 }}>{value}</div>
-            <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 6 }}>{sub}</div>
+            <div style={{ fontSize: 12, color: "var(--c-text-mute)", marginTop: 6, lineHeight: 1.45 }}>{sub}</div>
         </div>
     );
 }
@@ -159,19 +159,19 @@ function PatientRow({ p, first, onOpen }) {
                 cursor: "pointer"
             }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 18, background: p.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "var(--c-text)", border: "0.5px solid rgba(0,0,0,0.05)" }}>{p.initials}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 18, background: p.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "var(--c-text)", border: "0.5px solid rgba(0,0,0,0.05)" }}>{p.initials}</div>
                 <div>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
-                    <div style={{ fontSize: 10, color: "var(--c-text-mute)" }}>{p.demo} · {p.mrn} · {p.type}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.45 }}>{p.demo} · {p.mrn} · {p.type}</div>
                 </div>
             </div>
-            <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.4, paddingRight: 12 }}>{p.dx}</div>
+            <div style={{ fontSize: 13, color: "var(--c-text-strong)", lineHeight: 1.45, paddingRight: 12 }}>{p.dx}</div>
             <div>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500, background: statusColor.bg, color: statusColor.fg, border: "0.5px solid " + statusColor.border }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 600, background: statusColor.bg, color: statusColor.fg, border: "0.5px solid " + statusColor.border }}>
                     <span style={{ width: 5, height: 5, borderRadius: 3, background: statusColor.fg }} /> {p.status}
                 </span>
             </div>
-            <div style={{ fontSize: 12, fontVariantNumeric: "tabular-nums" }}>{p.time}</div>
+            <div style={{ fontSize: 13, fontVariantNumeric: "tabular-nums" }}>{p.time}</div>
             <div>
                 <span className="btn btn-outline sm" onClick={(e) => { e.stopPropagation(); onOpen(); }}>Start session →</span>
             </div>
@@ -189,13 +189,13 @@ function Calendar() {
     return (
         <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "14px 12px", background: "var(--c-surface)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 500 }}>{month}</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{month}</span>
                 <div style={{ display: "flex", gap: 4, color: "var(--c-text-mute)" }}>
                     {Icon.chevLeft({ s: 12 })}{Icon.chevRight({ s: 12 })}
                 </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2, marginBottom: 4 }}>
-                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 9, color: "var(--c-text-mute)", padding: "2px 0" }}>{d}</div>)}
+                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <div key={i} style={{ textAlign: "center", fontSize: 10, color: "var(--c-text-soft)", padding: "2px 0" }}>{d}</div>)}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
                 {Array.from({ length: leading }).map((_, i) => <div key={"pad" + i} />)}
@@ -205,14 +205,14 @@ function Calendar() {
                     return (
                         <div key={d} style={{
                             aspectRatio: "1/1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                            fontSize: 11, fontWeight: isToday ? 500 : 400,
+                            fontSize: 12, fontWeight: isToday ? 600 : 500,
                             color: isToday ? "var(--c-surface)" : "var(--c-text)",
                             background: isToday ? "var(--c-blue)" : "transparent",
                             borderRadius: 6, position: "relative"
                         }}>
                             {d}
                             {v > 0 && !isToday && <span style={{ width: 3, height: 3, borderRadius: 2, background: "var(--c-blue)", marginTop: 1 }} />}
-                            {v > 0 && isToday && <span style={{ fontSize: 8, opacity: .85 }}>{v}</span>}
+                            {v > 0 && isToday && <span style={{ fontSize: 9, opacity: .85 }}>{v}</span>}
                         </div>
                     );
                 })}

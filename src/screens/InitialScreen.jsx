@@ -84,14 +84,14 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
 
             <div className="panel-main">
                 <div style={{ minHeight: 44, padding: "8px 28px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
-                    <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 12, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
+                    <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 13, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                     <span style={{ color: "var(--c-text-ghost)", margin: "0 8px" }}>/</span>
-                    <span style={{ fontSize: 12, fontWeight: 500 }}>James Park · Visit</span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>James Park · Visit</span>
                 </div>
                 <div className="scroll" ref={ref} style={{ padding: "20px 36px", flex: 1, overflowY: "auto" }}>
                     <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · APR 17 · 09:00</div>
                     <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>Follow-up · Day 14 of Enzalutamide</div>
-                    <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.55 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
+                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.6 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
 
                     {/* Ambient Controls */}
                     {state === "ready" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-red-300)", borderRadius: 10, overflow: "hidden" }}>
@@ -114,14 +114,14 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         </div>
                         <div className="scroll" style={{ maxHeight: 180, overflowY: "auto", padding: "12px 16px", background: "var(--c-surface)" }}>
                             <div className="label-xs" style={{ marginBottom: 8 }}>LIVE TRANSCRIPT</div>
-                            {tr.slice(0, vis).map((l, i) => <div key={i} className="fade-in" style={{ marginBottom: 10, fontSize: 11, lineHeight: 1.5 }}>
-                                <div style={{ color: "var(--c-blue)", fontWeight: 500, fontSize: 10, marginBottom: 2 }}>{l.speaker}</div>
+                            {tr.slice(0, vis).map((l, i) => <div key={i} className="fade-in" style={{ marginBottom: 10, fontSize: 12, lineHeight: 1.55 }}>
+                                <div style={{ color: "var(--c-blue-deep)", fontWeight: 600, fontSize: 11, marginBottom: 2 }}>{l.speaker}</div>
                                 <div>{l.text}</div>
                             </div>)}
                         </div>
                     </div>}
 
-                    {state === "generating" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "32px 16px", textAlign: "center", color: "var(--c-text-mute)", fontSize: 12 }}>
+                    {state === "generating" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "32px 16px", textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
                         <div style={{ margin: "0 auto 14px", width: 36, height: 36, borderRadius: 18, border: "2px solid var(--c-blue-200)", borderTopColor: "var(--c-blue)", animation: "spin 1s linear infinite" }} />
                         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
                         Generating structured note…
@@ -134,8 +134,8 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <button className="btn btn-primary sm" onClick={() => onNav("review")}>Review & sign →</button>
                             </div>
                             <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 12, fontWeight: 500 }}>Day 14 Enzalutamide</div></div>
-                                <div style={{ fontSize: 11, color: "var(--c-text-strong)", lineHeight: 1.5, maxHeight: 64, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>Day 14 Enzalutamide</div></div>
+                                <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.55, maxHeight: 72, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
                                     {messages.find(m => m.role === "ai" && m.text.includes("**Oncology SOAP Note**"))?.text.substring(0, 160) || "Review full note structure..."}
                                 </div>
                             </div>
@@ -165,9 +165,9 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 : editingIdx === i ?
                                     <InlineSoapEditor key={i} ref={el => msgRefs.current[i] = el} text={m.text} onClose={() => setEditingIdx(null)} onSave={newText => { setMessages(ms => ms.map((mm, j) => j === i ? { ...mm, text: newText } : mm)); setEditingIdx(null); }} />
                                     : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
-                                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
-                                        <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
-                                        {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
+                                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
+                                        <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                                        {m.cites && <div style={{ marginTop: 8, fontSize: 11, color: "var(--c-blue-deep)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
                                         <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
                                     </div>
                             )}
@@ -270,17 +270,17 @@ function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
         <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
             <div style={{ width: "100%", margin: "0 auto" }}>
                 <div style={{ padding: "10px 28px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
-                    <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
-                    {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
+                    <span style={{ fontSize: 13, color: "var(--c-text-soft)" }}>Context:</span>
+                    {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px", borderRadius: 6, fontSize: 12, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                         {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
                         <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
                     </span>)}
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 6, fontSize: 12, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
                 </div>
                 <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 28px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
-                        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
+                        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 14 }} />
                         <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
                         <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
                     </div>
@@ -459,4 +459,3 @@ function InlineEditBtn({ icon, label, active, onClick }) {
         </div>
     );
 }
-

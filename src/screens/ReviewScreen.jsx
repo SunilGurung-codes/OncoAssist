@@ -53,7 +53,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                 <div className="panel-left" style={{ width: 300, flexShrink: 0 }}>
                     <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 8 }}>
                         <span onClick={() => onNav("initial")} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.chevLeft({ s: 14 })}</span>
-                        <div style={{ fontSize: 14, fontWeight: 500 }}>Canvas Editor</div>
+                        <div style={{ fontSize: 15, fontWeight: 600 }}>Canvas Editor</div>
                         <div style={{ flex: 1 }} />
                         <Chip tone="green" size="sm">Editing</Chip>
                     </div>
@@ -61,11 +61,11 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                             <div className="avatar" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
                             <div>
-                                <div style={{ fontSize: 14, fontWeight: 500 }}>James Park</div>
-                                <div style={{ fontSize: 12, color: "var(--c-text-mute)" }}>67M · MRN-003291</div>
+                                <div style={{ fontSize: 15, fontWeight: 600 }}>James Park</div>
+                                <div style={{ fontSize: 13, color: "var(--c-text-mute)" }}>67M · MRN-003291</div>
                             </div>
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.6 }}>
+                        <div style={{ fontSize: 13, color: "var(--c-text-mute)", lineHeight: 1.65 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Visit</span><span>Apr 17 · 09:00</span></div>
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Drafted</span><span>Ambience AI</span></div>
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Signing</span><span style={{ color: "var(--c-blue)", fontWeight: 500 }}>Dr. I. Riaz</span></div>
@@ -78,7 +78,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                                 padding: "8px 10px", borderRadius: 6, marginBottom: 4, cursor: "pointer",
                                 background: s.id === activeSection ? "var(--c-blue-50)" : "transparent",
                                 color: s.id === activeSection ? "var(--c-blue)" : "var(--c-text-mute)",
-                                fontSize: 13, fontWeight: s.id === activeSection ? 500 : 400,
+                                fontSize: 14, fontWeight: s.id === activeSection ? 600 : 500,
                                 transition: "background 0.15s"
                             }}>
                                 {s.label}
@@ -110,7 +110,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
                             </svg>
-                            <div style={{ flex: 1, fontSize: 13, color: "var(--c-text-mute)" }}>
+                            <div style={{ flex: 1, fontSize: 14, color: "var(--c-text-mute)", lineHeight: 1.5 }}>
                                 <span style={{ fontWeight: 500, color: "var(--c-blue)" }}>OncoAssist:</span> {askQuery}
                             </div>
                             <span onClick={() => setAskVisible(false)} style={{ cursor: "pointer", fontSize: 14, color: "var(--c-text-ghost)" }}>{"\u2715"}</span>
@@ -130,7 +130,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
                                 <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
-                                <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
+                                <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
 
                                 {SECTIONS.map(s => (
                                     <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 24 }}>
@@ -191,7 +191,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                                                 }}
                                             />
                                             {s.id === activeSection && (
-                                                <div style={{ fontSize: 9, color: "var(--c-text-mute)", whiteSpace: "nowrap" }}>
+                                                <div style={{ fontSize: 10, color: "var(--c-text-mute)", whiteSpace: "nowrap" }}>
                                                     {s.label.split(" \u2014 ")[0]}
                                                 </div>
                                             )}
