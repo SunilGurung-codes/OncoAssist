@@ -6,17 +6,17 @@ import { TextSelectionPopup } from "../components/ui/TextSelectionPopup.jsx";
 
 // Note sections for timeline
 const SECTIONS = [
-    { id: "subj", label: "S — Subjective" },
-    { id: "obj", label: "O — Objective" },
-    { id: "ass", label: "A — Assessment" },
-    { id: "plan", label: "P — Plan" },
+    { id: "subj", label: "S \u2014 Subjective" },
+    { id: "obj", label: "O \u2014 Objective" },
+    { id: "ass", label: "A \u2014 Assessment" },
+    { id: "plan", label: "P \u2014 Plan" },
 ];
 
 const DEFAULT_NOTE = {
     subj: "Chief Complaint (CC): Follow-up on new ADT.\nHistory of Present Illness (HPI): Patient tolerating Enzalutamide 160mg QD. Denies bone pain or LUTS.\nDiagnosis (type, stage): Prostate adenocarcinoma, CRPC.\nDate of diagnosis: 2022\nCurrent treatment regimen: Enzalutamide\nCycle/day: Day 14\nSymptoms (onset, duration, severity): Mild fatigue, 3 hot flashes/week. No falls or seizure activity.\nFunctional status (e.g., ECOG): ECOG 0",
-    obj: "Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General — Well-appearing, NAD. Cardiovascular — RRR. Respiratory — CTAB. Abdomen — Soft, non-tender. Extremities — No edema.\n\nLabs: CBC — Hgb 12.8 (L). CMP — WNL. Tumor markers — PSA 16.2 ng/mL (↓ from 18.4). Testosterone < 50 ng/dL. LH 0.8, FSH 1.4.\n\nImaging/Diagnostics: CT/MRI/PET — Stable. Pathology — N/A",
+    obj: "Vitals: BP 122/78, HR 76, Temp 37.1\u00b0C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General \u2014 Well-appearing, NAD. Cardiovascular \u2014 RRR. Respiratory \u2014 CTAB. Abdomen \u2014 Soft, non-tender. Extremities \u2014 No edema.\n\nLabs: CBC \u2014 Hgb 12.8 (L). CMP \u2014 WNL. Tumor markers \u2014 PSA 16.2 ng/mL (\u2193 from 18.4). Testosterone < 50 ng/dL. LH 0.8, FSH 1.4.\n\nImaging/Diagnostics: CT/MRI/PET \u2014 Stable. Pathology \u2014 N/A",
     ass: "Primary cancer diagnosis: Metastatic CRPC.\nStage: IV.\nTreatment response: Early PCWG3 biochemical response to Enzalutamide.\nToxicities / adverse effects: Mild fatigue and systemic flashes.\nComorbidities: None active.\n12% PSA decline at Day 14 consistent with PCWG3 response.",
-    plan: "• Continue Enzalutamide 160mg QD.\n• Recheck PSA + CBC in 4 weeks (May 15).\n• RTC Jun 12.\n• Counselled on fall + seizure precautions.\n• Medications: Refill authorized.\n• Nutrition: Standard diet.\n• Psychosocial support: Coping well."
+    plan: "\u2022 Continue Enzalutamide 160mg QD.\n\u2022 Recheck PSA + CBC in 4 weeks (May 15).\n\u2022 RTC Jun 12.\n\u2022 Counselled on fall + seizure precautions.\n\u2022 Medications: Refill authorized.\n\u2022 Nutrition: Standard diet.\n\u2022 Psychosocial support: Coping well."
 };
 
 export function ReviewScreen({ onNav, theme, toggleTheme }) {
@@ -26,7 +26,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
 
     // Floating edit toolbar state
     const [editMenuOpen, setEditMenuOpen] = useState(false);
-    const [editAction, setEditAction] = useState(null); // tracks active action for visual feedback
+    const [editAction, setEditAction] = useState(null);
 
     // OncoAssist ask bar
     const [askQuery, setAskQuery] = useState(null);
@@ -41,7 +41,6 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
 
     const handleEditAction = (action) => {
         setEditAction(action);
-        // Simulate AI processing feedback
         setTimeout(() => setEditAction(null), 1500);
     };
 
@@ -50,7 +49,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
             <TopBar theme={theme} toggleTheme={toggleTheme} />
             <div className="screen-body">
 
-                {/* ── Left panel ── */}
+                {/* Left panel */}
                 <div className="panel-left" style={{ width: 300, flexShrink: 0 }}>
                     <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 8 }}>
                         <span onClick={() => onNav("initial")} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.chevLeft({ s: 14 })}</span>
@@ -98,13 +97,13 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                     </div>
                 </div>
 
-                {/* ── Centre: Canvas editor ── */}
+                {/* Centre: Canvas editor — full width, no right panel */}
                 <div className="panel-main scroll" style={{ overflowY: "auto", padding: "32px 48px", position: "relative" }}>
 
                     {/* Ask OncoAssist response banner */}
                     {askVisible && (
                         <div style={{
-                            maxWidth: 800, margin: "0 auto 20px", padding: "12px 16px",
+                            margin: "0 auto 20px", padding: "12px 16px",
                             background: "var(--c-blue-50)", border: "0.5px solid var(--c-blue-250)",
                             borderRadius: 10, display: "flex", alignItems: "center", gap: 10
                         }}>
@@ -114,51 +113,115 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                             <div style={{ flex: 1, fontSize: 13, color: "var(--c-text-mute)" }}>
                                 <span style={{ fontWeight: 500, color: "var(--c-blue)" }}>OncoAssist:</span> {askQuery}
                             </div>
-                            <span onClick={() => setAskVisible(false)} style={{ cursor: "pointer", fontSize: 14, color: "var(--c-text-ghost)" }}>✕</span>
+                            <span onClick={() => setAskVisible(false)} style={{ cursor: "pointer", fontSize: 14, color: "var(--c-text-ghost)" }}>{"\u2715"}</span>
                         </div>
                     )}
 
-                    {/* Note card + floating toolbar */}
-                    <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 20 }}>
+                    {/* Note card (with embedded timeline) + floating edit toolbar */}
+                    <div style={{ display: "flex", gap: 16, width: "100%" }}>
 
-                        {/* Editable note card */}
+                        {/* Editable note card with timeline inside */}
                         <div style={{
                             flex: 1, background: "var(--c-surface)", border: "0.5px solid var(--c-border)",
-                            borderRadius: 12, padding: "40px 48px", fontSize: 14, lineHeight: 1.7
+                            borderRadius: 12, padding: "40px 24px 40px 48px", fontSize: 14, lineHeight: 1.7,
+                            display: "flex", gap: 20
                         }}>
-                            <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
-                            <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
-                            <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
+                            {/* Note content */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
+                                <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
+                                <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
 
-                            {SECTIONS.map(s => (
-                                <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 24 }}>
-                                    <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                                        {s.label}
+                                {SECTIONS.map(s => (
+                                    <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 24 }}>
+                                        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 8 }}>
+                                            {s.label}
+                                        </div>
+                                        <textarea
+                                            value={note[s.id]}
+                                            onChange={e => setNote(n => ({ ...n, [s.id]: e.target.value }))}
+                                            onFocus={() => setActiveSection(s.id)}
+                                            style={{
+                                                width: "100%", border: "none", outline: "none", resize: "none",
+                                                background: "transparent", fontSize: 14, lineHeight: 1.7,
+                                                color: "var(--c-text)", fontFamily: "inherit",
+                                                minHeight: 80, overflow: "hidden"
+                                            }}
+                                            onInput={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+                                            ref={el => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
+                                        />
                                     </div>
-                                    <textarea
-                                        value={note[s.id]}
-                                        onChange={e => setNote(n => ({ ...n, [s.id]: e.target.value }))}
-                                        onFocus={() => setActiveSection(s.id)}
-                                        style={{
-                                            width: "100%", border: "none", outline: "none", resize: "none",
-                                            background: "transparent", fontSize: 14, lineHeight: 1.7,
-                                            color: "var(--c-text)", fontFamily: "inherit",
-                                            minHeight: 80, overflow: "hidden"
-                                        }}
-                                        onInput={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
-                                        ref={el => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
-                                    />
+                                ))}
+                            </div>
+
+                            {/* Timeline scrubber — inside note card, right edge */}
+                            <div style={{
+                                width: 40, flexShrink: 0, position: "sticky", top: 40,
+                                alignSelf: "flex-start", display: "flex", flexDirection: "column",
+                                alignItems: "center", gap: 8, paddingTop: 60
+                            }}>
+                                <button
+                                    onClick={() => { const idx = SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SECTIONS[idx - 1].id); }}
+                                    disabled={activeSection === SECTIONS[0].id}
+                                    style={{
+                                        width: 28, height: 28, borderRadius: "50%",
+                                        background: activeSection === SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                        border: "0.5px solid var(--c-border)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        cursor: activeSection === SECTIONS[0].id ? "default" : "pointer",
+                                        color: activeSection === SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)"
+                                    }}
+                                    title="Previous section">
+                                    <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                </button>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", padding: "4px 0" }}>
+                                    {SECTIONS.map(s => (
+                                        <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                                            <div
+                                                onClick={() => navToSection(s.id)}
+                                                title={s.label}
+                                                style={{
+                                                    width: s.id === activeSection ? 18 : 12,
+                                                    height: 3,
+                                                    borderRadius: 2,
+                                                    background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)",
+                                                    cursor: "pointer",
+                                                    transition: "width 0.15s, background 0.15s"
+                                                }}
+                                            />
+                                            {s.id === activeSection && (
+                                                <div style={{ fontSize: 9, color: "var(--c-text-mute)", whiteSpace: "nowrap" }}>
+                                                    {s.label.split(" \u2014 ")[0]}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+
+                                <button
+                                    onClick={() => { const idx = SECTIONS.findIndex(s => s.id === activeSection); if (idx < SECTIONS.length - 1) navToSection(SECTIONS[idx + 1].id); }}
+                                    disabled={activeSection === SECTIONS[SECTIONS.length - 1].id}
+                                    style={{
+                                        width: 28, height: 28, borderRadius: "50%",
+                                        background: activeSection === SECTIONS[SECTIONS.length - 1].id ? "var(--c-border-faint)" : "var(--c-surface-alt)",
+                                        border: "0.5px solid var(--c-border)",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
+                                        cursor: activeSection === SECTIONS[SECTIONS.length - 1].id ? "default" : "pointer",
+                                        color: activeSection === SECTIONS[SECTIONS.length - 1].id ? "var(--c-text-ghost)" : "var(--c-text-mute)"
+                                    }}
+                                    title="Next section">
+                                    <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                                </button>
+                            </div>
                         </div>
 
-                        {/* ── Floating edit sidebar (ChatGPT Canvas-style) ── */}
+                        {/* Floating edit sidebar (ChatGPT Canvas-style) */}
                         <div style={{
                             width: 48, flexShrink: 0, position: "sticky", top: 40,
                             alignSelf: "flex-start", display: "flex", flexDirection: "column",
                             alignItems: "center", gap: 0
                         }}>
-                            {/* Toggle button */}
                             <div
                                 onClick={() => setEditMenuOpen(!editMenuOpen)}
                                 style={{
@@ -178,7 +241,6 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                                 </svg>
                             </div>
 
-                            {/* Expandable action menu */}
                             {editMenuOpen && (
                                 <div style={{
                                     marginTop: 8, background: "var(--c-surface)",
@@ -190,99 +252,24 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                                 }}>
                                     <EditBtn
                                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10,9 9,9 8,9" /></svg>}
-                                        label="Suggest edit"
-                                        active={editAction === "suggest"}
-                                        onClick={() => handleEditAction("suggest")}
+                                        label="Suggest edit" active={editAction === "suggest"} onClick={() => handleEditAction("suggest")}
                                     />
                                     <EditBtn
                                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="3" y2="18" /></svg>}
-                                        label="Adjust length"
-                                        active={editAction === "length"}
-                                        onClick={() => handleEditAction("length")}
+                                        label="Adjust length" active={editAction === "length"} onClick={() => handleEditAction("length")}
                                     />
                                     <EditBtn
                                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>}
-                                        label="Reading level"
-                                        active={editAction === "reading"}
-                                        onClick={() => handleEditAction("reading")}
+                                        label="Reading level" active={editAction === "reading"} onClick={() => handleEditAction("reading")}
                                     />
                                     <EditBtn
                                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>}
-                                        label="Final polish"
-                                        active={editAction === "polish"}
-                                        onClick={() => handleEditAction("polish")}
+                                        label="Final polish" active={editAction === "polish"} onClick={() => handleEditAction("polish")}
                                     />
-                                    <style>{`
-                                        @keyframes jumpIn {
-                                            from { opacity: 0; transform: scale(0.92) translateY(-8px); }
-                                            to   { opacity: 1; transform: scale(1) translateY(0); }
-                                        }
-                                    `}</style>
+                                    <style>{`@keyframes jumpIn { from { opacity: 0; transform: scale(0.92) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }`}</style>
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
-
-                {/* ── Right: Section timeline scrubber ── */}
-                <div className="panel-side" style={{ background: "var(--c-surface)", width: 60, borderLeft: "0.5px solid var(--c-border-faint)" }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "center", gap: 8, padding: "20px 0" }}>
-                        {/* Up */}
-                        <button
-                            onClick={() => { const idx = SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SECTIONS[idx - 1].id); }}
-                            disabled={activeSection === SECTIONS[0].id}
-                            style={{
-                                width: 28, height: 28, borderRadius: "50%",
-                                background: activeSection === SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)",
-                                border: "0.5px solid var(--c-border)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                cursor: activeSection === SECTIONS[0].id ? "default" : "pointer",
-                                color: activeSection === SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)"
-                            }}
-                            title="Previous section">
-                            <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                        </button>
-
-                        {/* Section bars */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", padding: "4px 0" }}>
-                            {SECTIONS.map(s => (
-                                <div key={s.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                                    <div
-                                        onClick={() => navToSection(s.id)}
-                                        title={s.label}
-                                        style={{
-                                            width: s.id === activeSection ? 18 : 12,
-                                            height: 3,
-                                            borderRadius: 2,
-                                            background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)",
-                                            cursor: "pointer",
-                                            transition: "width 0.15s, background 0.15s"
-                                        }}
-                                    />
-                                    {s.id === activeSection && (
-                                        <div style={{ fontSize: 9, color: "var(--c-text-mute)", whiteSpace: "nowrap" }}>
-                                            {s.label.split(" — ")[0]}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Down */}
-                        <button
-                            onClick={() => { const idx = SECTIONS.findIndex(s => s.id === activeSection); if (idx < SECTIONS.length - 1) navToSection(SECTIONS[idx + 1].id); }}
-                            disabled={activeSection === SECTIONS[SECTIONS.length - 1].id}
-                            style={{
-                                width: 28, height: 28, borderRadius: "50%",
-                                background: activeSection === SECTIONS[SECTIONS.length - 1].id ? "var(--c-border-faint)" : "var(--c-surface-alt)",
-                                border: "0.5px solid var(--c-border)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                cursor: activeSection === SECTIONS[SECTIONS.length - 1].id ? "default" : "pointer",
-                                color: activeSection === SECTIONS[SECTIONS.length - 1].id ? "var(--c-text-ghost)" : "var(--c-text-mute)"
-                            }}
-                            title="Next section">
-                            <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -293,7 +280,6 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
     );
 }
 
-// Floating sidebar action button
 function EditBtn({ icon, label, active, onClick }) {
     return (
         <div
