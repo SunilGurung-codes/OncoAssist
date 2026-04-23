@@ -258,7 +258,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                 {messages.length > 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} />}
 
             </div>
-            {!lCol && !rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
+            {!rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
             {/* Adding Right Panel for Clinical Context */}
             <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
         </div>

@@ -313,23 +313,29 @@ function LabsTab({ onAddToChat }) {
     return <div>
         <div style={{ padding: "10px 12px" }}>
             <div className="label-xs" style={{ marginBottom: 6 }}>CBC · {labsCBC.date}</div>
-            <LabTable rows={labsCBC.rows} />
+            <LabTable rows={labsCBC.rows} panelLabel={`CBC · ${labsCBC.date}`} onAddToChat={onAddToChat} />
             <div className="label-xs" style={{ marginTop: 16, marginBottom: 6 }}>PSA + HORMONAL · {labsPSA.date}</div>
-            <LabTable rows={labsPSA.rows} />
+            <LabTable rows={labsPSA.rows} panelLabel={`PSA + HORMONAL · ${labsPSA.date}`} onAddToChat={onAddToChat} />
             <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
         </div>
         <div style={{ padding: "10px 12px 14px" }}><button onClick={() => onAddToChat && onAddToChat({ kind: "lab", label: "PSA + Hormonal Panel" })} className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Panel to Chat</button></div>
     </div>;
 }
 
-function LabTable({ rows }) {
+function LabTable({ rows, panelLabel, onAddToChat }) {
     return <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 7, overflow: "hidden" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 18px", padding: "6px 10px", background: "var(--c-surface-alt)", fontSize: 10, color: "var(--c-text-mute)", fontWeight: 500 }}>
             <div>TEST</div><div>RESULT</div><div>REFERENCE</div><div />
         </div>
         {rows.map((r, i) => {
             const c = r.tone === "high" ? "var(--c-red-deep)" : r.tone === "low" ? "var(--c-amber-deep)" : "var(--c-text)";
-            return <div key={i} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 18px", padding: "7px 10px", fontSize: 11, borderTop: "0.5px solid var(--c-border-faint)", alignItems: "center" }}>
+            return <div key={i} className="note-row" draggable
+                onDragStart={e => {
+                    e.dataTransfer.setData("application/json", JSON.stringify({ kind: "lab", id: `${panelLabel}-${r.name}`, label: `${r.name} ${r.v}${r.unit ? ` ${r.unit}` : ""}` }));
+                    e.currentTarget.classList.add("dragging");
+                }}
+                onDragEnd={e => e.currentTarget.classList.remove("dragging")}
+                style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 18px", padding: "7px 10px", fontSize: 11, borderTop: "0.5px solid var(--c-border-faint)", alignItems: "center", cursor: "grab" }}>
                 <div><div style={{ fontWeight: 500 }}>{r.name}</div>{r.note && <div style={{ fontSize: 10, color: "var(--c-green-deep)", marginTop: 2 }}>{r.note}</div>}</div>
                 <div style={{ color: c, fontWeight: 500 }}>{r.v} <span style={{ color: "var(--c-text-mute)", fontWeight: 400, fontSize: 10 }}>{r.unit}</span></div>
                 <div style={{ color: "var(--c-text-mute)", fontSize: 10 }}>{r.ref}</div>
@@ -341,7 +347,13 @@ function LabTable({ rows }) {
 
 function ImagingTab({ onAddToChat }) {
     return <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {data.imaging.map(im => <div key={im.id} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, overflow: "hidden" }}>
+        {data.imaging.map(im => <div key={im.id} className="note-row" draggable
+            onDragStart={e => {
+                e.dataTransfer.setData("application/json", JSON.stringify({ kind: "imaging", id: im.id, label: im.type }));
+                e.currentTarget.classList.add("dragging");
+            }}
+            onDragEnd={e => e.currentTarget.classList.remove("dragging")}
+            style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, overflow: "hidden", cursor: "grab" }}>
             <div style={{ height: 88, background: "linear-gradient(135deg,var(--c-blue-50),var(--c-blue-200))", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                 <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="22" stroke="#0C447C" strokeOpacity=".4" strokeWidth="1.5" fill="#0C447C" fillOpacity=".08" /></svg>
                 <div style={{ position: "absolute", top: 6, left: 8 }}><Chip tone="blue" size="sm">{im.dept}</Chip></div>
