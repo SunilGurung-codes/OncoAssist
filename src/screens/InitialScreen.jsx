@@ -313,9 +313,9 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
 
 function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
     return (
-        <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
-            <div style={{ width: "100%", margin: "0 auto" }}>
-                <div style={{ padding: "10px 28px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
+        <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ marginTop: 18, borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10, borderRadius: 12 }}>
+            <div style={{ width: "100%", margin: "0 auto", paddingTop: 6 }}>
+                <div style={{ padding: "10px 28px 10px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 44 }}>
                     <span style={{ fontSize: 13, color: "var(--c-text-soft)" }}>Context:</span>
                     {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px", borderRadius: 6, fontSize: 12, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                         {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
@@ -323,7 +323,7 @@ function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
                     </span>)}
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 6, fontSize: 12, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
                 </div>
-                <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 28px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
+                <div style={{ margin: "0 28px 16px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
                         <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 14 }} />
