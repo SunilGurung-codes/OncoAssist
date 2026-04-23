@@ -174,7 +174,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                         </div>
 
                         {/* Grok-style interactive timeline scrubber — sticky-centered in right gutter */}
-                        {messages.length > 0 && (
+                        {messages.length > 0 && editingIdx === null && (
                             <div style={{ width: 60, flexShrink: 0, alignSelf: "stretch", position: "relative", marginLeft: 24 }}>
                                 <div style={{
                                     position: "sticky",
@@ -361,15 +361,14 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
     };
 
     return (
-        <div ref={outerRef} className="fade-in" style={{ marginBottom: 14, display: "flex", gap: 12 }}>
-            {/* Note card with embedded timeline */}
+        <div ref={outerRef} className="fade-in" style={{ marginBottom: 14, display: "flex", gap: 18, alignItems: "flex-start" }}>
+            {/* Note card */}
             <div style={{
                 flex: 1, background: "var(--c-surface)", border: "1px solid var(--c-blue-250)",
-                borderRadius: 12, padding: "28px 20px 28px 36px", fontSize: 14, lineHeight: 1.7,
-                display: "flex", gap: 16
+                borderRadius: 12, padding: "28px 20px 28px 36px", fontSize: 14, lineHeight: 1.7
             }}>
                 {/* Editable content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
@@ -400,50 +399,58 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
                         </div>
                     ))}
                 </div>
-
-                {/* Timeline inside note card */}
-                <div style={{
-                    width: 36, flexShrink: 0, display: "flex", flexDirection: "column",
-                    alignItems: "center", gap: 8, paddingTop: 50
-                }}>
-                    <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SOAP_SECTIONS[idx - 1].id); }}
-                        disabled={activeSection === SOAP_SECTIONS[0].id}
-                        style={{ width: 24, height: 24, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[0].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
-                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                    </button>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-                        {SOAP_SECTIONS.map(s => (
-                            <div key={s.id} onClick={() => navToSection(s.id)} title={s.label}
-                                style={{ width: s.id === activeSection ? 16 : 10, height: 3, borderRadius: 2, background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)", cursor: "pointer", transition: "width 0.15s, background 0.15s" }} />
-                        ))}
-                    </div>
-                    <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx < SOAP_SECTIONS.length - 1) navToSection(SOAP_SECTIONS[idx + 1].id); }}
-                        disabled={activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id}
-                        style={{ width: 24, height: 24, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
-                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-                    </button>
-                </div>
             </div>
 
-            {/* Floating edit sidebar */}
-            <div style={{ width: 44, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 0, paddingTop: 28 }}>
-                <div onClick={() => setEditMenuOpen(!editMenuOpen)}
-                    style={{ width: 40, height: 40, borderRadius: "50%", background: editMenuOpen ? "var(--c-blue)" : "var(--c-surface)", border: "0.5px solid var(--c-border)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editMenuOpen ? "#fff" : "var(--c-text-mute)", transition: "all 0.2s" }}
-                    title="Edit tools">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
-                </div>
-                {editMenuOpen && (
-                    <div style={{ marginTop: 6, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", padding: "6px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                        <InlineEditBtn label="Suggest edit" active={editAction === "suggest"} onClick={() => handleEditAction("suggest")}
-                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>} />
-                        <InlineEditBtn label="Adjust length" active={editAction === "length"} onClick={() => handleEditAction("length")}
-                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="3" y2="18" /></svg>} />
-                        <InlineEditBtn label="Reading level" active={editAction === "reading"} onClick={() => handleEditAction("reading")}
-                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>} />
-                        <InlineEditBtn label="Final polish" active={editAction === "polish"} onClick={() => handleEditAction("polish")}
-                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>} />
+            {/* Sticky edit rail */}
+            <div style={{ width: 56, flexShrink: 0, alignSelf: "stretch", position: "relative" }}>
+                <div style={{
+                    position: "sticky",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 16
+                }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                        <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SOAP_SECTIONS[idx - 1].id); }}
+                            disabled={activeSection === SOAP_SECTIONS[0].id}
+                            style={{ width: 28, height: 28, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[0].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
+                            <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                        </button>
+                        <div style={{ padding: "10px 0", background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 36 }}>
+                            {SOAP_SECTIONS.map(s => (
+                                <div key={s.id} onClick={() => navToSection(s.id)} title={s.label}
+                                    style={{ width: s.id === activeSection ? 18 : 10, height: 3, borderRadius: 2, background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)", cursor: "pointer", transition: "width 0.15s, background 0.15s" }} />
+                            ))}
+                        </div>
+                        <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx < SOAP_SECTIONS.length - 1) navToSection(SOAP_SECTIONS[idx + 1].id); }}
+                            disabled={activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id}
+                            style={{ width: 28, height: 28, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
+                            <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                        </button>
                     </div>
-                )}
+
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                        <div onClick={() => setEditMenuOpen(!editMenuOpen)}
+                            style={{ width: 44, height: 44, borderRadius: "50%", background: editMenuOpen ? "var(--c-blue)" : "var(--c-surface)", border: "0.5px solid var(--c-border)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editMenuOpen ? "#fff" : "var(--c-text-mute)", transition: "all 0.2s" }}
+                            title="Edit tools">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
+                        </div>
+                        {editMenuOpen && (
+                            <div style={{ marginTop: 6, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", padding: "6px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                                <InlineEditBtn label="Suggest edit" active={editAction === "suggest"} onClick={() => handleEditAction("suggest")}
+                                    icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>} />
+                                <InlineEditBtn label="Adjust length" active={editAction === "length"} onClick={() => handleEditAction("length")}
+                                    icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="3" y2="18" /></svg>} />
+                                <InlineEditBtn label="Reading level" active={editAction === "reading"} onClick={() => handleEditAction("reading")}
+                                    icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>} />
+                                <InlineEditBtn label="Final polish" active={editAction === "polish"} onClick={() => handleEditAction("polish")}
+                                    icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>} />
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
