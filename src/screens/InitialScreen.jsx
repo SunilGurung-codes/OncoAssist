@@ -24,6 +24,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const ref = useRef(null);
     const msgRefs = useRef([]);
     const [activeMsg, setActiveMsg] = useState(0);
+    const [editingIdx, setEditingIdx] = useState(null); // which message index is in canvas edit mode
     useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [messages]);
     useEffect(() => {
         // Track which message is most visible in the scroll area
@@ -161,12 +162,14 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                                     <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
                                 </div>
-                                : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
-                                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
-                                    <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
-                                    {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
-                                    <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
-                                </div>
+                                : editingIdx === i ?
+                                    <InlineSoapEditor key={i} ref={el => msgRefs.current[i] = el} text={m.text} onClose={() => setEditingIdx(null)} onSave={newText => { setMessages(ms => ms.map((mm, j) => j === i ? { ...mm, text: newText } : mm)); setEditingIdx(null); }} />
+                                    : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
+                                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 10, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
+                                        <div style={{ fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                                        {m.cites && <div style={{ marginTop: 8, fontSize: 10, color: "var(--c-blue)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
+                                        <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })}>Add to Note</Micro></div>
+                                    </div>
                             )}
                         </div>
 
@@ -311,7 +314,149 @@ function Resizer({ onPosChange }) {
 
 function ans(q) {
     const l = q.toLowerCase();
-    if (l.includes("monitor") || l.includes("cadence")) return `Recommended monitoring on Enzalutamide:\n• PSA + testosterone q4-8 wk for first 6 mo, then q3 mo\n• CBC + LFTs q3 mo\n• BP at each visit\n• Fall + seizure screen at each visit\n\nFor this patient: Day 14 drop is a strong early signal. 4-week recheck (May 15) is appropriate.`;
-    if (l.includes("dose") || l.includes("lh")) return `Suppressed LH/FSH reflect Leuprolide (GnRH agonist) — expected, not reason to adjust Enzalutamide.\n\nTarget is castrate T < 50 ng/dL, achieved. No dose change indicated.`;
-    return `Yes — a PSA decline of 18.4 → 16.2 (~12%) at Day 14 meets early PSA response criteria per PCWG3. Castrate testosterone maintained, no new symptoms, no radiographic progression. Continue regimen; recheck 4 weeks.`;
+    if (l.includes("monitor") || l.includes("cadence")) return `Recommended monitoring on Enzalutamide:\n\u2022 PSA + testosterone q4-8 wk for first 6 mo, then q3 mo\n\u2022 CBC + LFTs q3 mo\n\u2022 BP at each visit\n\u2022 Fall + seizure screen at each visit\n\nFor this patient: Day 14 drop is a strong early signal. 4-week recheck (May 15) is appropriate.`;
+    if (l.includes("dose") || l.includes("lh")) return `Suppressed LH/FSH reflect Leuprolide (GnRH agonist) \u2014 expected, not reason to adjust Enzalutamide.\n\nTarget is castrate T < 50 ng/dL, achieved. No dose change indicated.`;
+    return `Yes \u2014 a PSA decline of 18.4 \u2192 16.2 (~12%) at Day 14 meets early PSA response criteria per PCWG3. Castrate testosterone maintained, no new symptoms, no radiographic progression. Continue regimen; recheck 4 weeks.`;
 }
+
+// Parse SOAP note text into sections
+function parseNoteToSections(text) {
+    const sections = { subj: "", obj: "", ass: "", plan: "" };
+    const sMatch = text.match(/\*\*S \u2014 Subjective\*\*([\s\S]*?)(?=\*\*O \u2014 Objective\*\*|$)/);
+    const oMatch = text.match(/\*\*O \u2014 Objective\*\*([\s\S]*?)(?=\*\*A \u2014 Assessment\*\*|$)/);
+    const aMatch = text.match(/\*\*A \u2014 Assessment\*\*([\s\S]*?)(?=\*\*P \u2014 Plan\*\*|$)/);
+    const pMatch = text.match(/\*\*P \u2014 Plan\*\*([\s\S]*?)(?=\*\*Notes:\*\*|$)/);
+    if (sMatch) sections.subj = sMatch[1].trim();
+    if (oMatch) sections.obj = oMatch[1].trim();
+    if (aMatch) sections.ass = aMatch[1].trim();
+    if (pMatch) sections.plan = pMatch[1].trim();
+    // Fallback: if no sections found, put entire text in subj
+    if (!sMatch && !oMatch && !aMatch && !pMatch) sections.subj = text;
+    return sections;
+}
+
+const SOAP_SECTIONS = [
+    { id: "subj", label: "S \u2014 Subjective" },
+    { id: "obj", label: "O \u2014 Objective" },
+    { id: "ass", label: "A \u2014 Assessment" },
+    { id: "plan", label: "P \u2014 Plan" },
+];
+
+const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onClose, onSave }, outerRef) {
+    const [note, setNote] = React.useState(() => parseNoteToSections(text));
+    const [activeSection, setActiveSection] = React.useState("subj");
+    const [editMenuOpen, setEditMenuOpen] = React.useState(false);
+    const [editAction, setEditAction] = React.useState(null);
+    const sectionRefs = React.useRef({});
+
+    const navToSection = (id) => {
+        const el = sectionRefs.current[id];
+        if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); setActiveSection(id); }
+    };
+    const handleEditAction = (action) => { setEditAction(action); setTimeout(() => setEditAction(null), 1500); };
+    const handleSave = () => {
+        // Reconstruct the full text
+        const out = `**Oncology SOAP Note**\n\n**S \u2014 Subjective**\n${note.subj}\n\n**O \u2014 Objective**\n${note.obj}\n\n**A \u2014 Assessment**\n${note.ass}\n\n**P \u2014 Plan**\n${note.plan}`;
+        onSave(out);
+    };
+
+    return (
+        <div ref={outerRef} className="fade-in" style={{ marginBottom: 14, display: "flex", gap: 12 }}>
+            {/* Note card with embedded timeline */}
+            <div style={{
+                flex: 1, background: "var(--c-surface)", border: "1px solid var(--c-blue-250)",
+                borderRadius: 12, padding: "28px 20px 28px 36px", fontSize: 14, lineHeight: 1.7,
+                display: "flex", gap: 16
+            }}>
+                {/* Editable content */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--c-blue)" }} />
+                            <span className="label-xs" style={{ color: "var(--c-blue)" }}>CANVAS EDIT MODE</span>
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                            <button className="btn btn-primary sm" onClick={handleSave}>Save</button>
+                            <button className="btn btn-ghost sm" onClick={onClose}>Close</button>
+                        </div>
+                    </div>
+
+                    {SOAP_SECTIONS.map(s => (
+                        <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 16 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 4 }}>{s.label}</div>
+                            <textarea
+                                value={note[s.id]}
+                                onChange={e => setNote(n => ({ ...n, [s.id]: e.target.value }))}
+                                onFocus={() => setActiveSection(s.id)}
+                                style={{
+                                    width: "100%", border: "none", outline: "none", resize: "none",
+                                    background: "transparent", fontSize: 13, lineHeight: 1.65,
+                                    color: "var(--c-text)", fontFamily: "inherit",
+                                    minHeight: 60, overflow: "hidden"
+                                }}
+                                onInput={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+                                ref={el => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Timeline inside note card */}
+                <div style={{
+                    width: 36, flexShrink: 0, display: "flex", flexDirection: "column",
+                    alignItems: "center", gap: 8, paddingTop: 50
+                }}>
+                    <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx > 0) navToSection(SOAP_SECTIONS[idx - 1].id); }}
+                        disabled={activeSection === SOAP_SECTIONS[0].id}
+                        style={{ width: 24, height: 24, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[0].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[0].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[0].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
+                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 6.5L5 3.5L8 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                    </button>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+                        {SOAP_SECTIONS.map(s => (
+                            <div key={s.id} onClick={() => navToSection(s.id)} title={s.label}
+                                style={{ width: s.id === activeSection ? 16 : 10, height: 3, borderRadius: 2, background: s.id === activeSection ? "var(--c-blue)" : "var(--c-border)", cursor: "pointer", transition: "width 0.15s, background 0.15s" }} />
+                        ))}
+                    </div>
+                    <button onClick={() => { const idx = SOAP_SECTIONS.findIndex(s => s.id === activeSection); if (idx < SOAP_SECTIONS.length - 1) navToSection(SOAP_SECTIONS[idx + 1].id); }}
+                        disabled={activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id}
+                        style={{ width: 24, height: 24, borderRadius: "50%", background: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-border-faint)" : "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "default" : "pointer", color: activeSection === SOAP_SECTIONS[SOAP_SECTIONS.length - 1].id ? "var(--c-text-ghost)" : "var(--c-text-mute)" }}>
+                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            {/* Floating edit sidebar */}
+            <div style={{ width: 44, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 0, paddingTop: 28 }}>
+                <div onClick={() => setEditMenuOpen(!editMenuOpen)}
+                    style={{ width: 40, height: 40, borderRadius: "50%", background: editMenuOpen ? "var(--c-blue)" : "var(--c-surface)", border: "0.5px solid var(--c-border)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editMenuOpen ? "#fff" : "var(--c-text-mute)", transition: "all 0.2s" }}
+                    title="Edit tools">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
+                </div>
+                {editMenuOpen && (
+                    <div style={{ marginTop: 6, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", padding: "6px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                        <InlineEditBtn label="Suggest edit" active={editAction === "suggest"} onClick={() => handleEditAction("suggest")}
+                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>} />
+                        <InlineEditBtn label="Adjust length" active={editAction === "length"} onClick={() => handleEditAction("length")}
+                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="3" y2="18" /></svg>} />
+                        <InlineEditBtn label="Reading level" active={editAction === "reading"} onClick={() => handleEditAction("reading")}
+                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>} />
+                        <InlineEditBtn label="Final polish" active={editAction === "polish"} onClick={() => handleEditAction("polish")}
+                            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>} />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+});
+
+function InlineEditBtn({ icon, label, active, onClick }) {
+    return (
+        <div onClick={onClick} title={label}
+            style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? "var(--c-blue)" : "var(--c-text-mute)", background: active ? "var(--c-blue-50)" : "transparent", transition: "all 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--c-surface-alt)"}
+            onMouseLeave={e => e.currentTarget.style.background = active ? "var(--c-blue-50)" : "transparent"}>
+            {icon}
+        </div>
+    );
+}
+
