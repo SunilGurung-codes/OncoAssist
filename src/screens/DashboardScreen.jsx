@@ -144,7 +144,7 @@ function PatientRow({ p, first, onOpen }) {
         amber: { bg: "var(--c-amber-100)", fg: "var(--c-amber-deep)", border: "var(--c-amber-300)" },
         green: { bg: "var(--c-green-100)", fg: "var(--c-green-deep)", border: "var(--c-green-300)" },
         blue: { bg: "var(--c-blue-100)", fg: "var(--c-blue-deep)", border: "var(--c-blue-250)" },
-        neutral: { bg: "#F5F4F0", fg: "var(--c-text-mute)", border: "var(--c-border)" }
+        neutral: { bg: "var(--c-surface-alt)", fg: "var(--c-text-strong)", border: "var(--c-border)" }
     }[p.statusColor];
     return (
         <div
@@ -160,7 +160,7 @@ function PatientRow({ p, first, onOpen }) {
                 cursor: "pointer"
             }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 18, background: p.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "var(--c-text)", border: "0.5px solid rgba(0,0,0,0.05)" }}>{p.initials}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 18, background: p.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "var(--c-avatar-ink)", border: "0.5px solid var(--c-avatar-border)" }}>{p.initials}</div>
                 <div>
                     <div style={{ fontSize: 14, fontWeight: 600 }}>{p.name}</div>
                     <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.45 }}>{p.demo} · {p.mrn} · {p.type}</div>

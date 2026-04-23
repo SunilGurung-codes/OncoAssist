@@ -54,6 +54,9 @@
   --c-purple-50: #EEEDFE;
   --c-purple-200: #AFA9EC;
 
+  --c-avatar-ink: #17324D;
+  --c-avatar-border: rgba(12, 68, 124, 0.16);
+
   --r-chip: 5px;
   --r-chip-lg: 6px;
   --r-btn: 7px;
@@ -108,6 +111,9 @@ html.dark-theme {
   --c-purple: #B4A0FF;
   --c-purple-50: #2E2551;
   --c-purple-200: #6957AF;
+
+  --c-avatar-ink: #14293F;
+  --c-avatar-border: rgba(215, 235, 255, 0.16);
 }
 
 :focus-visible {
@@ -420,13 +426,13 @@ textarea {
   height: 28px;
   border-radius: 14px;
   background: #E6F1FB;
-  border: 0.5px solid #B5D4F4;
-  color: var(--c-blue-deep);
+  border: 0.5px solid var(--c-avatar-border);
+  color: var(--c-avatar-ink);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   flex-shrink: 0;
 }
 
