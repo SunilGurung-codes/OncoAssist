@@ -186,6 +186,8 @@ textarea {
   flex-direction: column;
   overflow: hidden;
   background: var(--c-surface);
+  border-left: 1px solid var(--c-border-faint);
+  border-right: 1px solid var(--c-border-faint);
 }
 
 .panel-side {

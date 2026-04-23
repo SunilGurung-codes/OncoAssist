@@ -82,12 +82,12 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
             {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">
-                <div style={{ minHeight: 44, padding: "8px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
+                <div style={{ minHeight: 44, padding: "8px 28px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
                     <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 12, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                     <span style={{ color: "var(--c-text-ghost)", margin: "0 8px" }}>/</span>
                     <span style={{ fontSize: 12, fontWeight: 500 }}>James Park · Visit</span>
                 </div>
-                <div className="scroll" ref={ref} style={{ padding: "20px 24px", flex: 1, overflowY: "auto" }}>
+                <div className="scroll" ref={ref} style={{ padding: "20px 36px", flex: 1, overflowY: "auto" }}>
                     <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · APR 17 · 09:00</div>
                     <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>Follow-up · Day 14 of Enzalutamide</div>
                     <div style={{ fontSize: 13, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.55 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
@@ -149,7 +149,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
-                    <div style={{ width: "100%", maxWidth: 1080, margin: "0 auto", padding: "0 24px", display: "flex", gap: 0, position: "relative" }}>
+                    <div style={{ width: "100%", margin: "0 auto", padding: "0 0", display: "flex", gap: 0, position: "relative" }}>
 
                         {/* Chat messages column */}
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -249,8 +249,8 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
 
                 {/* Chat Input */}
                 <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
-                    <div style={{ maxWidth: 1080, margin: "0 auto", width: "100%" }}>
-                        <div style={{ padding: "10px 16px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
+                    <div style={{ width: "100%", margin: "0 auto" }}>
+                        <div style={{ padding: "10px 28px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
                             <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
                             {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                                 {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
@@ -258,7 +258,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                             </span>)}
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
                         </div>
-                        <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 16px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
+                        <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 28px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                 <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
                                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
