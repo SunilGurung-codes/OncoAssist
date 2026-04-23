@@ -758,8 +758,8 @@ textarea::placeholder {
   content: attr(data-tooltip);
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 8px);
-  transform: translateX(-50%) translateY(4px);
+  top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(-4px);
   padding: 5px 8px;
   border-radius: 6px;
   background: rgba(26, 26, 24, 0.94);
