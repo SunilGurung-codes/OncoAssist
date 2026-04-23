@@ -530,6 +530,47 @@ textarea {
   color: var(--c-text-mute);
 }
 
+html.dark-theme .chip-blue {
+  background: #1F3B5A;
+  border-color: #4B80B8;
+  color: #E6F2FF;
+}
+
+html.dark-theme .chip-blue-solid {
+  background: #4B9FFF;
+  color: #081522;
+}
+
+html.dark-theme .chip-red {
+  background: #4A2326;
+  border-color: #A55C63;
+  color: #FFD9DD;
+}
+
+html.dark-theme .chip-green {
+  background: #1A3A2D;
+  border-color: #3F8B6A;
+  color: #D4F8EA;
+}
+
+html.dark-theme .chip-amber {
+  background: #4A3718;
+  border-color: #A48337;
+  color: #FFE6AD;
+}
+
+html.dark-theme .chip-purple {
+  background: #3A2E61;
+  border-color: #8974D6;
+  color: #ECE4FF;
+}
+
+html.dark-theme .chip-neutral {
+  background: #2A3138;
+  border-color: #51606D;
+  color: #E1E7ED;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -731,6 +772,11 @@ textarea::placeholder {
 .drop-active {
   background: var(--c-blue-150) !important;
   box-shadow: inset 0 0 0 1.5px var(--c-blue) !important;
+}
+
+.drop-active .chat-input-shell {
+  background: var(--c-blue-150) !important;
+  border-color: var(--c-blue) !important;
 }
 
 .note-row {
