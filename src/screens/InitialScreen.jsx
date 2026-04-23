@@ -149,6 +149,10 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <span className="micro" onClick={() => send(s.q)}>Ask →</span>
                             </div>)}
                     </div>
+
+                    {/* Inline chat input when no messages (appears right after Smart Steps) */}
+                    {messages.length === 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} />}
+
                     <div style={{ width: "100%", margin: "0 auto", padding: "0 0", display: "flex", gap: 0, position: "relative" }}>
 
                         {/* Chat messages column */}
@@ -247,27 +251,8 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                 {/* Highlight tool bounds to DOM selection natively! */}
                 <TextSelectionPopup onExplaining={t => send(`Explain or search details regarding: "${t}"`)} />
 
-                {/* Chat Input */}
-                <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
-                    <div style={{ width: "100%", margin: "0 auto" }}>
-                        <div style={{ padding: "10px 28px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
-                            <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
-                            {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
-                                {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
-                                <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
-                            </span>)}
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
-                        </div>
-                        <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 28px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
-                                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
-                                <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
-                                <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* Bottom-pinned chat input — only when messages exist */}
+                {messages.length > 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} />}
 
             </div>
             {!lCol && !rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
@@ -275,6 +260,31 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
             <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} />
         </div>
     </div>;
+}
+
+function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
+    return (
+        <div style={{ borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10 }}>
+            <div style={{ width: "100%", margin: "0 auto" }}>
+                <div style={{ padding: "10px 28px 6px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 40 }}>
+                    <span style={{ fontSize: 12, color: "var(--c-text-soft)" }}>Context:</span>
+                    {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
+                        {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
+                        <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
+                    </span>)}
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, background: "transparent", border: "0.5px dashed var(--c-border)", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.plus({ s: 10 })} Add context</span>
+                </div>
+                <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ margin: "0 28px 14px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
+                        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
+                        <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
+                        <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 function Resizer({ onPosChange }) {
