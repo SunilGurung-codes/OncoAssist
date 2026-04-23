@@ -4,6 +4,7 @@ import { Icon } from "./Icon";
 export function TopBar({ active = "My Patients", onNav, variant = "compact", theme, toggleTheme }) {
     const [showMenu, setShowMenu] = useState(false);
     const h = variant === "dashboard" ? 52 : 48;
+    const themeTooltip = theme === "dark" ? "Light mode" : "Dark mode";
     return (
         <div className={"topbar " + (variant === "dashboard" ? "dashboard" : "")} style={{ height: h }}>
             <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
@@ -26,7 +27,7 @@ export function TopBar({ active = "My Patients", onNav, variant = "compact", the
                     <div style={{ width: 1, height: 18, background: "var(--c-border-soft)" }} />
                     <div style={{ color: "var(--c-text-mute)" }}>{Icon.bell({ s: 14 })}</div>
                     {toggleTheme && (
-                        <div style={{ color: "var(--c-text-mute)", cursor: "pointer" }} onClick={toggleTheme}>
+                        <div className="has-tooltip" data-tooltip={themeTooltip} style={{ color: "var(--c-text-mute)", cursor: "pointer", display: "flex", alignItems: "center" }} onClick={toggleTheme}>
                             {theme === "dark" ? Icon.sun({ s: 14 }) : Icon.moon({ s: 14 })}
                         </div>
                     )}
@@ -46,7 +47,7 @@ export function TopBar({ active = "My Patients", onNav, variant = "compact", the
             ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                     {toggleTheme && (
-                        <div style={{ color: "var(--c-text-mute)", cursor: "pointer", display: "flex", alignItems: "center" }} onClick={toggleTheme}>
+                        <div className="has-tooltip" data-tooltip={themeTooltip} style={{ color: "var(--c-text-mute)", cursor: "pointer", display: "flex", alignItems: "center" }} onClick={toggleTheme}>
                             {theme === "dark" ? Icon.sun({ s: 14 }) : Icon.moon({ s: 14 })}
                         </div>
                     )}

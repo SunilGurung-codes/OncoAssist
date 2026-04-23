@@ -45,7 +45,7 @@ const dashboardLightVars = {
     "--c-purple-200": "#AFA9EC",
 };
 
-export function DashboardScreen({ onOpen }) {
+export function DashboardScreen({ onOpen, theme, toggleTheme }) {
     const [filter, setFilter] = useState("All");
 
     const filters = [
@@ -66,7 +66,7 @@ export function DashboardScreen({ onOpen }) {
 
     return (
         <div className="stage" data-screen-label="01 Dashboard" style={dashboardLightVars}>
-            <TopBar active="Dashboard" variant="dashboard" />
+            <TopBar active="Dashboard" variant="dashboard" theme={theme} toggleTheme={toggleTheme} />
 
             {/* Greeting strip */}
             <div className="greeting-strip" style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
