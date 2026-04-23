@@ -3,48 +3,6 @@ import { data } from "../data.js";
 import { Icon } from "../components/ui/Icon.jsx";
 import { TopBar } from "../components/ui/TopBar.jsx";
 
-const dashboardLightVars = {
-    "--c-bg": "#FFFFFF",
-    "--c-surface": "#FFFFFF",
-    "--c-surface-alt": "#F6F5F2",
-    "--c-surface-warm": "#FCFBF8",
-    "--c-surface-ivory": "#F9F7F2",
-    "--c-text": "#1A1A18",
-    "--c-text-strong": "#2C2C2A",
-    "--c-text-mute": "#484743",
-    "--c-text-soft": "#5C5B56",
-    "--c-text-faint": "#696862",
-    "--c-text-ghost": "#77756F",
-    "--c-border": "#D3D1C7",
-    "--c-border-soft": "#E2E0D8",
-    "--c-border-faint": "#E5E3DB",
-    "--c-border-warm": "#E8E7E3",
-    "--c-blue": "#2B78CA",
-    "--c-blue-deep": "#0C447C",
-    "--c-blue-50": "#F0F5FC",
-    "--c-blue-100": "#EDF3FB",
-    "--c-blue-150": "#E6F1FB",
-    "--c-blue-200": "#D4E8F9",
-    "--c-blue-250": "#C4D9F0",
-    "--c-blue-300": "#B5D4F4",
-    "--c-red": "#E24B4A",
-    "--c-red-deep": "#A32D2D",
-    "--c-red-100": "#FFEBEB",
-    "--c-red-300": "#F7C1C1",
-    "--c-amber": "#DD9817",
-    "--c-amber-deep": "#B87A0B",
-    "--c-amber-100": "#FDF4E5",
-    "--c-amber-300": "#F3D7A2",
-    "--c-amber-text": "#633806",
-    "--c-green": "#1D9E75",
-    "--c-green-deep": "#085041",
-    "--c-green-100": "#E1F5EE",
-    "--c-green-300": "#A8D9C5",
-    "--c-purple": "#3C3489",
-    "--c-purple-50": "#EEEDFE",
-    "--c-purple-200": "#AFA9EC",
-};
-
 export function DashboardScreen({ onOpen, theme, toggleTheme }) {
     const [filter, setFilter] = useState("All");
 
@@ -65,7 +23,7 @@ export function DashboardScreen({ onOpen, theme, toggleTheme }) {
     });
 
     return (
-        <div className="stage" data-screen-label="01 Dashboard" style={dashboardLightVars}>
+        <div className="stage" data-screen-label="01 Dashboard">
             <TopBar active="Dashboard" variant="dashboard" theme={theme} toggleTheme={toggleTheme} />
 
             {/* Greeting strip */}
