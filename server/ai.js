@@ -98,6 +98,8 @@ export async function askOpenRouter({ patient, question, selectedText, conversat
             "Do not invent facts not supported by the supplied chart data.",
             "If the context is insufficient, say that clearly.",
             "Keep answers concise, clinically literate, and easy to read.",
+            "Avoid markdown formatting such as # headings, **bold**, or bullet-heavy styling unless the user explicitly asks for it.",
+            "Use plain clinical prose and simple hyphens instead of em dashes.",
             "Do not present yourself as a substitute for a clinician.",
           ].join(" "),
         },

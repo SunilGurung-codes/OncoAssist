@@ -24,6 +24,7 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
     const savedReview = loadReviewState(patient);
     const [note, setNote] = useState(savedReview.note);
     const [activeSection, setActiveSection] = useState(savedReview.activeSection);
+    const [approving, setApproving] = useState(false);
     const sectionRefs = useRef({});
     React.useEffect(() => {
         const next = loadReviewState(patient);
@@ -48,23 +49,28 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
         setTimeout(() => setEditAction(null), 1500);
     };
     const handleReviewSign = () => {
+        if (approving) return;
+        setApproving(true);
         const signedText = composeReviewText(note);
         const visitSession = loadStoredVisitSession(patient.id);
         const nextNotes = upsertSignedNote(visitSession.notes || patient.notes, patient, signedText);
         const nextMessages = replaceLatestDraftMessage(visitSession.messages || [], signedText);
-        saveVisitSessionState(patient.id, {
-            notes: nextNotes,
-            messages: nextMessages,
-            state: "drafted",
-            pendingReviewAdd: false,
-            pendingReviewText: "",
-        });
-        saveReviewState(patient.id, { note, activeSection });
-        onNav("initial");
+        window.setTimeout(() => {
+            saveVisitSessionState(patient.id, {
+                notes: nextNotes,
+                messages: nextMessages,
+                state: "drafted",
+                pendingReviewAdd: false,
+                pendingReviewText: "",
+            });
+            saveReviewState(patient.id, { note, activeSection });
+            setApproving(false);
+            onNav("initial");
+        }, 1500);
     };
 
     return (
-        <div className="stage" data-screen-label="06 Canvas Editor">
+        <div className="stage" data-screen-label="06 Review & Approve">
             <TopBar theme={theme} toggleTheme={toggleTheme} />
             <div className="screen-body">
 
@@ -72,7 +78,7 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
                 <div className="panel-left" style={{ width: 300, flexShrink: 0 }}>
                     <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 8 }}>
                         <span onClick={() => onNav("initial")} style={{ cursor: "pointer", color: "var(--c-text-mute)" }}>{Icon.chevLeft({ s: 14 })}</span>
-                        <div style={{ fontSize: 15, fontWeight: 600 }}>Canvas Editor</div>
+                        <div style={{ fontSize: 15, fontWeight: 600 }}>Review & Approve</div>
                         <div style={{ flex: 1 }} />
                         <Chip tone="green" size="sm">Editing</Chip>
                     </div>
@@ -107,8 +113,8 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
 
                     {/* Actions */}
                     <div style={{ marginTop: "auto", padding: "14px 16px", borderTop: "0.5px solid var(--c-border-faint)", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <button className="btn btn-primary lg" style={{ width: "100%" }} onClick={handleReviewSign}>
-                            {Icon.check({ s: 14 })} Review & Sign
+                        <button className="btn btn-primary lg" style={{ width: "100%" }} onClick={handleReviewSign} disabled={approving}>
+                            {Icon.check({ s: 14 })} Approve Note
                         </button>
                         <button className="btn btn-ghost lg" style={{ width: "100%" }} onClick={() => onNav("initial")}>
                             ← Back to Chat
@@ -157,7 +163,8 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
 
                             {/* Timeline scrubber — inside note card, right edge */}
                             <div style={{
-                                width: 40, flexShrink: 0, position: "sticky", top: 40,
+                                width: 40, flexShrink: 0, position: "sticky", top: "50%",
+                                transform: "translateY(-50%)",
                                 alignSelf: "flex-start", display: "flex", flexDirection: "column",
                                 alignItems: "center", gap: 8, paddingTop: 60
                             }}>
@@ -277,6 +284,44 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
 
             {/* Text selection popup for tap-to-ask */}
             <TextSelectionPopup />
+            {approving && (
+                <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(16, 24, 40, 0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 200
+                }}>
+                    <div style={{
+                        minWidth: 280,
+                        padding: "22px 24px",
+                        borderRadius: 16,
+                        background: "var(--c-surface)",
+                        border: "0.5px solid var(--c-border)",
+                        boxShadow: "0 18px 48px rgba(15, 23, 42, 0.14)",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 12
+                    }}>
+                        <div style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            border: "3px solid var(--c-blue-200)",
+                            borderTopColor: "var(--c-blue)",
+                            animation: "spin 0.9s linear infinite"
+                        }} />
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)" }}>Adding note to EHR</div>
+                        <div style={{ fontSize: 13, color: "var(--c-text-mute)", textAlign: "center", lineHeight: 1.5 }}>
+                            Finalizing the approved note and saving it back to the patient chart.
+                        </div>
+                    </div>
+                    <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                </div>
+            )}
         </div>
     );
 }
@@ -292,14 +337,14 @@ function buildReviewNote(patient) {
     const transcriptSummary = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Seen for ${patient.reason.toLowerCase()}.`;
     return {
         subj: `Chief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${transcriptSummary}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${diagnosis.diagnosisDate || "See chart"}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}`,
-        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General — Well-appearing, NAD. Cardiovascular — RRR. Respiratory — CTAB. Abdomen — Soft, non-tender. Extremities — No edema.\n\nLabs: ${psaRow ? `${psaRow.name} — ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
+        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General - Well-appearing, NAD. Cardiovascular - RRR. Respiratory - CTAB. Abdomen - Soft, non-tender. Extremities - No edema.\n\nLabs: ${psaRow ? `${psaRow.name} - ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
         ass: `Primary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status.\nToxicities / adverse effects: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.`,
         plan: `• Continue current regimen as clinically appropriate.\n• Repeat labs and monitor PSA trend.\n• Review imaging or symptoms for progression if indicated.\n• Reinforce supportive care and follow-up precautions.\n• Return to clinic per planned oncology schedule.`,
     };
 }
 
 function composeReviewText(note) {
-    return `Oncology SOAP Note\n\nS — Subjective\n${note.subj}\n\nO — Objective\n${note.obj}\n\nA — Assessment\n${note.ass}\n\nP — Plan\n${note.plan}`;
+    return `Oncology SOAP Note\n\nS - Subjective\n${note.subj}\n\nO - Objective\n${note.obj}\n\nA - Assessment\n${note.ass}\n\nP - Plan\n${note.plan}`;
 }
 
 function getReviewStateKey(patientId) {
@@ -382,7 +427,7 @@ function buildReviewNoteFromChart(patient) {
     const transcriptSummary = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Seen for ${patient.reason.toLowerCase()}.`;
     return {
         subj: `Chief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${transcriptSummary}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${diagnosis.diagnosisDate || "See chart"}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}`,
-        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General — Well-appearing, NAD. Cardiovascular — RRR. Respiratory — CTAB. Abdomen — Soft, non-tender. Extremities — No edema.\n\nLabs: ${psaRow ? `${psaRow.name} — ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
+        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General - Well-appearing, NAD. Cardiovascular - RRR. Respiratory - CTAB. Abdomen - Soft, non-tender. Extremities - No edema.\n\nLabs: ${psaRow ? `${psaRow.name} - ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
         ass: `Primary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status.\nToxicities / adverse effects: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.`,
         plan: `• Continue current regimen as clinically appropriate.\n• Repeat labs and monitor PSA trend.\n• Review imaging or symptoms for progression if indicated.\n• Reinforce supportive care and follow-up precautions.\n• Return to clinic per planned oncology schedule.`,
     };
