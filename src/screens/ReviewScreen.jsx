@@ -299,7 +299,7 @@ function buildReviewNote(patient) {
 }
 
 function composeReviewText(note) {
-    return `**Oncology SOAP Note**\n\n**S — Subjective**\n${note.subj}\n\n**O — Objective**\n${note.obj}\n\n**A — Assessment**\n${note.ass}\n\n**P — Plan**\n${note.plan}`;
+    return `Oncology SOAP Note\n\nS — Subjective\n${note.subj}\n\nO — Objective\n${note.obj}\n\nA — Assessment\n${note.ass}\n\nP — Plan\n${note.plan}`;
 }
 
 function getReviewStateKey(patientId) {
@@ -366,7 +366,7 @@ function upsertSignedNote(existingNotes, patient, signedText) {
 function replaceLatestDraftMessage(messages, text) {
     const copy = [...messages];
     for (let i = copy.length - 1; i >= 0; i -= 1) {
-        if (copy[i].role === "ai" && copy[i].text.includes("**Oncology SOAP Note**")) {
+        if (copy[i].role === "ai" && copy[i].text.includes("Oncology SOAP Note")) {
             copy[i] = { ...copy[i], text };
             return copy;
         }

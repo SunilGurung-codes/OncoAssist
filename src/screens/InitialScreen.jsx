@@ -149,7 +149,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
     }, [patient, state]);
     const fmt = s => `00:${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
     const start = () => { setElapsed(0); setVis(0); setState("recording"); };
-    const getDraftMessageIndex = React.useCallback(() => messages.map((m, i) => ({ m, i })).filter(({ m }) => m.role === "ai" && m.text.includes("**Oncology SOAP Note**")).at(-1)?.i ?? null, [messages]);
+    const getDraftMessageIndex = React.useCallback(() => messages.map((m, i) => ({ m, i })).filter(({ m }) => m.role === "ai" && m.text.includes("Oncology SOAP Note")).at(-1)?.i ?? null, [messages]);
     const toDraftPreview = (text) => {
         const clean = text
             .replace(/\*\*/g, "")
@@ -252,7 +252,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                             <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>{patient.reason}</div></div>
                                 <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.55, maxHeight: 72, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
-                                    {messages.find(m => m.role === "ai" && m.text.includes("**Oncology SOAP Note**"))?.text.substring(0, 160) || "Review full note structure..."}
+                                    {messages.find(m => m.role === "ai" && m.text.includes("Oncology SOAP Note"))?.text.substring(0, 160) || "Review full note structure..."}
                                 </div>
                             </div>
                         </div>
@@ -493,12 +493,12 @@ function buildDraftText(patient) {
     const imaging = patient.imaging?.[0];
     const subjectiveLine = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Patient presents for ${patient.reason.toLowerCase()}.`;
     const symptoms = patient.flags?.[0]?.text || patient.reason;
-    return `**Oncology SOAP Note**\n\n` +
-        `**Patient Information**\nName: ${patient.name}\nMRN: ${patient.mrn}\nDOB / Age: ${formatLongDate(patient.dob)} / ${patient.age}\nSex: ${patient.sex}\nDate of Visit: ${patient.visitDate}\nProvider: ${patient.provider}\n\n` +
-        `**S — Subjective**\nChief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${subjectiveLine}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${formatShortDate(diagnosis.diagnosisDate)}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nCycle/day: Current follow-up visit\nSymptoms (onset, duration, severity): ${symptoms}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}\n\nReview of Systems (ROS):\nConstitutional: Reviewed during visit.\nHEENT: No major concerns raised.\nCardiovascular: Negative for acute symptoms.\nRespiratory: No shortness of breath reported.\nGastrointestinal: No new concerns reported.\nGenitourinary: Reviewed in clinic.\nMusculoskeletal: Reviewed in clinic.\nNeurologic: No acute deficits reported.\nPsychiatric: Coping discussed.\nMedications: ${meds.join(", ")}.\nAllergies: ${(patient.allergies || []).join(", ") || "None documented"}\n\n` +
-        `**O — Objective**\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}${hgbRow.flag ? ` (${hgbRow.flag})` : ""}` : "Reviewed"}\nTumor markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}` : "Reviewed"}\n\nImaging/Diagnostics:\n${imaging ? `${imaging.type}: ${imaging.impression}` : "No new imaging available."}\nPathology: ${diagnosis.pathology || "See chart"}\n\n` +
-        `**A — Assessment**\nPrimary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status with ongoing review of PSA, labs, imaging, and symptoms.\nToxicities / adverse effects: ${(patient.flags || []).join ? "" : ""}${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.\n\n` +
-        `**P — Plan**\nTreatment Plan:\nContinue / modify / hold therapy: Continue current management pending clinician review.\nNext cycle: Follow existing care cadence.\nMedications: Reconcile and refill as indicated.\n\nMonitoring:\nLabs: Repeat PSA and CBC per follow-up schedule.\nImaging: Reassess if symptoms or PSA trend warrant.\n\nSupportive Care:\nPain management: Review symptom burden each visit.\nNutrition: Continue supportive counseling.\nPsychosocial support: Coping reviewed in clinic.\n\nFollow-Up:\nNext visit: Schedule per oncology workflow.\nReferrals: As clinically indicated.\n\n**Notes:**\nECOG Performance Status: ${diagnosis.ecog || "0"}\nAdvance directives discussed: No major changes documented.`;
+    return `Oncology SOAP Note\n\n` +
+        `Patient Information\nName: ${patient.name}\nMRN: ${patient.mrn}\nDOB / Age: ${formatLongDate(patient.dob)} / ${patient.age}\nSex: ${patient.sex}\nDate of Visit: ${patient.visitDate}\nProvider: ${patient.provider}\n\n` +
+        `S — Subjective\nChief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${subjectiveLine}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${formatShortDate(diagnosis.diagnosisDate)}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nCycle/day: Current follow-up visit\nSymptoms (onset, duration, severity): ${symptoms}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}\n\nReview of Systems (ROS):\nConstitutional: Reviewed during visit.\nHEENT: No major concerns raised.\nCardiovascular: Negative for acute symptoms.\nRespiratory: No shortness of breath reported.\nGastrointestinal: No new concerns reported.\nGenitourinary: Reviewed in clinic.\nMusculoskeletal: Reviewed in clinic.\nNeurologic: No acute deficits reported.\nPsychiatric: Coping discussed.\nMedications: ${meds.join(", ")}.\nAllergies: ${(patient.allergies || []).join(", ") || "None documented"}\n\n` +
+        `O — Objective\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}${hgbRow.flag ? ` (${hgbRow.flag})` : ""}` : "Reviewed"}\nTumor markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}` : "Reviewed"}\n\nImaging/Diagnostics:\n${imaging ? `${imaging.type}: ${imaging.impression}` : "No new imaging available."}\nPathology: ${diagnosis.pathology || "See chart"}\n\n` +
+        `A — Assessment\nPrimary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status with ongoing review of PSA, labs, imaging, and symptoms.\nToxicities / adverse effects: ${(patient.flags || []).join ? "" : ""}${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.\n\n` +
+        `P — Plan\nTreatment Plan:\nContinue / modify / hold therapy: Continue current management pending clinician review.\nNext cycle: Follow existing care cadence.\nMedications: Reconcile and refill as indicated.\n\nMonitoring:\nLabs: Repeat PSA and CBC per follow-up schedule.\nImaging: Reassess if symptoms or PSA trend warrant.\n\nSupportive Care:\nPain management: Review symptom burden each visit.\nNutrition: Continue supportive counseling.\nPsychosocial support: Coping reviewed in clinic.\n\nFollow-Up:\nNext visit: Schedule per oncology workflow.\nReferrals: As clinically indicated.\n\nNotes:\nECOG Performance Status: ${diagnosis.ecog || "0"}\nAdvance directives discussed: No major changes documented.`;
 }
 
 function formatLongDate(value) {
@@ -594,10 +594,10 @@ function ans(q) {
 // Parse SOAP note text into sections
 function parseNoteToSections(text) {
     const sections = { subj: "", obj: "", ass: "", plan: "" };
-    const sMatch = text.match(/\*\*S \u2014 Subjective\*\*([\s\S]*?)(?=\*\*O \u2014 Objective\*\*|$)/);
-    const oMatch = text.match(/\*\*O \u2014 Objective\*\*([\s\S]*?)(?=\*\*A \u2014 Assessment\*\*|$)/);
-    const aMatch = text.match(/\*\*A \u2014 Assessment\*\*([\s\S]*?)(?=\*\*P \u2014 Plan\*\*|$)/);
-    const pMatch = text.match(/\*\*P \u2014 Plan\*\*([\s\S]*?)(?=\*\*Notes:\*\*|$)/);
+    const sMatch = text.match(/(?:\*\*)?S \u2014 Subjective(?:\*\*)?([\s\S]*?)(?=(?:\*\*)?O \u2014 Objective(?:\*\*)?|$)/);
+    const oMatch = text.match(/(?:\*\*)?O \u2014 Objective(?:\*\*)?([\s\S]*?)(?=(?:\*\*)?A \u2014 Assessment(?:\*\*)?|$)/);
+    const aMatch = text.match(/(?:\*\*)?A \u2014 Assessment(?:\*\*)?([\s\S]*?)(?=(?:\*\*)?P \u2014 Plan(?:\*\*)?|$)/);
+    const pMatch = text.match(/(?:\*\*)?P \u2014 Plan(?:\*\*)?([\s\S]*?)(?=(?:\*\*)?Notes:(?:\*\*)?|$)/);
     if (sMatch) sections.subj = sMatch[1].trim();
     if (oMatch) sections.obj = oMatch[1].trim();
     if (aMatch) sections.ass = aMatch[1].trim();
@@ -630,7 +630,7 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
     const handleEditAction = (action) => { setEditAction(action); setTimeout(() => setEditAction(null), 1500); };
     const handleSave = () => {
         // Reconstruct the full text
-        const out = `**Oncology SOAP Note**\n\n**S \u2014 Subjective**\n${note.subj}\n\n**O \u2014 Objective**\n${note.obj}\n\n**A \u2014 Assessment**\n${note.ass}\n\n**P \u2014 Plan**\n${note.plan}`;
+        const out = `Oncology SOAP Note\n\nS \u2014 Subjective\n${note.subj}\n\nO \u2014 Objective\n${note.obj}\n\nA \u2014 Assessment\n${note.ass}\n\nP \u2014 Plan\n${note.plan}`;
         onSave(out);
     };
 
