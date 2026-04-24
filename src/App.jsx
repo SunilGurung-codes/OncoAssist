@@ -4,14 +4,20 @@ import { DashboardScreen } from "./screens/DashboardScreen.jsx";
 import { InitialScreen } from "./screens/InitialScreen.jsx";
 import { ReviewScreen } from "./screens/ReviewScreen.jsx";
 import { CopilotScreen } from "./screens/CopilotScreen.jsx";
+import { data, getPatientChart, patientCharts } from "./data.js";
 
 export default function App() {
     const [screen, setScreen] = useState(() => localStorage.getItem("oa_screen") || "login");
     const [theme, setTheme] = useState(() => localStorage.getItem("oa_theme") || "light");
+    const [activePatientId, setActivePatientId] = useState(() => localStorage.getItem("oa_patient") || data.activePatientId || patientCharts[0].id);
 
     useEffect(() => {
         localStorage.setItem("oa_screen", screen);
     }, [screen]);
+
+    useEffect(() => {
+        localStorage.setItem("oa_patient", activePatientId);
+    }, [activePatientId]);
 
     useEffect(() => {
         localStorage.setItem("oa_theme", theme);
@@ -26,15 +32,20 @@ export default function App() {
 
     const nav = s => setScreen(s);
     const tabFromScreen = { notes: "Notes", labs: "Labs", imaging: "Imaging" }[screen];
+    const activePatient = getPatientChart(activePatientId);
 
     const toggleTheme = () => setTheme(t => t === "light" ? "dark" : "light");
 
     let content;
     if (screen === "login") content = <LoginScreen onLogin={() => nav("dashboard")} />;
-    else if (screen === "dashboard") content = <DashboardScreen onOpen={() => nav("initial")} theme={theme} toggleTheme={toggleTheme} />;
-    else if (screen === "initial") content = <InitialScreen onNav={nav} onEnterNotes={() => nav("notes")} theme={theme} toggleTheme={toggleTheme} />;
-    else if (screen === "review") content = <ReviewScreen onNav={nav} theme={theme} toggleTheme={toggleTheme} />;
-    else content = <CopilotScreen onNav={nav} initialTab={tabFromScreen} theme={theme} toggleTheme={toggleTheme} />;
+    else if (screen === "dashboard") content = <DashboardScreen onOpen={(patient) => {
+        const nextPatient = patientCharts.find((chart) => chart.mrn === patient.mrn) || activePatient;
+        setActivePatientId(nextPatient.id);
+        nav("initial");
+    }} theme={theme} toggleTheme={toggleTheme} />;
+    else if (screen === "initial") content = <InitialScreen patient={activePatient} onNav={nav} onEnterNotes={() => nav("notes")} theme={theme} toggleTheme={toggleTheme} />;
+    else if (screen === "review") content = <ReviewScreen patient={activePatient} onNav={nav} theme={theme} toggleTheme={toggleTheme} />;
+    else content = <CopilotScreen patient={activePatient} onNav={nav} initialTab={tabFromScreen} theme={theme} toggleTheme={toggleTheme} />;
 
     return <div className="viewport">{content}</div>;
 }

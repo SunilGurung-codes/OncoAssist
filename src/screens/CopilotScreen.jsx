@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { data } from "../data.js";
 import { TopBar } from "../components/ui/TopBar.jsx";
 import { Chip } from "../components/ui/Chip.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
@@ -6,44 +7,50 @@ import { Micro } from "../components/ui/Micro.jsx";
 import { Icon } from "../components/ui/Icon.jsx";
 import { LeftPanel, RightPanel } from "../components/panels.jsx";
 
-export function CopilotScreen({ onNav, initialTab }) {
+export function CopilotScreen({ patient = data.patientProfile, onNav, initialTab, theme, toggleTheme }) {
     const [tab, setTab] = useState(initialTab || "Notes");
     useEffect(() => { if (initialTab) setTab(initialTab); }, [initialTab]);
-    const [initial] = useState([
-        { role: "user", text: "Compare today's PSA to the last 7 readings.", t: "09:08" },
-        { role: "ai", text: "PSA (Oct 2025 → Apr 2026): 5.2 → 6.8 → 9.1 → 12.4 → 15.8 → 18.4 → 16.2 ng/mL.\n\nApr 17 is the first decrease in 7 readings — ~12% drop from the Mar peak. Aligns with Day 14 Enzalutamide and the expected early-response window for ARPI in M0 CRPC.", t: "09:08", cites: ["PSA history", "Labs Apr 17", "NCCN PROS-11"] }
-    ]);
+    const [initial, setInitial] = useState(() => buildInitialMessages(patient));
+    useEffect(() => setInitial(buildInitialMessages(patient)), [patient]);
     return <div className="stage" data-screen-label={`0${({ Notes: 3, Labs: 4, Imaging: 5 })[tab]} Co-pilot · ${tab}`}>
-        <TopBar />
+        <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <LeftPanel />
-            <CopilotCenter onNav={onNav} tab={tab} setTab={setTab} initial={initial} />
-            <RightPanel tab={tab} onTab={setTab} />
+            <LeftPanel patient={patient} />
+            <CopilotCenter patient={patient} onNav={onNav} tab={tab} setTab={setTab} initial={initial} />
+            <RightPanel patient={patient} tab={tab} onTab={setTab} notes={patient.notes} />
         </div>
     </div>;
 }
 
-function CopilotCenter({ onNav, tab, setTab, initial }) {
+function CopilotCenter({ patient, onNav, tab, setTab, initial }) {
     const [messages, setMessages] = useState(initial || []);
     const [input, setInput] = useState("");
-    const [ctx, setCtx] = useState([{ kind: "data", label: "PSA history" }, { kind: "data", label: "Labs Apr 17" }]);
+    const [ctx, setCtx] = useState([{ kind: "data", label: "PSA history" }, { kind: "data", label: `Labs ${patient.labsPSA?.date || patient.visitDate}` }]);
     const drop = useDrop(d => setCtx(c => [...c, { kind: d.kind, label: d.label }]));
     const ref = useRef(null);
+    useEffect(() => {
+        setMessages(initial || []);
+        setCtx([{ kind: "data", label: "PSA history" }, { kind: "data", label: `Labs ${patient.labsPSA?.date || patient.visitDate}` }]);
+    }, [initial, patient]);
     useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [messages]);
     const send = t => {
         if (!t.trim()) return; setMessages(m => [...m, { role: "user", text: t, t: "now" }]); setInput("");
-        setTimeout(() => setMessages(m => [...m, { role: "ai", text: ans(t), t: "now", cites: ["PSA history", "NCCN PROS-11", "Labs Apr 17"] }]), 500);
+        setTimeout(() => setMessages(m => [...m, { role: "ai", text: ans(t, patient), t: "now", cites: ["PSA history", patient.labsPSA?.date || "Current labs", patient.reason] }]), 500);
     };
-    const steps = [{ tag: "Q1", q: "Does the PSA drop confirm early Enzalutamide response?" }, { tag: "Q2", q: "Recommended monitoring cadence on Enzalutamide?" }, { tag: "Q3", q: "Any dose adjustments needed given LH/FSH suppression?" }];
+    const steps = [
+        { tag: "Q1", q: `Compare ${patient.name}'s PSA trend with recent visits.` },
+        { tag: "Q2", q: `What monitoring cadence fits ${patient.medications?.[0] || "the current regimen"}?` },
+        { tag: "Q3", q: `Summarize the key decision points for ${patient.reason.toLowerCase()}.` }
+    ];
 
     return <div className="panel-main" style={{ background: "var(--c-surface)" }}>
         <div style={{ minHeight: 44, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", padding: "8px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 13, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                 <span style={{ color: "var(--c-text-ghost)" }}>/</span>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>James Park</span>
-                <Chip tone="red" size="sm">CRPC</Chip>
-                <Chip tone="blue" size="sm">Enzalutamide · 14d</Chip>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{patient.name}</span>
+                <Chip tone={patient.statusColor === "red" ? "red" : patient.statusColor === "amber" ? "amber" : patient.statusColor === "green" ? "green" : "blue"} size="sm">{patient.status}</Chip>
+                <Chip tone="blue" size="sm">{patient.reason}</Chip>
             </div>
             <div style={{ display: "flex", gap: 4 }}>
                 {["Notes", "Labs", "Imaging", "Review"].map(t => <span key={t} onClick={() => t === "Review" ? onNav("review") : setTab(t)} style={{ padding: "6px 12px", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "var(--c-surface-alt)" : "transparent" }}>{t}</span>)}
@@ -53,7 +60,7 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
         <div ref={ref} className="scroll" style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
             <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "12px 14px", background: "#FAFAF7", marginBottom: 14 }}>
                 <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 6 }}>PATIENT BRIEF</div>
-                <div style={{ fontSize: 14, lineHeight: 1.6 }}><b>James Park, 67M</b> — Prostate adenoca, Gleason 4+3, cT2cN0M0. On ADT + <b>Enzalutamide 160mg QD</b> (Mar 28). PSA: 5.2 → 18.4 → <span style={{ color: "var(--c-green-deep)", fontWeight: 600 }}>16.2 ng/mL</span> — first decrease in 7 months.</div>
+                <div style={{ fontSize: 14, lineHeight: 1.6 }}><b>{patient.name}, {patient.demo}</b> — {patient.dx}. On <b>{patient.medications?.[0] || "current therapy"}</b>. Latest PSA: <span style={{ color: "var(--c-green-deep)", fontWeight: 600 }}>{patient.labsPSA?.rows?.[0]?.v} {patient.labsPSA?.rows?.[0]?.unit}</span>{patient.labsPSA?.rows?.[0]?.note ? ` — ${patient.labsPSA.rows[0].note}.` : "."}</div>
             </div>
 
             <div className="card" style={{ marginBottom: 14 }}>
@@ -106,10 +113,18 @@ function CopilotCenter({ onNav, tab, setTab, initial }) {
     </div>;
 }
 
-function ans(q) {
+function buildInitialMessages(patient) {
+    const psaTrend = (patient.psa || []).map((point) => point.v).join(" → ");
+    return [
+        { role: "user", text: `Compare ${patient.name}'s PSA to the last 7 readings.`, t: patient.visitTime || "09:08" },
+        { role: "ai", text: `PSA trend (${(patient.psa || []).map((point) => point.m).join(" → ")}): ${psaTrend} ng/mL.\n\nCurrent visit focus: ${patient.reason}. Latest assessment remains ${patient.status.toLowerCase()} with chart context from notes, labs, and imaging loaded for this patient.`, t: patient.visitTime || "09:08", cites: ["PSA history", patient.labsPSA?.date || "Current labs", patient.reason] }
+    ];
+}
+
+function ans(q, patient) {
     const l = q.toLowerCase();
-    if (l.includes("draft") || l.includes("note")) return `Draft — Follow-up · Day 14 Enzalutamide\n\nJames Park, 67M. Day 14 Enzalutamide 160mg QD for M0 CRPC.\n\nInterval history: Mild fatigue, occasional hot flashes (~3/wk). No falls, no seizure activity.\n\nLabs (Apr 17): PSA 16.2 ng/mL — decreased from 18.4 (Mar). Testosterone < 50 ng/dL.\n\nAssessment: Early biochemical response to ARPI therapy.\n\nPlan:\n• Continue Enzalutamide 160mg QD\n• Continue Leuprolide\n• Recheck PSA + CBC in 4 weeks (May 15)\n• RTC Jun 12`;
-    if (l.includes("monitor") || l.includes("cadence")) return `Recommended monitoring on Enzalutamide (NCCN PROS-11):\n• PSA + testosterone q4-8 wk for first 6 mo, then q3 mo\n• CBC + LFTs q3 mo\n• BP at each visit (HTN risk 5-7%)\n• Fall + seizure screen at each visit\n\nFor this patient: Day 14 drop is a strong early signal. 4-week recheck (May 15) is appropriate.`;
-    if (l.includes("dose") || l.includes("lh")) return `Suppressed LH/FSH reflect Leuprolide (GnRH agonist) — expected, not reason to adjust Enzalutamide.\n\nTarget is castrate T < 50 ng/dL, achieved. Enzalutamide dose is adjusted for toxicity (fatigue, HTN, seizure), not endocrine labs. No dose change indicated.`;
-    return `Yes — a PSA decline of 18.4 → 16.2 (~12%) at Day 14 meets early PSA response criteria per PCWG3. Castrate testosterone maintained, no new symptoms, no radiographic progression. Continue regimen; recheck 4 weeks.`;
+    if (l.includes("draft") || l.includes("note")) return `Draft — ${patient.reason}\n\n${patient.name}, ${patient.demo}. ${patient.dx}.\n\nInterval history: ${patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || "Patient reviewed in clinic."}\n\nLatest labs: ${patient.labsPSA?.rows?.[0]?.name} ${patient.labsPSA?.rows?.[0]?.v} ${patient.labsPSA?.rows?.[0]?.unit || ""}${patient.labsPSA?.rows?.[0]?.note ? ` — ${patient.labsPSA.rows[0].note}` : ""}.\n\nAssessment: ${patient.status} clinical picture with continued review of symptoms, imaging, and lab trends.\n\nPlan:\n• Continue current management pending clinician decision\n• Recheck labs per follow-up schedule\n• Review supportive care needs\n• Return to clinic as planned`;
+    if (l.includes("monitor") || l.includes("cadence")) return `Recommended monitoring for ${patient.medications?.[0] || "this regimen"}:\n• PSA and key labs at the next scheduled follow-up\n• Symptom review at each visit\n• Imaging only if symptoms or labs suggest progression\n\nFor this patient: ${patient.reason}. Current status is ${patient.status.toLowerCase()}.`;
+    if (l.includes("dose") || l.includes("lh")) return `Dose changes should be based on this patient's toxicities, functional status, and overall disease course rather than one hormone result alone.\n\nCurrent regimen in chart: ${patient.medications?.slice(0, 2).join(", ") || "see medication list"}.`;
+    return `${patient.name}'s chart shows ${patient.dx}. Current visit reason: ${patient.reason}. Latest PSA is ${patient.labsPSA?.rows?.[0]?.v} ${patient.labsPSA?.rows?.[0]?.unit || ""}${patient.labsPSA?.rows?.[0]?.note ? ` (${patient.labsPSA.rows[0].note})` : ""}. Recent notes and imaging remain available in the side panel for deeper review.`;
 }

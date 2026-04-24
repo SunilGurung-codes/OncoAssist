@@ -5,8 +5,9 @@ import { Chip } from "./ui/Chip.jsx";
 import { Icon } from "./ui/Icon.jsx";
 
 // Left Panel
-export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", draftNote, onContinueDraft, onAddDraftToNotes }) {
-    const d = data;
+export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", draftNote, onContinueDraft, onAddDraftToNotes, patient = data.patientProfile }) {
+    const d = patient;
+    const recentNote = patient.notes?.find((n) => n.dept === "Lab") || patient.notes?.[0];
     const [c, setC] = useState({ flags: false, psa: false, labs: false, note: false });
     const tog = k => setC(x => ({ ...x, [k]: !x[k] }));
 
@@ -14,7 +15,7 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", d
         <div className="panel-left collapsed">
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 0", gap: 16 }}>
                 <div onClick={onToggle} className="has-tooltip" data-tooltip="Expand panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevRight({ s: 16 })}</div>
-                <div className="avatar sm" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
+                <div className="avatar sm" style={{ background: d.avatarBg || "var(--c-blue-200)", color: "var(--c-avatar-ink)" }}>{d.initials}</div>
                 <div style={{ flex: 1 }} />
             </div>
         </div>
@@ -23,16 +24,16 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", d
     return (
         <div className="panel-left" style={{ width, flexShrink: 0, transition: "width 0.3s ease", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "12px 16px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", gap: 10 }}>
-                <div className="avatar lg" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
+                <div className="avatar lg" style={{ background: d.avatarBg || "var(--c-blue-200)", color: "var(--c-avatar-ink)" }}>{d.initials}</div>
                 <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 500 }}>James Park</div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>67M · MRN-003291</div>
+                    <div style={{ fontSize: 15, fontWeight: 500 }}>{d.name}</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>{d.demo} · {d.mrn}</div>
                 </div>
                 {onToggle && <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>}
             </div>
             <div className="scroll" style={{ flex: 1, overflowY: "auto" }}>
                 <SectionHeader label="KEY FLAGS" collapsed={c.flags} onToggle={() => tog("flags")} />
-                {!c.flags && <div style={{ padding: "4px 0" }}>{d.flags.map((f, i) => {
+                {!c.flags && <div style={{ padding: "4px 0" }}>{(d.flags || []).map((f, i) => {
                     const t = { red: { d: "var(--c-red)", c: "var(--c-red-deep)" }, green: { d: "var(--c-green)", c: "var(--c-green-deep)" }, blue: { d: "var(--c-blue)", c: "var(--c-blue-deep)" }, amber: { d: "var(--c-amber)", c: "var(--c-amber-deep)" } }[f.tone];
                     return <div key={i} style={{ padding: "6px 16px", display: "flex", gap: 8, alignItems: "flex-start" }}>
                         <span style={{ width: 6, height: 6, borderRadius: 3, background: t.d, marginTop: 5, flexShrink: 0 }} />
@@ -41,24 +42,24 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", d
                 })}</div>}
 
                 <SectionHeader label="PSA HISTORY" right={<span style={{ fontSize: 10, color: "var(--c-text-mute)" }}>ng/mL</span>} collapsed={c.psa} onToggle={() => tog("psa")} />
-                {!c.psa && <PSAChart />}
+                {!c.psa && <PSAChart psa={d.psa} />}
 
-                <SectionHeader label="KEY LABS · APR 17" collapsed={c.labs} onToggle={() => tog("labs")} />
+                <SectionHeader label={`KEY LABS · ${(d.labsPSA?.date || d.labsCBC?.date || d.visitDate || "").toUpperCase()}`} collapsed={c.labs} onToggle={() => tog("labs")} />
                 {!c.labs && <div style={{ padding: "10px 16px", display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: 10, columnGap: 16 }}>
-                    <Stat n="PSA" v="16.2 ng/mL" tone="red" icon="↓" />
-                    <Stat n="Testosterone" v="< 50 ng/dL" tone="green" />
-                    <Stat n="Hgb" v="12.8 g/dL" />
-                    <Stat n="Creatinine" v="1.1 mg/dL" />
+                    <LabStat rows={d.labsPSA?.rows} label="PSA" icon="↓" />
+                    <LabStat rows={d.labsPSA?.rows} label="Testosterone" toneOverride="green" />
+                    <LabStat rows={d.labsCBC?.rows} label="Hgb" />
+                    <LabStat rows={[...(d.labsPSA?.rows || []), ...(d.labsCBC?.rows || [])]} label="Creatinine" />
                 </div>}
 
                 <SectionHeader label="MOST RECENT NOTE" collapsed={c.note} onToggle={() => tog("note")} />
-                {!c.note && <div style={{ padding: "10px 16px" }}>
+                {!c.note && recentNote && <div style={{ padding: "10px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                        <Chip tone="blue" size="sm">Lab</Chip>
-                        <div style={{ fontSize: 13, fontWeight: 600 }}>PSA + T panel</div>
+                        <Chip tone={recentNote.dept === "Lab" ? "blue" : "purple"} size="sm">{recentNote.dept}</Chip>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{recentNote.type}</div>
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-soft)", marginBottom: 8 }}>Lab · Apr 17 · 07:45</div>
-                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 10 }}>PSA 16.2 ng/mL (H). Testosterone {"<"} 50 ng/dL. LH 0.8, FSH 1.4.</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-soft)", marginBottom: 8 }}>{recentNote.author} · {recentNote.date}</div>
+                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 10 }}>{recentNote.preview}</div>
                     <div style={{ display: "flex", gap: 8 }}>
                         <span className="btn btn-soft sm" style={{ flex: 1 }}>+ Add to chat</span>
                         <span className="btn btn-ghost sm" style={{ flex: 1 }}>View full</span>
@@ -101,9 +102,17 @@ function Stat({ n, v, tone, icon }) {
     </div>;
 }
 
-function PSAChart() {
+function LabStat({ rows = [], label, toneOverride, icon }) {
+    const row = rows.find((item) => item.name === label);
+    if (!row) return <Stat n={label} v="—" />;
+    const value = `${row.v}${row.unit ? ` ${row.unit}` : ""}`;
+    return <Stat n={label} v={value} tone={toneOverride || row.tone} icon={icon} />;
+}
+
+function PSAChart({ psa = data.psa }) {
     const [hoveredIdx, setHoveredIdx] = useState(null);
-    const d = data.psa, W = 288, H = 108, max = 20, pL = 20, pR = 6, pT = 8, pB = 22;
+    const d = psa || [];
+    const W = 288, H = 108, max = Math.max(20, ...d.map((p) => p.v || 0)), pL = 20, pR = 6, pT = 8, pB = 22;
     const iw = W - pL - pR, ih = H - pT - pB;
     const x = i => pL + (i * iw) / (d.length - 1), y = v => pT + ih - (v / max) * ih;
     const path = d.map((p, i) => `${i === 0 ? "M" : "L"} ${x(i)} ${y(p.v)}`).join(" ");
@@ -148,19 +157,25 @@ function PSAChart() {
                 {hovered.m}: {hovered.v}
             </div>
         )}
-        <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "6px 8px", fontSize: 11, fontWeight: 600, color: "var(--c-green-deep)" }}>↓ First decrease in 7 months · early response</div>
+        {d.some((p) => p.drop) && <div style={{ marginTop: 6, borderRadius: 4, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "6px 8px", fontSize: 11, fontWeight: 600, color: "var(--c-green-deep)" }}>↓ Recent PSA decrease detected on this patient’s trend</div>}
     </div>;
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360, notes = data.notes }) {
-    const [tabs, setTabs] = useState(["Notes", "Labs", "Imaging"]);
+export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360, notes = data.notes, patient = data.patientProfile }) {
+    const [tabs, setTabs] = useState(() => loadPanelTabs(patient.id));
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
-    const allModules = ["Notes", "Labs", "Imaging", "Pathology", "Genomics", "Vitals", "Flowsheets", "Timeline", "Care Guidelines", "WBC Count"];
+    const allModules = ["Notes", "Labs", "Imaging", "Orders", "Pathology", "Genomics", "Vitals", "Flowsheets", "Timeline", "Care Guidelines", "WBC Count"];
     const availableModules = allModules.filter(m => m.toLowerCase().includes(addQuery.toLowerCase()) && !tabs.includes(m));
     const [draggedIdx, setDraggedIdx] = useState(null);
     const holdTimer = useRef(null);
+    useEffect(() => {
+        setTabs(loadPanelTabs(patient.id));
+    }, [patient.id]);
+    useEffect(() => {
+        savePanelTabs(patient.id, tabs);
+    }, [patient.id, tabs]);
 
     useEffect(() => {
         if (tab && !tabs.includes(tab)) setTabs([...tabs, tab]);
@@ -201,7 +216,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: draggedIdx === idx ? "var(--c-blue-50)" : "var(--c-surface-warm)", borderRadius: 6, fontSize: 13, color: "var(--c-text-strong)", cursor: "grab", opacity: draggedIdx === idx ? 0.5 : 1 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                 <span style={{ color: "var(--c-text-ghost)", marginTop: 2, cursor: "grab" }}>{Icon.drag({ s: 12 })}</span>
-                                <span style={{ color: "var(--c-text-mute)" }}>{t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}</span>
+                                <span style={{ color: "var(--c-text-mute)" }}>{tabIcon(t)}</span>
                                 {t}
                             </div>
                             <div onClick={() => {
@@ -245,7 +260,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                         <div style={{ display: "flex", flexDirection: "column", gap: 24, color: "var(--c-text-mute)" }}>
                             {tabs.map((t, i) => (
                                 <div key={t} onClick={() => { onToggle && onToggle(); onTab(t); }} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                                    {t === "Notes" ? Icon.file({ s: 16 }) : t === "Labs" ? Icon.lab({ s: 16 }) : t === "Imaging" ? Icon.scan({ s: 16 }) : Icon.sparkle({ s: 16 })}
+                                    {tabIcon(t, 16)}
                                     <span style={{ fontSize: 9, textAlign: "center", maxWidth: 50, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.substring(0, 4)}</span>
                                 </div>
                             ))}
@@ -263,7 +278,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             <div style={{ flex: 1, display: "flex", marginLeft: 32, overflowX: "auto", scrollbarWidth: "none" }} className="hide-scroll">
                                 {tabs.map((t, idx) =>
                                     <div key={t} draggable onDragStart={(e) => { setDraggedIdx(idx); e.dataTransfer.setData("text/plain", ""); }} onDragOver={(e) => e.preventDefault()} onDrop={() => onDropTab(idx)} onPointerDown={() => handleHold(t)} onPointerUp={cancelHold} onPointerLeave={cancelHold} onClick={() => onTab(t)} style={{ flex: "0 0 auto", minWidth: 80, padding: "0 12px", height: 44, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12, fontWeight: 500, cursor: "grab", color: tab === t ? "var(--c-text)" : "var(--c-text-mute)", background: tab === t ? "var(--c-surface-alt)" : "transparent", borderBottom: tab === t ? "2px solid var(--c-blue)" : "none", opacity: draggedIdx === idx ? 0.5 : 1 }}>
-                                        {t === "Notes" ? Icon.file({ s: 12 }) : t === "Labs" ? Icon.lab({ s: 12 }) : t === "Imaging" ? Icon.scan({ s: 12 }) : Icon.sparkle({ s: 12 })}
+                                        {tabIcon(t, 12)}
                                         {t}
                                     </div>
                                 )}
@@ -274,8 +289,9 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                         </div>
                         <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
                             {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} notes={notes} /> : null}
-                            {tab === "Labs" ? <LabsTab onAddToChat={onAddToChat} /> : null}
-                            {tab === "Imaging" ? <ImagingTab onAddToChat={onAddToChat} /> : null}
+                            {tab === "Labs" ? <LabsTab onAddToChat={onAddToChat} patient={patient} /> : null}
+                            {tab === "Imaging" ? <ImagingTab onAddToChat={onAddToChat} patient={patient} /> : null}
+                            {tab === "Orders" ? <OrdersTab patient={patient} /> : null}
                             {!["Notes", "Labs", "Imaging"].includes(tab) && (
                                 <div style={{ padding: 40, textAlign: "center", color: "var(--c-text-mute)", fontSize: 13 }}>
                                     <div style={{ marginBottom: 10, opacity: 0.5 }}>{Icon.sparkle({ s: 24 })}</div>
@@ -294,29 +310,85 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
 function NotesTab({ onAddToChat, notes = data.notes }) {
     const [f, setF] = useState("All");
     const [q, setQ] = useState("");
-    const chips = ["All", "PSA", "Recent", "Oncology", "Urology", "Radiology", "ER", "Lab"];
+    const [sortOpen, setSortOpen] = useState(false);
+    const [sortMode, setSortMode] = useState("new");
+    const [showCreatePopup, setShowCreatePopup] = useState(false);
+    const chips = ["All", "PSA", "Context Note", "Oncology", "Urology", "Radiology", "ER", "Lab"];
     const filteredNotes = notes.filter(n => {
-        if (f === "All") return true; if (f === "Recent") return /Apr/i.test(n.date);
+        if (f === "All") return true;
+        if (f === "Context Note") return !!n.pinned || n.id === "draft-note" || /follow-up|surveillance|context/i.test(`${n.type} ${n.preview}`);
         if (f === "PSA") return /PSA|CRPC/.test(n.preview + n.type);
         return n.dept === f;
-    }).filter(n => !q || (n.type + n.preview + n.author).toLowerCase().includes(q.toLowerCase()));
+    }).filter(n => !q || (n.type + n.preview + n.author + n.dept).toLowerCase().includes(q.toLowerCase()))
+        .sort((a, b) => {
+            if (sortMode === "type") return `${a.dept} ${a.type}`.localeCompare(`${b.dept} ${b.type}`);
+            const byDate = String(a.date).localeCompare(String(b.date), undefined, { numeric: true });
+            return sortMode === "old" ? byDate : -byDate;
+        });
 
     return <div>
         <div style={{ padding: "8px 10px", display: "flex", gap: 4, alignItems: "center", borderBottom: "0.5px solid var(--c-border-faint)" }}>
-            <div style={{ flex: 1, height: 28, borderRadius: 7, background: "var(--c-surface-alt)", display: "flex", alignItems: "center", gap: 6, padding: "0 10px", fontSize: 12 }}>
+            <div style={{ flex: 1, height: 32, borderRadius: 7, background: "var(--c-surface-alt)", display: "flex", alignItems: "center", gap: 6, padding: "0 10px", fontSize: 13 }}>
                 {Icon.search({ s: 12 })}
-                <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search notes…" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 12 }} />
+                <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search notes…" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 13 }} />
             </div>
-            <div style={{ width: 30, height: 28, borderRadius: 7, background: "var(--c-surface-alt)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)" }}>{Icon.filter({ s: 14 })}</div>
+            <div style={{ position: "relative" }}>
+                <div onClick={() => setSortOpen((v) => !v)} style={{ width: 32, height: 32, borderRadius: 7, background: "var(--c-surface-alt)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.filter({ s: 14 })}</div>
+                {sortOpen && (
+                    <div style={{ position: "absolute", top: 36, right: 0, width: 196, borderRadius: 10, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", boxShadow: "0 10px 24px rgba(0,0,0,0.12)", zIndex: 30, overflow: "hidden" }}>
+                        {[
+                            { id: "new", label: "Sort: New to old" },
+                            { id: "old", label: "Sort: Old to new" },
+                            { id: "type", label: "Sort: Type of note" },
+                        ].map((option) => (
+                            <div key={option.id} onClick={() => { setSortMode(option.id); setSortOpen(false); }} style={{ padding: "10px 12px", fontSize: 13, cursor: "pointer", background: sortMode === option.id ? "var(--c-blue-50)" : "transparent", color: sortMode === option.id ? "var(--c-blue-deep)" : "var(--c-text)" }}>
+                                {option.label}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
         <div style={{ padding: "6px 10px", background: "var(--c-surface-alt)", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", gap: 4 }}>
-            {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "3px 7px", borderRadius: 6, fontSize: 11, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "var(--c-surface)", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
+            {chips.map(c => <span key={c} onClick={() => setF(c)} style={{ padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: "pointer", border: "0.5px solid " + (f === c ? "var(--c-blue)" : "var(--c-border)"), background: f === c ? "var(--c-blue-150)" : "var(--c-surface)", color: f === c ? "var(--c-blue-deep)" : "var(--c-text-mute)" }}>{c}</span>)}
         </div>
         {filteredNotes.map(n => <NoteRow key={n.id} n={n} onAddToChat={onAddToChat} />)}
-        <div style={{ padding: "10px 12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
-            <button className="btn btn-primary lg" style={{ width: "100%" }}>Edit Note</button>
-            <button className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Note</button>
-        </div>
+        <div style={{ padding: "10px 12px 14px" }}><button className="btn btn-ghost lg" style={{ width: "100%" }} onClick={() => setShowCreatePopup(true)}>Create Note</button></div>
+        {showCreatePopup && (
+            <>
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.18)", zIndex: 60 }} onClick={() => setShowCreatePopup(false)} />
+                <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 860, maxWidth: "calc(100vw - 32px)", maxHeight: "calc(100vh - 48px)", overflowY: "auto", borderRadius: 14, background: "var(--c-surface)", border: "0.5px solid var(--c-border)", boxShadow: "0 20px 40px rgba(0,0,0,0.16)", zIndex: 61, padding: 18 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                        <div>
+                            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 2 }}>Create Note</div>
+                            <div style={{ fontSize: 14, color: "var(--c-text-mute)" }}>Choose the note type you want to start from.</div>
+                        </div>
+                        <button className="btn btn-ghost sm" onClick={() => setShowCreatePopup(false)}>Close</button>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+                        {NOTE_TEMPLATE_OPTIONS.map((item, index) => (
+                            <div key={index} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 12, overflow: "hidden", background: "var(--c-surface-alt)", display: "flex", flexDirection: "column", minHeight: 196 }}>
+                                <div style={{ padding: "14px 16px", background: item.banner, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                        <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,0.82)", display: "flex", alignItems: "center", justifyContent: "center", color: item.ink, fontWeight: 800, fontSize: 15 }}>
+                                            {item.icon}
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: 11, fontWeight: 700, color: item.ink, letterSpacing: "0.06em", textTransform: "uppercase" }}>Template {index + 1}</div>
+                                            <div style={{ fontSize: 15, fontWeight: 700, color: item.ink, lineHeight: 1.35 }}>{item.shortTitle}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+                                    <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</div>
+                                    <div style={{ fontSize: 13, color: "var(--c-text-mute)", lineHeight: 1.55 }}>{item.description}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </>
+        )}
     </div>;
 }
 
@@ -339,15 +411,15 @@ function NoteRow({ n, onAddToChat }) {
     </div>;
 }
 
-function LabsTab({ onAddToChat }) {
-    const { labsCBC, labsPSA } = data;
+function LabsTab({ onAddToChat, patient = data.patientProfile }) {
+    const { labsCBC, labsPSA } = patient;
     return <div>
         <div style={{ padding: "10px 12px" }}>
             <div className="label-xs" style={{ marginBottom: 6 }}>CBC · {labsCBC.date}</div>
             <LabTable rows={labsCBC.rows} panelLabel={`CBC · ${labsCBC.date}`} onAddToChat={onAddToChat} />
             <div className="label-xs" style={{ marginTop: 16, marginBottom: 6 }}>PSA + HORMONAL · {labsPSA.date}</div>
             <LabTable rows={labsPSA.rows} panelLabel={`PSA + HORMONAL · ${labsPSA.date}`} onAddToChat={onAddToChat} />
-            <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>↓ Trend:</b> PSA 18.4 → 16.2. First response since Enzalutamide start.</div>
+            {labsPSA.rows[0]?.note && <div style={{ marginTop: 10, borderRadius: 6, background: "var(--c-green-100)", border: "0.5px solid var(--c-green-300)", padding: "8px 10px", fontSize: 11, color: "var(--c-green-deep)" }}><b>Trend:</b> {labsPSA.rows[0].note}</div>}
         </div>
         <div style={{ padding: "10px 12px 14px" }}><button onClick={() => onAddToChat && onAddToChat({ kind: "lab", label: "PSA + Hormonal Panel" })} className="btn btn-ghost lg" style={{ width: "100%" }}>+ Add Panel to Chat</button></div>
     </div>;
@@ -376,9 +448,9 @@ function LabTable({ rows, panelLabel, onAddToChat }) {
     </div>;
 }
 
-function ImagingTab({ onAddToChat }) {
+function ImagingTab({ onAddToChat, patient = data.patientProfile }) {
     return <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {data.imaging.map(im => <div key={im.id} className="note-row" draggable
+        {(patient.imaging || []).map(im => <div key={im.id} className="note-row" draggable
             onDragStart={e => {
                 e.dataTransfer.setData("application/json", JSON.stringify({ kind: "imaging", id: im.id, label: im.type }));
                 e.currentTarget.classList.add("dragging");
@@ -402,3 +474,143 @@ function ImagingTab({ onAddToChat }) {
         </div>)}
     </div>;
 }
+
+function OrdersTab({ patient }) {
+    const [queued, setQueued] = useState(() => loadOrderQueue(patient.id));
+    useEffect(() => {
+        setQueued(loadOrderQueue(patient.id));
+    }, [patient.id]);
+    useEffect(() => {
+        saveOrderQueue(patient.id, queued);
+    }, [patient.id, queued]);
+    const options = [
+        { label: "X-ray", group: "Imaging" },
+        { label: "CT scan", group: "Imaging" },
+        { label: "PET scan", group: "Imaging" },
+        { label: "MRI", group: "Imaging" },
+        { label: "Ultrasound", group: "Imaging" },
+        { label: "CBC / CMP / PSA", group: "Labs" },
+        { label: "Bone scan", group: "Nuclear medicine" },
+        { label: "Medication order", group: "Pharmacy" },
+    ];
+    const toggle = (item) => {
+        setQueued((current) => current.includes(item.label) ? current.filter((name) => name !== item.label) : [...current, item.label]);
+    };
+    return <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, padding: "10px 12px", background: "var(--c-surface-alt)" }}>
+            <div className="label-xs" style={{ marginBottom: 6 }}>ORDER WORKSPACE</div>
+            <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.55 }}>Create oncology orders for {patient.name}. Selections stay with this patient session.</div>
+        </div>
+        {options.map((item) => {
+            const active = queued.includes(item.label);
+            return <div key={item.label} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{item.label}</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>{item.group}</div>
+                </div>
+                <button className={active ? "btn btn-primary sm" : "btn btn-outline sm"} onClick={() => toggle(item)}>
+                    {active ? "Queued" : "Order"}
+                </button>
+            </div>;
+        })}
+        <div style={{ border: "0.5px solid var(--c-blue-250)", borderRadius: 8, background: "var(--c-blue-50)", padding: "10px 12px" }}>
+            <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 6 }}>ORDER QUEUE</div>
+            <div style={{ fontSize: 12, color: "var(--c-text-mute)", lineHeight: 1.55 }}>
+                {queued.length > 0 ? queued.join(", ") : "No orders queued for this patient yet."}
+            </div>
+        </div>
+    </div>;
+}
+
+function tabIcon(tab, size = 12) {
+    if (tab === "Notes") return Icon.file({ s: size });
+    if (tab === "Labs") return Icon.lab({ s: size });
+    if (tab === "Imaging") return Icon.scan({ s: size });
+    if (tab === "Orders") return Icon.plus({ s: size });
+    return Icon.sparkle({ s: size });
+}
+
+function panelTabsKey(patientId) {
+    return `oa_panel_tabs_${patientId}`;
+}
+
+function loadPanelTabs(patientId) {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(panelTabsKey(patientId)) || "null");
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : ["Notes", "Labs", "Imaging", "Orders"];
+    } catch {
+        return ["Notes", "Labs", "Imaging", "Orders"];
+    }
+}
+
+function savePanelTabs(patientId, tabs) {
+    try {
+        localStorage.setItem(panelTabsKey(patientId), JSON.stringify(tabs));
+    } catch {
+        // no-op
+    }
+}
+
+function orderQueueKey(patientId) {
+    return `oa_order_queue_${patientId}`;
+}
+
+function loadOrderQueue(patientId) {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(orderQueueKey(patientId)) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveOrderQueue(patientId, queue) {
+    try {
+        localStorage.setItem(orderQueueKey(patientId), JSON.stringify(queue));
+    } catch {
+        // no-op
+    }
+}
+
+const NOTE_TEMPLATE_OPTIONS = [
+    {
+        title: "New Patient Consultation Note",
+        shortTitle: "New Consult",
+        icon: "NC",
+        banner: "linear-gradient(135deg, var(--c-blue-100), var(--c-blue-200))",
+        ink: "var(--c-blue-deep)",
+        description: "Initial consult note for a new diagnosis or referral, covering history, staging, pathology, imaging, and the first treatment plan.",
+    },
+    {
+        title: "Follow-Up (Treatment/Surveillance) Note",
+        shortTitle: "Follow-Up",
+        icon: "FU",
+        banner: "linear-gradient(135deg, var(--c-green-100), #CFEBDD)",
+        ink: "var(--c-green-deep)",
+        description: "Routine follow-up note for surveillance or active treatment, with PSA updates, recent imaging, side effects, and therapy adjustments.",
+    },
+    {
+        title: "Treatment Planning/Adjuvant Therapy Note",
+        shortTitle: "Treatment Plan",
+        icon: "TP",
+        banner: "linear-gradient(135deg, var(--c-amber-100), #F7E5BF)",
+        ink: "var(--c-amber-deep)",
+        description: "Planning note for radiation, systemic therapy, hormone therapy, or adjuvant treatment, including intent and monitoring strategy.",
+    },
+    {
+        title: "Survivorship/Post-Treatment Summary Note",
+        shortTitle: "Survivorship",
+        icon: "SV",
+        banner: "linear-gradient(135deg, var(--c-purple-50), #D8D3FF)",
+        ink: "var(--c-purple)",
+        description: "Post-treatment summary note with survivorship planning, recurrence monitoring, long-term effects, and follow-up testing.",
+    },
+    {
+        title: "Custom Note",
+        shortTitle: "Custom",
+        icon: "CN",
+        banner: "linear-gradient(135deg, var(--c-surface-alt), var(--c-blue-50))",
+        ink: "var(--c-text-strong)",
+        description: "Blank flexible note that lets the physician combine sections from multiple note types for a custom workflow.",
+    },
+];

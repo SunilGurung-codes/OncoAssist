@@ -8,24 +8,47 @@ import { LeftPanel, RightPanel } from "../components/panels.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
 import { Micro } from "../components/ui/Micro.jsx";
 
-export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
-    const [state, setState] = useState("ready");
-    const [tab, setTab] = useState("Notes");
-    const [lCol, setLCol] = useState(false);
-    const [leftW, setLeftW] = useState(359);
-    const [rCol, setRCol] = useState(false);
-    const [rightW, setRightW] = useState(610);
+export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNotes, theme, toggleTheme }) {
+    const savedSession = loadVisitSession(patient);
+    const [state, setState] = useState(savedSession.state);
+    const [tab, setTab] = useState(savedSession.tab);
+    const [lCol, setLCol] = useState(savedSession.lCol);
+    const [leftW, setLeftW] = useState(savedSession.leftW);
+    const [rCol, setRCol] = useState(savedSession.rCol);
+    const [rightW, setRightW] = useState(savedSession.rightW);
 
     // Chat state
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-    const [ctx, setCtx] = useState([]);
+    const [messages, setMessages] = useState(savedSession.messages);
+    const [input, setInput] = useState(savedSession.input);
+    const [ctx, setCtx] = useState(savedSession.ctx);
     const drop = useDrop(d => setCtx(c => [...c, { kind: d.kind, label: d.label }]));
     const ref = useRef(null);
     const msgRefs = useRef([]);
-    const [activeMsg, setActiveMsg] = useState(0);
-    const [editingIdx, setEditingIdx] = useState(null); // which message index is in canvas edit mode
-    const [notes, setNotes] = useState(data.notes);
+    const [activeMsg, setActiveMsg] = useState(savedSession.activeMsg);
+    const [editingIdx, setEditingIdx] = useState(savedSession.editingIdx); // which message index is in canvas edit mode
+    const [notes, setNotes] = useState(savedSession.notes);
+    const [autoFetchContext, setAutoFetchContext] = useState(savedSession.autoFetchContext);
+    const [aiThinking, setAiThinking] = useState(false);
+    useEffect(() => {
+        const next = loadVisitSession(patient);
+        setState(next.state);
+        setTab(next.tab);
+        setLCol(next.lCol);
+        setLeftW(next.leftW);
+        setRCol(next.rCol);
+        setRightW(next.rightW);
+        setMessages(next.messages);
+        setInput(next.input);
+        setCtx(next.ctx);
+        setActiveMsg(next.activeMsg);
+        setEditingIdx(next.editingIdx);
+        setNotes(next.notes);
+        setAutoFetchContext(next.autoFetchContext);
+        setAiThinking(false);
+    }, [patient]);
+    useEffect(() => {
+        saveVisitSession(patient.id, { state, tab, lCol, leftW, rCol, rightW, messages, input, ctx, activeMsg, editingIdx, notes, autoFetchContext });
+    }, [patient.id, state, tab, lCol, leftW, rCol, rightW, messages, input, ctx, activeMsg, editingIdx, notes, autoFetchContext]);
     useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [messages]);
     useEffect(() => {
         // Track which message is most visible in the scroll area
@@ -50,30 +73,80 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     };
     const navPrev = () => navTo(Math.max(0, activeMsg - 1));
     const navNext = () => navTo(Math.min(messages.length - 1, activeMsg + 1));
-    const send = t => {
-        if (!t.trim()) return; setMessages(m => [...m, { role: "user", text: t, t: "now" }]); setInput("");
-        setTimeout(() => setMessages(m => [...m, { role: "ai", text: ans(t), t: "now", cites: [] }]), 500);
+    const send = async (t, options = {}) => {
+        const question = t.trim();
+        if (!question || aiThinking) return;
+
+        const conversation = messages.map((m) => ({ role: m.role, text: m.text }));
+        const {
+            selectedText = "",
+            collapseLeft = false,
+            displayText = question,
+            displaySelection = "",
+        } = options;
+        const effectiveContext = autoFetchContext ? dedupeContext([...buildAutoContext(patient), ...ctx]) : ctx;
+
+        if (collapseLeft) setLCol(true);
+
+        setMessages((m) => [...m, {
+            role: "user",
+            text: displayText,
+            selectedText: displaySelection || selectedText,
+            t: "now",
+        }]);
+        setInput("");
+        setAiThinking(true);
+
+        try {
+            const res = await fetch("/api/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    patientId: patient.id,
+                    question,
+                    selectedText,
+                    conversation,
+                    context: effectiveContext,
+                }),
+            });
+
+            const payload = await res.json();
+            const reply = res.ok
+                ? payload.answer
+                : (payload.error || "The local AI server could not answer this request.");
+
+            setMessages((m) => [...m, {
+                role: "ai",
+                text: reply,
+                t: "now",
+                cites: selectedText ? [`Selection: ${selectedText}`] : [],
+            }]);
+        } catch (error) {
+            setMessages((m) => [...m, {
+                role: "ai",
+                text: "I could not reach the local AI server. Start the backend on your PC and add your OpenRouter API key before trying again.",
+                t: "now",
+                cites: [],
+            }]);
+        } finally {
+            setAiThinking(false);
+        }
     };
     const [elapsed, setElapsed] = useState(0);
     const [vis, setVis] = useState(0);
-    const tr = data.transcript;
+    const tr = patient.transcript;
     useEffect(() => { let id; if (state === "recording") id = setInterval(() => setElapsed(e => e + 1), 1000); return () => clearInterval(id); }, [state]);
     useEffect(() => { if (state !== "recording") return; const t = setInterval(() => setVis(v => Math.min(v + 1, tr.length)), 1500); return () => clearInterval(t); }, [state, tr]);
     useEffect(() => {
         if (state === "generating") {
             const t = setTimeout(() => {
                 setState("drafted");
-                const draftText = `**Oncology SOAP Note**\n\n` +
-                    `**Patient Information**\nName: James Park\nMRN: 8820194\nDOB / Age: Oct 12, 1958 / 67\nSex: Male\nDate of Visit: Apr 17, 2026\nProvider: Dr. I. Riaz\n\n` +
-                    `**S — Subjective**\nChief Complaint (CC): Follow-up on new ADT.\nHistory of Present Illness (HPI): Patient tolerating Enzalutamide 160mg QD. Denies bone pain or LUTS.\nDiagnosis (type, stage): Prostate adenocarcinoma, CRPC.\nDate of diagnosis: 2022\nCurrent treatment regimen: Enzalutamide\nCycle/day: Day 14\nSymptoms (onset, duration, severity): Mild fatigue, 3 hot flashes/week. No falls or seizure activity.\nFunctional status (e.g., ECOG): ECOG 0\n\nReview of Systems (ROS):\nConstitutional: Endorses fatigue.\nHEENT: Unremarkable.\nCardiovascular: Negative.\nRespiratory: Negative.\nGastrointestinal: Negative.\nGenitourinary: Normal.\nMusculoskeletal: Negative for bone pain.\nNeurologic: No seizure activity.\nPsychiatric: Normal.\nMedications: Enzalutamide 160mg QD, Leuprolide.\nAllergies: NKDA\n\n` +
-                    `**O — Objective**\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: Hgb 12.8 (L)\nCMP: WNL\nTumor markers: PSA 16.2 ng/mL (Apparent decrease from 18.4)\n\nImaging/Diagnostics:\nCT/MRI/PET: Stable.\nPathology: N/A\n\n` +
-                    `**A — Assessment**\nPrimary cancer diagnosis: Metastatic CRPC.\nStage: IV.\nTreatment response: Early PCWG3 biochemical response to Enzalutamide.\nToxicities / adverse effects: Mild fatigue and systemic flashes.\nComorbidities: None active.\n\n` +
-                    `**P — Plan**\nTreatment Plan:\nContinue / modify / hold therapy: Continue Enzalutamide 160mg QD.\nNext cycle: Continuous.\nMedications: Refill authorized.\n\nMonitoring:\nLabs: Recheck PSA + CBC in 4 weeks (May 15).\nImaging: None currently.\n\nSupportive Care:\nPain management: N/A\nNutrition: Standard diet.\nPsychosocial support: Coping well.\n\nFollow-Up:\nNext visit: June 12.\nReferrals: N/A\n\n**Notes:**\nECOG Performance Status: 0\nAdvance directives discussed: No changes.`;
+                const draftText = buildDraftText(patient);
                 setMessages(m => [...m, { role: "ai", text: draftText, t: "now", cites: [] }]);
             }, 2200);
             return () => clearTimeout(t);
         }
-    }, [state]);
+    }, [patient, state]);
     const fmt = s => `00:${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
     const start = () => { setElapsed(0); setVis(0); setState("recording"); };
     const getDraftMessageIndex = React.useCallback(() => messages.map((m, i) => ({ m, i })).filter(({ m }) => m.role === "ai" && m.text.includes("**Oncology SOAP Note**")).at(-1)?.i ?? null, [messages]);
@@ -88,13 +161,13 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const buildDraftNote = React.useCallback((text) => ({
         id: "draft-note",
         dept: "Oncology",
-        type: "Follow-up · Day 14 Enzalutamide",
-        author: "Dr. I. Riaz",
+        type: `${patient.reason || patient.dx}`,
+        author: patient.provider,
         date: "Today · Draft",
         status: "Draft",
         pinned: true,
         preview: toDraftPreview(text),
-    }), []);
+    }), [patient]);
     const draftMessageIndex = getDraftMessageIndex();
     const currentDraftNote = draftMessageIndex !== null ? buildDraftNote(messages[draftMessageIndex].text) : null;
     const openCurrentDraft = React.useCallback(() => {
@@ -115,24 +188,25 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
     const addCurrentDraftToNotes = React.useCallback(() => {
         const idx = getDraftMessageIndex();
         if (idx === null) return;
-        addOrUpdateDraftNote(messages[idx].text);
-    }, [addOrUpdateDraftNote, getDraftMessageIndex, messages]);
+        saveVisitSession(patient.id, { pendingReviewAdd: true, pendingReviewText: messages[idx].text });
+        onNav("review");
+    }, [getDraftMessageIndex, messages, onNav, patient.id]);
 
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar theme={theme} toggleTheme={toggleTheme} />
         <div className="screen-body">
-            <LeftPanel collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} state={state} draftNote={currentDraftNote} onContinueDraft={openCurrentDraft} onAddDraftToNotes={addCurrentDraftToNotes} />
+            <LeftPanel patient={patient} collapsed={lCol} onToggle={() => setLCol(!lCol)} width={leftW} state={state} draftNote={currentDraftNote} onContinueDraft={openCurrentDraft} onAddDraftToNotes={addCurrentDraftToNotes} />
             {!lCol && <Resizer onPosChange={x => setLeftW(Math.max(260, Math.min(800, x)))} />}
 
             <div className="panel-main">
                 <div style={{ minHeight: 44, padding: "8px 28px", borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
                     <span onClick={() => onNav("dashboard")} style={{ cursor: "pointer", fontSize: 13, color: "var(--c-text-mute)", display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>{Icon.chevLeft({ s: 12 })} Dashboard</span>
                     <span style={{ color: "var(--c-text-ghost)", margin: "0 8px" }}>/</span>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>James Park · Visit</span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{patient.name} · Visit</span>
                 </div>
                 <div className="scroll" ref={ref} style={{ padding: "20px 36px", flex: 1, overflowY: "auto" }}>
-                    <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · APR 17 · 09:00</div>
-                    <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>Follow-up · Day 14 of Enzalutamide</div>
+                    <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · {patient.visitDate.toUpperCase()} · {patient.visitTime}</div>
+                    <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>{patient.reason}</div>
                     <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.6 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
 
                     {/* Ambient Controls */}
@@ -176,7 +250,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                 <button className="btn btn-primary sm" onClick={() => onNav("review")}>Review & sign →</button>
                             </div>
                             <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>Day 14 Enzalutamide</div></div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>{patient.reason}</div></div>
                                 <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.55, maxHeight: 72, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
                                     {messages.find(m => m.role === "ai" && m.text.includes("**Oncology SOAP Note**"))?.text.substring(0, 160) || "Review full note structure..."}
                                 </div>
@@ -185,7 +259,7 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     </div>}
                     <div className="card" style={{ marginBottom: 18 }}>
                         <div style={{ height: 38, padding: "0 14px", display: "flex", alignItems: "center", background: "var(--c-surface-alt)", fontWeight: 500, fontSize: 13, gap: 6 }}><span style={{ color: "var(--c-blue)" }}>{Icon.sparkle({ s: 12 })}</span>Smart steps · AI-suggested</div>
-                        {[{ q: "Think through next steps for this patient", primary: true }, { q: "Compare today's PSA to the last 7 readings", tag: "Q1" }, { q: "Side-effect profile at Day 14 Enzalutamide", tag: "Q2" }].map((s, i) =>
+                        {buildSmartSteps(patient).map((s, i) =>
                             <div key={i} className="note-row" onClick={() => send(s.q)} style={{ borderTop: "0.5px solid var(--c-border-faint)", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10, background: s.primary ? "var(--c-blue-50)" : "var(--c-surface)", cursor: "pointer" }}>
                                 {s.primary ? <span style={{ width: 7, height: 7, borderRadius: 4, background: "var(--c-blue)" }} /> : <Chip tone="blue" size="xs">{s.tag}</Chip>}
                                 <div style={{ flex: 1, fontSize: 13, color: s.primary ? "var(--c-blue-deep)" : "var(--c-text)", fontWeight: s.primary ? 500 : 400 }}>{s.q}</div>
@@ -194,15 +268,39 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                     </div>
 
                     {/* Inline chat input when no messages (appears right after Smart Steps) */}
-                    {messages.length === 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} />}
+                    {messages.length === 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} disabled={aiThinking} autoFetchContext={autoFetchContext} setAutoFetchContext={setAutoFetchContext} patient={patient} />}
 
-                    <div style={{ width: "100%", margin: "0 auto", padding: "0 0", display: "flex", gap: 0, position: "relative" }}>
+                    <div style={{ width: "100%", margin: "0 auto", padding: "0 80px 0 0", display: "block", position: "relative" }}>
 
                         {/* Chat messages column */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ minWidth: 0 }}>
                             {messages.map((m, i) => m.role === "user" ?
                                 <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                                    <div style={{ maxWidth: "74%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>{m.text}</div>
+                                    <div style={{ maxWidth: "74%" }}>
+                                        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+                                            <span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span>
+                                        </div>
+                                        <div style={{ background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>
+                                        {m.selectedText ? (
+                                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                                <span style={{
+                                                    display: "inline-flex",
+                                                    alignItems: "center",
+                                                    padding: "2px 8px",
+                                                    borderRadius: 999,
+                                                    fontSize: 11,
+                                                    fontWeight: 600,
+                                                    color: "var(--c-blue)",
+                                                    background: "var(--c-blue-50)",
+                                                    border: "0.5px solid var(--c-blue-250)"
+                                                }}>
+                                                    {m.selectedText}
+                                                </span>
+                                                <span>{m.text}</span>
+                                            </div>
+                                        ) : m.text}
+                                        </div>
+                                    </div>
                                 </div>
                                 : editingIdx === i ?
                                     <InlineSoapEditor key={i} ref={el => msgRefs.current[i] = el} text={m.text} onClose={() => setEditingIdx(null)} onSave={newText => {
@@ -217,15 +315,25 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                                         <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })} onClick={() => addOrUpdateDraftNote(m.text)}>Add to Note</Micro></div>
                                     </div>
                             )}
+                            {aiThinking && (
+                                <div className="fade-in" style={{ marginBottom: 14 }}>
+                                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+                                        <Chip tone="blue-solid" size="sm">OncoAssist</Chip>
+                                        <span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>thinking…</span>
+                                    </div>
+                                    <div style={{ maxWidth: "78%", background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 10px 0", fontSize: 13, lineHeight: 1.5, color: "var(--c-text-mute)" }}>
+                                        Looking through the patient chart…
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Grok-style interactive timeline scrubber — sticky-centered in right gutter */}
                         {messages.length > 0 && editingIdx === null && (
-                            <div style={{ width: 60, flexShrink: 0, alignSelf: "stretch", position: "relative", marginLeft: 24 }}>
+                            <div style={{ position: "absolute", top: 0, right: 0, width: 56 }}>
                                 <div style={{
                                     position: "sticky",
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
+                                    top: 180,
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
@@ -298,25 +406,143 @@ export function InitialScreen({ onNav, onEnterNotes, theme, toggleTheme }) {
                 </div>{/* end scroll container */}
 
                 {/* Highlight tool bounds to DOM selection natively! */}
-                <TextSelectionPopup onExplaining={t => send(`Explain or search details regarding: "${t}"`)} />
+                <TextSelectionPopup onAsk={(selectedText, query) => send(
+                    query || `Explain "${selectedText}" in the context of this patient.`,
+                    {
+                        selectedText,
+                        collapseLeft: true,
+                        displayText: query || "Explain this in the context of this patient.",
+                        displaySelection: selectedText,
+                    }
+                )} />
 
                 {/* Bottom-pinned chat input — only when messages exist */}
-                {messages.length > 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} />}
+                {messages.length > 0 && <ChatInput input={input} setInput={setInput} send={send} ctx={ctx} setCtx={setCtx} drop={drop} Icon={Icon} disabled={aiThinking} autoFetchContext={autoFetchContext} setAutoFetchContext={setAutoFetchContext} patient={patient} />}
 
             </div>
             {!rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
             {/* Adding Right Panel for Clinical Context */}
-            <RightPanel tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} notes={notes} />
+            <RightPanel patient={patient} tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} notes={notes} />
         </div>
     </div>;
 }
 
-function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
+function getVisitSessionKey(patientId) {
+    return `oa_visit_session_${patientId}`;
+}
+
+function loadVisitSession(patient) {
+    const fallback = {
+        state: "ready",
+        tab: "Notes",
+        lCol: false,
+        leftW: 359,
+        rCol: false,
+        rightW: 610,
+        messages: [],
+        input: "",
+        ctx: [],
+        activeMsg: 0,
+        editingIdx: null,
+        notes: patient.notes,
+        autoFetchContext: true,
+        pendingReviewAdd: false,
+        pendingReviewText: "",
+    };
+    try {
+        const raw = localStorage.getItem(getVisitSessionKey(patient.id));
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return {
+            ...fallback,
+            ...parsed,
+            notes: parsed.notes || patient.notes,
+            messages: parsed.messages || [],
+            ctx: parsed.ctx || [],
+        };
+    } catch {
+        return fallback;
+    }
+}
+
+function saveVisitSession(patientId, patch) {
+    try {
+        const key = getVisitSessionKey(patientId);
+        const current = JSON.parse(localStorage.getItem(key) || "{}");
+        localStorage.setItem(key, JSON.stringify({ ...current, ...patch }));
+    } catch {
+        // no-op for local persistence failures
+    }
+}
+
+function buildSmartSteps(patient) {
+    const psaReadings = patient.psa?.length || 0;
+    const therapy = patient.medications?.[0] || "current therapy";
+    return [
+        { q: `Think through next steps for ${patient.name}`, primary: true },
+        { q: `Compare today's PSA to the last ${Math.min(psaReadings, 7)} readings`, tag: "Q1" },
+        { q: `Review side effects and monitoring on ${therapy}`, tag: "Q2" },
+    ];
+}
+
+function buildDraftText(patient) {
+    const diagnosis = patient.diagnosis || {};
+    const meds = patient.medications || [];
+    const psaRow = patient.labsPSA?.rows?.find((row) => row.name === "PSA");
+    const hgbRow = patient.labsCBC?.rows?.find((row) => row.name === "Hgb");
+    const imaging = patient.imaging?.[0];
+    const subjectiveLine = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Patient presents for ${patient.reason.toLowerCase()}.`;
+    const symptoms = patient.flags?.[0]?.text || patient.reason;
+    return `**Oncology SOAP Note**\n\n` +
+        `**Patient Information**\nName: ${patient.name}\nMRN: ${patient.mrn}\nDOB / Age: ${formatLongDate(patient.dob)} / ${patient.age}\nSex: ${patient.sex}\nDate of Visit: ${patient.visitDate}\nProvider: ${patient.provider}\n\n` +
+        `**S — Subjective**\nChief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${subjectiveLine}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${formatShortDate(diagnosis.diagnosisDate)}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nCycle/day: Current follow-up visit\nSymptoms (onset, duration, severity): ${symptoms}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}\n\nReview of Systems (ROS):\nConstitutional: Reviewed during visit.\nHEENT: No major concerns raised.\nCardiovascular: Negative for acute symptoms.\nRespiratory: No shortness of breath reported.\nGastrointestinal: No new concerns reported.\nGenitourinary: Reviewed in clinic.\nMusculoskeletal: Reviewed in clinic.\nNeurologic: No acute deficits reported.\nPsychiatric: Coping discussed.\nMedications: ${meds.join(", ")}.\nAllergies: ${(patient.allergies || []).join(", ") || "None documented"}\n\n` +
+        `**O — Objective**\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}${hgbRow.flag ? ` (${hgbRow.flag})` : ""}` : "Reviewed"}\nTumor markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}` : "Reviewed"}\n\nImaging/Diagnostics:\n${imaging ? `${imaging.type}: ${imaging.impression}` : "No new imaging available."}\nPathology: ${diagnosis.pathology || "See chart"}\n\n` +
+        `**A — Assessment**\nPrimary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status with ongoing review of PSA, labs, imaging, and symptoms.\nToxicities / adverse effects: ${(patient.flags || []).join ? "" : ""}${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.\n\n` +
+        `**P — Plan**\nTreatment Plan:\nContinue / modify / hold therapy: Continue current management pending clinician review.\nNext cycle: Follow existing care cadence.\nMedications: Reconcile and refill as indicated.\n\nMonitoring:\nLabs: Repeat PSA and CBC per follow-up schedule.\nImaging: Reassess if symptoms or PSA trend warrant.\n\nSupportive Care:\nPain management: Review symptom burden each visit.\nNutrition: Continue supportive counseling.\nPsychosocial support: Coping reviewed in clinic.\n\nFollow-Up:\nNext visit: Schedule per oncology workflow.\nReferrals: As clinically indicated.\n\n**Notes:**\nECOG Performance Status: ${diagnosis.ecog || "0"}\nAdvance directives discussed: No major changes documented.`;
+}
+
+function formatLongDate(value) {
+    if (!value) return "Unknown";
+    const [year, month, day] = value.split("-");
+    const dt = new Date(Number(year), Number(month) - 1, Number(day));
+    return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatShortDate(value) {
+    return value ? value.slice(0, 4) : "Unknown";
+}
+
+function buildAutoContext(patient) {
+    return [
+        { kind: "auto", label: `Latest note · ${patient.notes?.[0]?.type || "Clinical note"}` },
+        { kind: "auto", label: `Labs · ${patient.labsPSA?.date || patient.visitDate}` },
+        { kind: "auto", label: `Imaging · ${patient.imaging?.[0]?.type || "No imaging loaded"}` },
+    ];
+}
+
+function dedupeContext(items) {
+    const seen = new Set();
+    return items.filter((item) => {
+        const key = `${item.kind}:${item.label}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon, disabled = false, autoFetchContext = true, setAutoFetchContext = () => {}, patient = data.patientProfile }) {
+    const autoItems = autoFetchContext ? buildAutoContext(patient) : [];
     return (
         <div {...drop.props} className={drop.over ? "drop-active" : ""} style={{ marginTop: 18, borderTop: "0.5px solid var(--c-border-faint)", background: "var(--c-surface)", zIndex: 10, borderRadius: 12 }}>
             <div style={{ width: "100%", margin: "0 auto", paddingTop: 6 }}>
                 <div style={{ padding: "10px 28px 10px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 44 }}>
                     <span style={{ fontSize: 13, color: "var(--c-text-soft)" }}>Context:</span>
+                    <button className={autoFetchContext ? "btn btn-primary sm" : "btn btn-outline sm"} onClick={() => setAutoFetchContext((value) => !value)} type="button">
+                        Auto fetch context mode {autoFetchContext ? "On" : "Off"}
+                    </button>
+                    {autoItems.map((c, i) => <span key={`auto-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 9px", borderRadius: 6, fontSize: 12, background: "var(--c-blue-50)", border: "0.5px solid var(--c-blue-250)", color: "var(--c-blue-deep)" }}>
+                        {Icon.sparkle({ s: 10 })}{c.label}
+                    </span>)}
                     {ctx.map((c, i) => <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px", borderRadius: 6, fontSize: 12, background: c.kind === "note" ? "var(--c-blue-100)" : "var(--c-surface-alt)", border: "0.5px solid " + (c.kind === "note" ? "var(--c-blue-250)" : "var(--c-border)"), color: "var(--c-text-mute)" }}>
                         {c.kind === "note" ? Icon.file({ s: 10 }) : Icon.lab({ s: 10 })}{c.label}
                         <span onClick={() => setCtx(a => a.filter((_, j) => j !== i))} style={{ cursor: "pointer" }}>{Icon.x({ s: 9 })}</span>
@@ -326,9 +552,9 @@ function ChatInput({ input, setInput, send, ctx, setCtx, drop, Icon }) {
                 <div className="chat-input-shell" style={{ margin: "0 28px 16px", borderRadius: 10, background: "var(--c-surface-alt)", border: "0.5px solid var(--c-border)", padding: "10px 12px", transition: "background 0.15s ease, border-color 0.15s ease" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{ color: "var(--c-text-mute)" }}>{Icon.paperclip({ s: 14 })}</span>
-                        <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send(input)} placeholder="Ask anything or drag a note here" style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 14 }} />
-                        <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: "pointer" }}>{Icon.mic({ s: 16 })}</div>
-                        <div onClick={() => send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: "var(--c-blue)", color: "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{Icon.send({ s: 14 })}</div>
+                        <input value={input} disabled={disabled} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !disabled && send(input)} placeholder={disabled ? "OncoAssist is answering…" : "Ask anything or drag a note here"} style={{ flex: 1, border: "none", background: "transparent", outline: "none", fontSize: 14 }} />
+                        <div style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-mute)", cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.5 : 1 }}>{Icon.mic({ s: 16 })}</div>
+                        <div onClick={() => !disabled && send(input)} style={{ width: 32, height: 32, borderRadius: 8, background: disabled ? "var(--c-border)" : "var(--c-blue)", color: "var(--c-surface)", display: "flex", alignItems: "center", justifyContent: "center", cursor: disabled ? "default" : "pointer" }}>{Icon.send({ s: 14 })}</div>
                     </div>
                 </div>
             </div>

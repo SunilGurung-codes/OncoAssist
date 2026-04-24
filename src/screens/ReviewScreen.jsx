@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { data } from "../data.js";
 import { TopBar } from "../components/ui/TopBar.jsx";
 import { Icon } from "../components/ui/Icon.jsx";
 import { Chip } from "../components/ui/Chip.jsx";
@@ -19,20 +20,23 @@ const DEFAULT_NOTE = {
     plan: "\u2022 Continue Enzalutamide 160mg QD.\n\u2022 Recheck PSA + CBC in 4 weeks (May 15).\n\u2022 RTC Jun 12.\n\u2022 Counselled on fall + seizure precautions.\n\u2022 Medications: Refill authorized.\n\u2022 Nutrition: Standard diet.\n\u2022 Psychosocial support: Coping well."
 };
 
-export function ReviewScreen({ onNav, theme, toggleTheme }) {
-    const [note, setNote] = useState(DEFAULT_NOTE);
-    const [activeSection, setActiveSection] = useState("subj");
+export function ReviewScreen({ patient = data.patientProfile, onNav, theme, toggleTheme }) {
+    const savedReview = loadReviewState(patient);
+    const [note, setNote] = useState(savedReview.note);
+    const [activeSection, setActiveSection] = useState(savedReview.activeSection);
     const sectionRefs = useRef({});
+    React.useEffect(() => {
+        const next = loadReviewState(patient);
+        setNote(next.note);
+        setActiveSection(next.activeSection);
+    }, [patient]);
+    React.useEffect(() => {
+        saveReviewState(patient.id, { note, activeSection });
+    }, [patient.id, note, activeSection]);
 
     // Floating edit toolbar state
     const [editMenuOpen, setEditMenuOpen] = useState(false);
     const [editAction, setEditAction] = useState(null);
-
-    // OncoAssist ask bar
-    const [askQuery, setAskQuery] = useState(null);
-    const [askVisible, setAskVisible] = useState(false);
-
-    const onExplaining = (msg) => { setAskQuery(msg); setAskVisible(true); };
 
     const navToSection = (id) => {
         const el = sectionRefs.current[id];
@@ -42,6 +46,21 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
     const handleEditAction = (action) => {
         setEditAction(action);
         setTimeout(() => setEditAction(null), 1500);
+    };
+    const handleReviewSign = () => {
+        const signedText = composeReviewText(note);
+        const visitSession = loadStoredVisitSession(patient.id);
+        const nextNotes = upsertSignedNote(visitSession.notes || patient.notes, patient, signedText);
+        const nextMessages = replaceLatestDraftMessage(visitSession.messages || [], signedText);
+        saveVisitSessionState(patient.id, {
+            notes: nextNotes,
+            messages: nextMessages,
+            state: "drafted",
+            pendingReviewAdd: false,
+            pendingReviewText: "",
+        });
+        saveReviewState(patient.id, { note, activeSection });
+        onNav("initial");
     };
 
     return (
@@ -59,16 +78,16 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                     </div>
                     <div style={{ padding: "14px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                            <div className="avatar" style={{ background: "var(--c-blue-200)", color: "var(--c-blue-deep)" }}>JP</div>
+                            <div className="avatar" style={{ background: patient.avatarBg || "var(--c-blue-200)", color: "var(--c-avatar-ink)" }}>{patient.initials}</div>
                             <div>
-                                <div style={{ fontSize: 15, fontWeight: 600 }}>James Park</div>
-                                <div style={{ fontSize: 13, color: "var(--c-text-mute)" }}>67M · MRN-003291</div>
+                                <div style={{ fontSize: 15, fontWeight: 600 }}>{patient.name}</div>
+                                <div style={{ fontSize: 13, color: "var(--c-text-mute)" }}>{patient.demo} · {patient.mrn}</div>
                             </div>
                         </div>
                         <div style={{ fontSize: 13, color: "var(--c-text-mute)", lineHeight: 1.65 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Visit</span><span>Apr 17 · 09:00</span></div>
+                            <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Visit</span><span>{patient.visitDate} · {patient.visitTime}</span></div>
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Drafted</span><span>Ambience AI</span></div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Signing</span><span style={{ color: "var(--c-blue)", fontWeight: 500 }}>Dr. I. Riaz</span></div>
+                            <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span>Signing</span><span style={{ color: "var(--c-blue)", fontWeight: 500 }}>{patient.provider}</span></div>
                         </div>
 
                         {/* Section navigator */}
@@ -88,7 +107,7 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
 
                     {/* Actions */}
                     <div style={{ marginTop: "auto", padding: "14px 16px", borderTop: "0.5px solid var(--c-border-faint)", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <button className="btn btn-primary lg" style={{ width: "100%" }} onClick={() => onNav("review")}>
+                        <button className="btn btn-primary lg" style={{ width: "100%" }} onClick={handleReviewSign}>
                             {Icon.check({ s: 14 })} Review & Sign
                         </button>
                         <button className="btn btn-ghost lg" style={{ width: "100%" }} onClick={() => onNav("initial")}>
@@ -99,24 +118,6 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
 
                 {/* Centre: Canvas editor — full width, no right panel */}
                 <div className="panel-main scroll" style={{ overflowY: "auto", padding: "32px 48px", position: "relative" }}>
-
-                    {/* Ask OncoAssist response banner */}
-                    {askVisible && (
-                        <div style={{
-                            margin: "0 auto 20px", padding: "12px 16px",
-                            background: "var(--c-blue-50)", border: "0.5px solid var(--c-blue-250)",
-                            borderRadius: 10, display: "flex", alignItems: "center", gap: 10
-                        }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--c-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
-                            </svg>
-                            <div style={{ flex: 1, fontSize: 14, color: "var(--c-text-mute)", lineHeight: 1.5 }}>
-                                <span style={{ fontWeight: 500, color: "var(--c-blue)" }}>OncoAssist:</span> {askQuery}
-                            </div>
-                            <span onClick={() => setAskVisible(false)} style={{ cursor: "pointer", fontSize: 14, color: "var(--c-text-ghost)" }}>{"\u2715"}</span>
-                        </div>
-                    )}
-
                     {/* Note card (with embedded timeline) + floating edit toolbar */}
                     <div style={{ display: "flex", gap: 16, width: "100%" }}>
 
@@ -129,8 +130,8 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
                             {/* Note content */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div className="label-xs" style={{ marginBottom: 4 }}>CONSULTANT NOTE · ONCOLOGY</div>
-                                <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>Follow-up · Day 14 Enzalutamide</div>
-                                <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24 }}>James Park · Apr 17, 2026 · Dr. I. Riaz</div>
+                                <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: "-0.01em" }}>{patient.reason}</div>
+                                <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24 }}>{patient.name} · {patient.visitDate} · {patient.provider}</div>
 
                                 {SECTIONS.map(s => (
                                     <div key={s.id} ref={el => sectionRefs.current[s.id] = el} style={{ marginBottom: 24 }}>
@@ -275,9 +276,116 @@ export function ReviewScreen({ onNav, theme, toggleTheme }) {
             </div>
 
             {/* Text selection popup for tap-to-ask */}
-            <TextSelectionPopup onExplaining={onExplaining} />
+            <TextSelectionPopup />
         </div>
     );
+}
+
+function buildReviewNote(patient) {
+    const pendingText = loadStoredVisitSession(patient.id).pendingReviewText;
+    if (pendingText) {
+        return parseNoteToSections(pendingText);
+    }
+    const diagnosis = patient.diagnosis || {};
+    const meds = patient.medications || [];
+    const psaRow = patient.labsPSA?.rows?.find((row) => row.name === "PSA");
+    const transcriptSummary = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Seen for ${patient.reason.toLowerCase()}.`;
+    return {
+        subj: `Chief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${transcriptSummary}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${diagnosis.diagnosisDate || "See chart"}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}`,
+        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General — Well-appearing, NAD. Cardiovascular — RRR. Respiratory — CTAB. Abdomen — Soft, non-tender. Extremities — No edema.\n\nLabs: ${psaRow ? `${psaRow.name} — ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
+        ass: `Primary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status.\nToxicities / adverse effects: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.`,
+        plan: `• Continue current regimen as clinically appropriate.\n• Repeat labs and monitor PSA trend.\n• Review imaging or symptoms for progression if indicated.\n• Reinforce supportive care and follow-up precautions.\n• Return to clinic per planned oncology schedule.`,
+    };
+}
+
+function composeReviewText(note) {
+    return `**Oncology SOAP Note**\n\n**S — Subjective**\n${note.subj}\n\n**O — Objective**\n${note.obj}\n\n**A — Assessment**\n${note.ass}\n\n**P — Plan**\n${note.plan}`;
+}
+
+function getReviewStateKey(patientId) {
+    return `oa_review_state_${patientId}`;
+}
+
+function getVisitStateKey(patientId) {
+    return `oa_visit_session_${patientId}`;
+}
+
+function loadReviewState(patient) {
+    const fallback = { note: buildReviewNoteFromChart(patient), activeSection: "subj" };
+    try {
+        const raw = localStorage.getItem(getReviewStateKey(patient.id));
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return { note: parsed.note || fallback.note, activeSection: parsed.activeSection || "subj" };
+    } catch {
+        return fallback;
+    }
+}
+
+function saveReviewState(patientId, value) {
+    try {
+        localStorage.setItem(getReviewStateKey(patientId), JSON.stringify(value));
+    } catch {
+        // no-op
+    }
+}
+
+function loadStoredVisitSession(patientId) {
+    try {
+        return JSON.parse(localStorage.getItem(getVisitStateKey(patientId)) || "{}");
+    } catch {
+        return {};
+    }
+}
+
+function saveVisitSessionState(patientId, patch) {
+    try {
+        const current = loadStoredVisitSession(patientId);
+        localStorage.setItem(getVisitStateKey(patientId), JSON.stringify({ ...current, ...patch }));
+    } catch {
+        // no-op
+    }
+}
+
+function upsertSignedNote(existingNotes, patient, signedText) {
+    const nextNote = {
+        id: "draft-note",
+        dept: "Oncology",
+        type: patient.reason || patient.dx,
+        author: patient.provider,
+        date: `${patient.visitDate} · Signed`,
+        status: "Signed",
+        pinned: true,
+        preview: signedText.replace(/\*\*/g, "").replace(/\n+/g, " ").trim().slice(0, 120) + "…",
+    };
+    return existingNotes.some((note) => note.id === nextNote.id)
+        ? existingNotes.map((note) => note.id === nextNote.id ? { ...note, ...nextNote } : note)
+        : [nextNote, ...existingNotes];
+}
+
+function replaceLatestDraftMessage(messages, text) {
+    const copy = [...messages];
+    for (let i = copy.length - 1; i >= 0; i -= 1) {
+        if (copy[i].role === "ai" && copy[i].text.includes("**Oncology SOAP Note**")) {
+            copy[i] = { ...copy[i], text };
+            return copy;
+        }
+    }
+    copy.push({ role: "ai", text, t: "now", cites: [] });
+    return copy;
+}
+
+function buildReviewNoteFromChart(patient) {
+    const diagnosis = patient.diagnosis || {};
+    const meds = patient.medications || [];
+    const psaRow = patient.labsPSA?.rows?.find((row) => row.name === "PSA");
+    const transcriptSummary = patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || `Seen for ${patient.reason.toLowerCase()}.`;
+    return {
+        subj: `Chief Complaint (CC): ${patient.reason}.\nHistory of Present Illness (HPI): ${transcriptSummary}\nDiagnosis (type, stage): ${diagnosis.primaryCancer || patient.dx}, ${diagnosis.stage || patient.status}.\nDate of diagnosis: ${diagnosis.diagnosisDate || "See chart"}\nCurrent treatment regimen: ${meds.slice(0, 2).join(", ") || "See medication list"}\nFunctional status (e.g., ECOG): ECOG ${diagnosis.ecog || "0"}`,
+        obj: `Vitals: BP 122/78, HR 76, Temp 37.1°C, RR 16, SpO2 98%, Weight 84 kg\n\nPhysical Examination: General — Well-appearing, NAD. Cardiovascular — RRR. Respiratory — CTAB. Abdomen — Soft, non-tender. Extremities — No edema.\n\nLabs: ${psaRow ? `${psaRow.name} — ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}.` : "Labs reviewed."}\n\nImaging/Diagnostics: ${patient.imaging?.[0]?.impression || "No new imaging."}`,
+        ass: `Primary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status.\nToxicities / adverse effects: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.`,
+        plan: `• Continue current regimen as clinically appropriate.\n• Repeat labs and monitor PSA trend.\n• Review imaging or symptoms for progression if indicated.\n• Reinforce supportive care and follow-up precautions.\n• Return to clinic per planned oncology schedule.`,
+    };
 }
 
 function EditBtn({ icon, label, active, onClick }) {
