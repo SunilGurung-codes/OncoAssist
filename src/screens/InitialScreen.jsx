@@ -316,7 +316,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                         <div style={{ padding: "12px 16px", background: "var(--c-blue-100)" }}>
                             <div className="label-xs" style={{ color: "var(--c-blue-deep)", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <span>NOTE DRAFTED · MATCHES TEMPLATE</span>
-                                <button className="btn btn-primary sm" onClick={() => onNav("review")}>Review & sign →</button>
+                                <button className="btn btn-primary sm" onClick={() => onNav("review")}>Review and Approve →</button>
                             </div>
                             <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>{patient.reason}</div></div>
