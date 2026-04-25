@@ -67,6 +67,20 @@ function buildPrompt({ patient, question, selectedText, conversation = [], conte
     .join("\n\n");
 }
 
+function normalizeAssistantText(text = "") {
+  return String(text)
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^\s*[-*•]\s+/gm, "")
+    .replace(/\u2014/g, "-")
+    .replace(/\u2022/g, "")
+    .replace(/\s+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export async function askOpenRouter({ patient, question, selectedText, conversation, context, appUrl }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -98,8 +112,10 @@ export async function askOpenRouter({ patient, question, selectedText, conversat
             "Do not invent facts not supported by the supplied chart data.",
             "If the context is insufficient, say that clearly.",
             "Keep answers concise, clinically literate, and easy to read.",
-            "Avoid markdown formatting such as # headings, **bold**, or bullet-heavy styling unless the user explicitly asks for it.",
-            "Use plain clinical prose and simple hyphens instead of em dashes.",
+            "Do not use markdown symbols like #, *, **, backticks, or bullet glyphs in your response.",
+            "Write in clean plain text only.",
+            "If emphasis is needed, use short natural phrasing instead of symbols.",
+            "Use simple hyphens instead of em dashes.",
             "Do not present yourself as a substitute for a clinician.",
           ].join(" "),
         },
@@ -120,7 +136,9 @@ export async function askOpenRouter({ patient, question, selectedText, conversat
 
   return {
     ok: true,
-    answer: payload?.choices?.[0]?.message?.content || "No response returned from model.",
+    answer: normalizeAssistantText(
+      payload?.choices?.[0]?.message?.content || "No response returned from model.",
+    ),
     model: payload?.model || MODEL,
     usage: payload?.usage || null,
   };

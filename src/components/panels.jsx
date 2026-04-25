@@ -162,7 +162,7 @@ function PSAChart({ psa = data.psa }) {
 }
 
 // Right panel
-export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width = 360, notes = data.notes, patient = data.patientProfile }) {
+export function RightPanel({ tab, onTab, onAddToChat, onCreateNoteTemplate, collapsed, onToggle, width = 360, notes = data.notes, patient = data.patientProfile }) {
     const [tabs, setTabs] = useState(() => loadPanelTabs(patient.id));
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [addQuery, setAddQuery] = useState("");
@@ -288,7 +288,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
                             </div>
                         </div>
                         <div className="scroll" style={{ flex: 1, overflowY: "auto", position: "relative" }}>
-                            {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} notes={notes} /> : null}
+                            {tab === "Notes" ? <NotesTab onAddToChat={onAddToChat} onCreateNoteTemplate={onCreateNoteTemplate} notes={notes} /> : null}
                             {tab === "Labs" ? <LabsTab onAddToChat={onAddToChat} patient={patient} /> : null}
                             {tab === "Imaging" ? <ImagingTab onAddToChat={onAddToChat} patient={patient} /> : null}
                             {tab === "Orders" ? <OrdersTab patient={patient} /> : null}
@@ -307,7 +307,7 @@ export function RightPanel({ tab, onTab, onAddToChat, collapsed, onToggle, width
     );
 }
 
-function NotesTab({ onAddToChat, notes = data.notes }) {
+function NotesTab({ onAddToChat, onCreateNoteTemplate, notes = data.notes }) {
     const [f, setF] = useState("All");
     const [q, setQ] = useState("");
     const [sortOpen, setSortOpen] = useState(false);
@@ -367,7 +367,20 @@ function NotesTab({ onAddToChat, notes = data.notes }) {
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
                         {NOTE_TEMPLATE_OPTIONS.map((item, index) => (
-                            <div key={index} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 12, overflow: "hidden", background: "var(--c-surface-alt)", display: "flex", flexDirection: "column", minHeight: 196 }}>
+                            <div key={index} onClick={() => {
+                                setShowCreatePopup(false);
+                                onCreateNoteTemplate && onCreateNoteTemplate(item);
+                            }} style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 12, overflow: "hidden", background: "var(--c-surface-alt)", display: "flex", flexDirection: "column", minHeight: 196, cursor: "pointer", transition: "transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease" }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.transform = "translateY(-2px)";
+                                    e.currentTarget.style.boxShadow = "0 12px 28px rgba(15,23,42,0.10)";
+                                    e.currentTarget.style.borderColor = "var(--c-blue-250)";
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.transform = "translateY(0)";
+                                    e.currentTarget.style.boxShadow = "none";
+                                    e.currentTarget.style.borderColor = "var(--c-border-faint)";
+                                }}>
                                 <div style={{ padding: "14px 16px", background: item.banner, borderBottom: "0.5px solid var(--c-border-faint)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                                         <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,0.82)", display: "flex", alignItems: "center", justifyContent: "center", color: item.ink, fontWeight: 800, fontSize: 15 }}>
@@ -574,6 +587,7 @@ function saveOrderQueue(patientId, queue) {
 
 const NOTE_TEMPLATE_OPTIONS = [
     {
+        id: "new-consult",
         title: "New Patient Consultation Note",
         shortTitle: "New Consult",
         icon: "NC",
@@ -582,6 +596,7 @@ const NOTE_TEMPLATE_OPTIONS = [
         description: "Initial consult note for a new diagnosis or referral, covering history, staging, pathology, imaging, and the first treatment plan.",
     },
     {
+        id: "follow-up",
         title: "Follow-Up (Treatment/Surveillance) Note",
         shortTitle: "Follow-Up",
         icon: "FU",
@@ -590,6 +605,7 @@ const NOTE_TEMPLATE_OPTIONS = [
         description: "Routine follow-up note for surveillance or active treatment, with PSA updates, recent imaging, side effects, and therapy adjustments.",
     },
     {
+        id: "treatment-plan",
         title: "Treatment Planning/Adjuvant Therapy Note",
         shortTitle: "Treatment Plan",
         icon: "TP",
@@ -598,6 +614,7 @@ const NOTE_TEMPLATE_OPTIONS = [
         description: "Planning note for radiation, systemic therapy, hormone therapy, or adjuvant treatment, including intent and monitoring strategy.",
     },
     {
+        id: "survivorship",
         title: "Survivorship/Post-Treatment Summary Note",
         shortTitle: "Survivorship",
         icon: "SV",
@@ -606,6 +623,7 @@ const NOTE_TEMPLATE_OPTIONS = [
         description: "Post-treatment summary note with survivorship planning, recurrence monitoring, long-term effects, and follow-up testing.",
     },
     {
+        id: "custom",
         title: "Custom Note",
         shortTitle: "Custom",
         icon: "CN",

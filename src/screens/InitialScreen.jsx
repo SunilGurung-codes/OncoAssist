@@ -8,6 +8,66 @@ import { LeftPanel, RightPanel } from "../components/panels.jsx";
 import { useDrop } from "../components/ui/useDrop.js";
 import { Micro } from "../components/ui/Micro.jsx";
 
+function sanitizeChatText(text = "") {
+    return String(text)
+        .replace(/^#{1,6}\s*/gm, "")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/^\s*[-*•]\s+/gm, "")
+        .replace(/\u2014/g, "-");
+}
+
+function renderAssistantText(text = "") {
+    const lines = sanitizeChatText(text).split("\n");
+    return lines.map((line, lineIdx) => {
+        const parts = [];
+        const pattern = /\*\*(.*?)\*\*/g;
+        let lastIndex = 0;
+        let match;
+
+        while ((match = pattern.exec(line)) !== null) {
+            const [full, highlighted] = match;
+            const start = match.index;
+            if (start > lastIndex) {
+                parts.push(
+                    <React.Fragment key={`t-${lineIdx}-${start}`}>
+                        {line.slice(lastIndex, start).replace(/\*/g, "")}
+                    </React.Fragment>
+                );
+            }
+            parts.push(
+                <span
+                    key={`h-${lineIdx}-${start}`}
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "1px 6px",
+                        borderRadius: 6,
+                        background: "var(--c-blue-50)",
+                        color: "var(--c-blue-deep)",
+                        border: "0.5px solid var(--c-blue-250)",
+                        fontWeight: 600
+                    }}
+                >
+                    {highlighted}
+                </span>
+            );
+            lastIndex = start + full.length;
+        }
+
+        const tail = line.slice(lastIndex).replace(/\*/g, "");
+        if (tail) {
+            parts.push(<React.Fragment key={`tail-${lineIdx}`}>{tail}</React.Fragment>);
+        }
+
+        return (
+            <React.Fragment key={`line-${lineIdx}`}>
+                {parts.length > 0 ? parts : line.replace(/\*/g, "")}
+                {lineIdx < lines.length - 1 ? <br /> : null}
+            </React.Fragment>
+        );
+    });
+}
+
 export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNotes, theme, toggleTheme }) {
     const savedSession = loadVisitSession(patient);
     const [state, setState] = useState(savedSession.state);
@@ -191,6 +251,14 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
         saveVisitSession(patient.id, { pendingReviewAdd: true, pendingReviewText: messages[idx].text });
         onNav("review");
     }, [getDraftMessageIndex, messages, onNav, patient.id]);
+    const createTemplateNote = React.useCallback((template) => {
+        const draftText = buildTemplateDraftText(patient, template);
+        const nextIndex = messages.length;
+        setState("drafted");
+        setMessages((existing) => [...existing, { role: "ai", text: draftText, t: "now", cites: [`Template: ${template.shortTitle || template.title}`] }]);
+        setEditingIdx(nextIndex);
+        requestAnimationFrame(() => requestAnimationFrame(() => navTo(nextIndex)));
+    }, [messages.length, patient]);
 
     return <div className="stage" data-screen-label="02 Initial · Ambience">
         <TopBar theme={theme} toggleTheme={toggleTheme} />
@@ -252,7 +320,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                             <div style={{ background: "var(--c-surface)", border: "0.5px solid var(--c-blue-250)", borderRadius: 10, padding: "12px 14px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}><Chip tone="purple" size="sm">Oncology</Chip><div style={{ fontSize: 13, fontWeight: 600 }}>{patient.reason}</div></div>
                                 <div style={{ fontSize: 12, color: "var(--c-text-strong)", lineHeight: 1.55, maxHeight: 72, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", whiteSpace: "pre-wrap" }}>
-                                    {messages.find(m => m.role === "ai" && m.text.includes("Oncology SOAP Note"))?.text.substring(0, 160) || "Review full note structure..."}
+                                    {sanitizeChatText(messages.find(m => m.role === "ai" && m.text.includes("Oncology SOAP Note"))?.text.substring(0, 160) || "Review full note structure...")}
                                 </div>
                             </div>
                         </div>
@@ -310,7 +378,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                                     }} />
                                     : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
                                         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
-                                        <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                                        <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{renderAssistantText(m.text)}</div>
                                         {m.cites && <div style={{ marginTop: 8, fontSize: 11, color: "var(--c-blue-deep)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
                                         <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })} onClick={() => addOrUpdateDraftNote(m.text)}>Add to Note</Micro></div>
                                     </div>
@@ -330,16 +398,16 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
 
                         {/* Grok-style interactive timeline scrubber — sticky-centered in right gutter */}
                         {messages.length > 0 && editingIdx === null && (
-                            <div style={{ position: "absolute", top: 0, right: 0, width: 56 }}>
+                            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 56, pointerEvents: "none" }}>
                                 <div style={{
                                     position: "sticky",
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
+                                    top: "calc(50vh - 86px)",
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
                                     gap: 8,
-                                    padding: "6px 0"
+                                    padding: "6px 0",
+                                    pointerEvents: "auto"
                                 }}>
 
                                     {/* Up arrow — previous response */}
@@ -423,7 +491,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
             </div>
             {!rCol && <Resizer onPosChange={x => setRightW(Math.max(260, Math.min(800, window.innerWidth - x)))} />}
             {/* Adding Right Panel for Clinical Context */}
-            <RightPanel patient={patient} tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} width={rightW} notes={notes} />
+            <RightPanel patient={patient} tab={tab} onTab={setTab} collapsed={rCol} onToggle={() => setRCol(!rCol)} onAddToChat={obj => setCtx(c => [...c, { kind: obj.kind, label: obj.label }])} onCreateNoteTemplate={createTemplateNote} width={rightW} notes={notes} />
         </div>
     </div>;
 }
@@ -500,6 +568,157 @@ function buildDraftText(patient) {
         `O - Objective\nVitals:\nBP: 122/78\nHR: 76\nTemp: 37.1 C\nRR: 16\nSpO2: 98%\nWeight: 84 kg\n\nPhysical Examination:\nGeneral: Well-appearing, NAD.\nHEENT: WNL\nCardiovascular: RRR.\nRespiratory: CTAB.\nAbdomen: Soft, non-tender.\nExtremities: No edema.\nSkin: Warm, dry.\nNeurologic: Alert and oriented.\n\nLabs:\nCBC: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}${hgbRow.flag ? ` (${hgbRow.flag})` : ""}` : "Reviewed"}\nTumor markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}` : "Reviewed"}\n\nImaging/Diagnostics:\n${imaging ? `${imaging.type}: ${imaging.impression}` : "No new imaging available."}\nPathology: ${diagnosis.pathology || "See chart"}\n\n` +
         `A - Assessment\nPrimary cancer diagnosis: ${diagnosis.primaryCancer || patient.dx}.\nStage: ${diagnosis.stage || patient.status}.\nTreatment response: ${patient.status} clinical status with ongoing review of PSA, labs, imaging, and symptoms.\nToxicities / adverse effects: ${(patient.flags || []).join ? "" : ""}${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}\nComorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}.\n\n` +
         `P - Plan\nTreatment Plan:\nContinue / modify / hold therapy: Continue current management pending clinician review.\nNext cycle: Follow existing care cadence.\nMedications: Reconcile and refill as indicated.\n\nMonitoring:\nLabs: Repeat PSA and CBC per follow-up schedule.\nImaging: Reassess if symptoms or PSA trend warrant.\n\nSupportive Care:\nPain management: Review symptom burden each visit.\nNutrition: Continue supportive counseling.\nPsychosocial support: Coping reviewed in clinic.\n\nFollow-Up:\nNext visit: Schedule per oncology workflow.\nReferrals: As clinically indicated.\n\nNotes:\nECOG Performance Status: ${diagnosis.ecog || "0"}\nAdvance directives discussed: No major changes documented.`;
+}
+
+function buildTemplateDraftText(patient, template) {
+    const diagnosis = patient.diagnosis || {};
+    const meds = patient.medications || [];
+    const psaRow = patient.labsPSA?.rows?.find((row) => row.name === "PSA");
+    const hgbRow = patient.labsCBC?.rows?.find((row) => row.name === "Hgb");
+    const imaging = patient.imaging?.[0];
+    const leadSymptom = patient.flags?.[0]?.text || patient.reason;
+
+    if (template?.id === "new-consult") {
+        return `Oncology New Patient Consultation Note
+
+Patient Information
+Name: ${patient.name}
+MRN: ${patient.mrn}
+DOB / Age: ${formatLongDate(patient.dob)} / ${patient.age}
+Sex: ${patient.sex}
+Referral Reason: ${patient.reason}
+Provider: ${patient.provider}
+
+History of Present Illness
+Referral / presentation: New consultation for ${diagnosis.primaryCancer || patient.dx}.
+Symptoms at presentation: ${leadSymptom}
+PSA history: ${patient.psa?.map((point) => `${point.m} ${point.v}`).join(", ") || "See chart"}.
+Prior workup: ${imaging ? `${imaging.type} reviewed.` : "Imaging pending."}
+
+Oncologic Review
+Primary diagnosis: ${diagnosis.primaryCancer || patient.dx}
+Stage: ${diagnosis.stage || patient.status}
+Gleason / pathology: ${diagnosis.gleason || diagnosis.pathology || "See pathology report"}
+Performance status: ECOG ${diagnosis.ecog || "0"}
+Comorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}
+
+Initial Assessment
+Clinical impression: Patient is presenting for initial oncology evaluation with available labs, imaging, and symptom review integrated above.
+Key risks / concerns: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ")}
+
+Initial Plan
+Recommended next steps: Review pathology and staging with patient.
+Orders / workup: Confirm baseline labs and imaging needs.
+Treatment discussion: Outline systemic, radiation, and surveillance options as clinically appropriate.
+Follow-up: Return after staging review and treatment decision discussion.`;
+    }
+
+    if (template?.id === "treatment-plan") {
+        return `Treatment Planning / Adjuvant Therapy Note
+
+Patient Information
+Name: ${patient.name}
+MRN: ${patient.mrn}
+Diagnosis: ${diagnosis.primaryCancer || patient.dx}
+Stage: ${diagnosis.stage || patient.status}
+Provider: ${patient.provider}
+
+Treatment Intent
+Intent of therapy: Define curative, disease-control, or palliative approach based on current clinical picture.
+Current regimen: ${meds.slice(0, 3).join(", ") || "To be determined"}
+Response markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}` : "Labs under review"}
+
+Planning Considerations
+Imaging review: ${imaging ? `${imaging.type} - ${imaging.impression}` : "No imaging loaded"}
+Laboratory review: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}` : "CBC reviewed"}${psaRow ? `; ${psaRow.name} ${psaRow.v} ${psaRow.unit}` : ""}
+Toxicity monitoring: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ") || "Discuss anticipated treatment toxicities"}
+
+Plan
+Systemic therapy plan: Document regimen, start timing, and dose strategy.
+Radiation / procedure planning: Add site, timing, and coordination needs if indicated.
+Monitoring plan: Repeat CBC, CMP, PSA, and imaging as clinically appropriate.
+Patient counseling: Review expected side effects, adherence, and escalation precautions.`;
+    }
+
+    if (template?.id === "survivorship") {
+        return `Survivorship / Post-Treatment Summary Note
+
+Patient Information
+Name: ${patient.name}
+MRN: ${patient.mrn}
+Primary diagnosis: ${diagnosis.primaryCancer || patient.dx}
+Provider: ${patient.provider}
+
+Treatment Summary
+Therapies received: ${meds.slice(0, 3).join(", ") || "Document completed treatment course"}
+Most recent disease markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}` : "Review follow-up labs"}
+Most recent imaging: ${imaging ? `${imaging.type} - ${imaging.impression}` : "No imaging loaded"}
+
+Survivorship Assessment
+Long-term effects / symptoms: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ") || "Review urinary, sexual, bowel, bone, and fatigue concerns"}
+Functional status: ECOG ${diagnosis.ecog || "0"}
+Ongoing comorbidities: ${(patient.comorbidities || []).join(", ") || "None active"}
+
+Survivorship Plan
+Recurrence monitoring: Continue PSA surveillance and symptom-directed evaluation.
+Supportive care: Address bone health, cardiovascular risk, and quality-of-life concerns.
+Coordination: Communicate plan with PCP and specialty teams.
+Follow-up schedule: Define interval for labs, imaging, and oncology follow-up.`;
+    }
+
+    if (template?.id === "custom") {
+        return `Custom Note
+
+Patient Information
+Name: ${patient.name}
+MRN: ${patient.mrn}
+Provider: ${patient.provider}
+Visit Date: ${patient.visitDate}
+
+Clinical Context
+Reason for note: ${patient.reason}
+Diagnosis summary: ${diagnosis.primaryCancer || patient.dx}
+Relevant labs: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}` : "Add labs"}
+Relevant imaging: ${imaging ? `${imaging.type} - ${imaging.impression}` : "Add imaging"}
+
+Assessment
+Use this custom note to combine sections from consultation, follow-up, planning, and survivorship workflows as needed.
+
+Plan
+Complete the note sections based on the clinical goal for this encounter.`;
+    }
+
+    return `Follow-Up (Treatment / Surveillance) Note
+
+Patient Information
+Name: ${patient.name}
+MRN: ${patient.mrn}
+DOB / Age: ${formatLongDate(patient.dob)} / ${patient.age}
+Sex: ${patient.sex}
+Date of Visit: ${patient.visitDate}
+Provider: ${patient.provider}
+
+Interval History
+Reason for follow-up: ${patient.reason}
+Patient-reported update: ${patient.transcript?.find((entry) => /Patient/i.test(entry.speaker))?.text || "Interval history reviewed during visit."}
+Treatment tolerance: ${(patient.flags || []).map((flag) => flag.text).slice(0, 2).join(" ") || "Tolerance reviewed"}
+
+Objective Review
+Current treatment regimen: ${meds.slice(0, 3).join(", ") || "See medication list"}
+PSA / disease markers: ${psaRow ? `${psaRow.name} ${psaRow.v} ${psaRow.unit}${psaRow.note ? ` (${psaRow.note})` : ""}` : "Reviewed"}
+Additional labs: ${hgbRow ? `${hgbRow.name} ${hgbRow.v} ${hgbRow.unit}${hgbRow.flag ? ` (${hgbRow.flag})` : ""}` : "Reviewed"}
+Imaging: ${imaging ? `${imaging.type} - ${imaging.impression}` : "No new imaging available"}
+
+Assessment
+Disease status: ${patient.status}
+Stage: ${diagnosis.stage || patient.status}
+Functional status: ECOG ${diagnosis.ecog || "0"}
+Key concerns: ${leadSymptom}
+
+Plan
+Continue current management pending clinician review.
+Repeat PSA, CBC, and surveillance studies as appropriate.
+Adjust therapy or supportive care based on symptoms, labs, and imaging trend.`;
 }
 
 function formatLongDate(value) {
