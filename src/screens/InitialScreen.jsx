@@ -20,17 +20,18 @@ function renderAssistantText(text = "") {
     const lines = sanitizeChatText(text).split("\n");
     return lines.map((line, lineIdx) => {
         const parts = [];
-        const pattern = /\*\*(.*?)\*\*/g;
+        const pattern = /(\[\[(.*?)\]\]|\*\*(.*?)\*\*)/g;
         let lastIndex = 0;
         let match;
 
         while ((match = pattern.exec(line)) !== null) {
-            const [full, highlighted] = match;
+            const [full, bracketed, highlightedBracket, highlightedBold] = match;
+            const highlighted = highlightedBracket || highlightedBold || "";
             const start = match.index;
             if (start > lastIndex) {
                 parts.push(
                     <React.Fragment key={`t-${lineIdx}-${start}`}>
-                        {line.slice(lastIndex, start).replace(/\*/g, "")}
+                        {line.slice(lastIndex, start).replace(/\*/g, "").replace(/\[\[|\]\]/g, "")}
                     </React.Fragment>
                 );
             }
@@ -54,14 +55,14 @@ function renderAssistantText(text = "") {
             lastIndex = start + full.length;
         }
 
-        const tail = line.slice(lastIndex).replace(/\*/g, "");
+        const tail = line.slice(lastIndex).replace(/\*/g, "").replace(/\[\[|\]\]/g, "");
         if (tail) {
             parts.push(<React.Fragment key={`tail-${lineIdx}`}>{tail}</React.Fragment>);
         }
 
         return (
             <React.Fragment key={`line-${lineIdx}`}>
-                {parts.length > 0 ? parts : line.replace(/\*/g, "")}
+                {parts.length > 0 ? parts : line.replace(/\*/g, "").replace(/\[\[|\]\]/g, "")}
                 {lineIdx < lines.length - 1 ? <br /> : null}
             </React.Fragment>
         );

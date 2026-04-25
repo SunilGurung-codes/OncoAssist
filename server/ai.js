@@ -70,7 +70,6 @@ function buildPrompt({ patient, question, selectedText, conversation = [], conte
 function normalizeAssistantText(text = "") {
   return String(text)
     .replace(/^#{1,6}\s*/gm, "")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
     .replace(/\*(.*?)\*/g, "$1")
     .replace(/`([^`]+)`/g, "$1")
     .replace(/^\s*[-*•]\s+/gm, "")
@@ -114,7 +113,9 @@ export async function askOpenRouter({ patient, question, selectedText, conversat
             "Keep answers concise, clinically literate, and easy to read.",
             "Do not use markdown symbols like #, *, **, backticks, or bullet glyphs in your response.",
             "Write in clean plain text only.",
-            "If emphasis is needed, use short natural phrasing instead of symbols.",
+            "If emphasis is helpful, wrap only the most important phrase or value in double brackets like [[important phrase]].",
+            "Use at most 1 to 3 highlighted phrases in a response, and only for the most important parts.",
+            "Do not use any other symbol-based emphasis.",
             "Use simple hyphens instead of em dashes.",
             "Do not present yourself as a substitute for a clinician.",
           ].join(" "),
