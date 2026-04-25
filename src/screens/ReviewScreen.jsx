@@ -232,6 +232,8 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
                         }}>
                             <div
                                 onClick={() => setEditMenuOpen(!editMenuOpen)}
+                                className="has-tooltip"
+                                data-tooltip="Edit tools"
                                 style={{
                                     width: 44, height: 44, borderRadius: "50%",
                                     background: editMenuOpen ? "var(--c-blue)" : "var(--c-surface)",
@@ -241,7 +243,6 @@ export function ReviewScreen({ patient = data.patientProfile, onNav, theme, togg
                                     cursor: "pointer", color: editMenuOpen ? "#fff" : "var(--c-text-mute)",
                                     transition: "all 0.2s"
                                 }}
-                                title="Suggest Edit"
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
@@ -437,7 +438,8 @@ function EditBtn({ icon, label, active, onClick }) {
     return (
         <div
             onClick={onClick}
-            title={label}
+            className="has-tooltip"
+            data-tooltip={label}
             style={{
                 width: 40, height: 40, borderRadius: 10,
                 display: "flex", alignItems: "center", justifyContent: "center",

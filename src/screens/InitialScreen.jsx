@@ -1010,7 +1010,7 @@ const InlineSoapEditor = React.forwardRef(function InlineSoapEditor({ text, onCl
 
 function InlineEditBtn({ icon, label, active, onClick }) {
     return (
-        <div onClick={onClick} title={label}
+        <div onClick={onClick} className="has-tooltip" data-tooltip={label}
             style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? "var(--c-blue)" : "var(--c-text-mute)", background: active ? "var(--c-blue-50)" : "transparent", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--c-surface-alt)"}
             onMouseLeave={e => e.currentTarget.style.background = active ? "var(--c-blue-50)" : "transparent"}>
