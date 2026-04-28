@@ -32,7 +32,7 @@ export function TopBar({ active = "My Patients", onNav, variant = "compact", the
                         </div>
                     )}
                     <div className="avatar" style={{ cursor: "pointer", position: "relative" }} onClick={() => setShowMenu(!showMenu)}>
-                        IR
+                        XY
                         {showMenu && (
                             <div style={{ position: "absolute", top: 32, right: 0, width: 140, background: "var(--c-surface)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "6px 0", boxShadow: "0 10px 20px rgba(0,0,0,0.1)", zIndex: 100 }}>
                                 <div style={{ padding: "8px 14px", fontSize: 13, color: "var(--c-text-strong)", cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setShowMenu(false) }}>Settings</div>
@@ -51,9 +51,9 @@ export function TopBar({ active = "My Patients", onNav, variant = "compact", the
                             {theme === "dark" ? Icon.sun({ s: 14 }) : Icon.moon({ s: 14 })}
                         </div>
                     )}
-                    <span style={{ fontSize: 11, color: "var(--c-text-strong)" }}>Dr. I. Riaz</span>
+                    <span style={{ fontSize: 11, color: "var(--c-text-strong)" }}>Dr. XYZ</span>
                     <div className="avatar" style={{ cursor: "pointer", position: "relative" }} onClick={() => setShowMenu(!showMenu)}>
-                        IR
+                        XY
                         {showMenu && (
                             <div style={{ position: "absolute", top: 32, right: 0, width: 140, background: "var(--c-surface)", border: "1px solid var(--c-border)", borderRadius: 8, padding: "6px 0", boxShadow: "0 10px 20px rgba(0,0,0,0.1)", zIndex: 100 }}>
                                 <div style={{ padding: "8px 14px", fontSize: 13, color: "var(--c-text-strong)", cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setShowMenu(false) }}>Settings</div>

@@ -5,6 +5,21 @@ import { TopBar } from "../components/ui/TopBar.jsx";
 
 export function DashboardScreen({ onOpen, theme, toggleTheme }) {
     const [filter, setFilter] = useState("All");
+    const now = new Date();
+    const featuredPatient = data.patients[0];
+    const headerStamp = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    }).toUpperCase();
+    const headerTime = now.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+    const todayLabel = now.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    const visitCount = data.patients.length;
 
     const filters = [
         { k: "All", count: data.patients.length, tone: "neutral" },
@@ -29,9 +44,9 @@ export function DashboardScreen({ onOpen, theme, toggleTheme }) {
             {/* Greeting strip */}
             <div className="greeting-strip" style={{ padding: "24px 40px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "0.5px solid var(--c-border-faint)" }}>
                 <div>
-                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", letterSpacing: "0.06em", fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>FRIDAY · APR 17, 2026 · 08:42</div>
-                    <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", color: "var(--c-text)" }}>Good morning, Dr. Riaz</div>
-                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginTop: 4, lineHeight: 1.45 }}>8 patients scheduled · 3 notes awaiting your co-sign · morning clinic starts at 09:00</div>
+                    <div style={{ fontSize: 12, color: "var(--c-text-mute)", letterSpacing: "0.06em", fontWeight: 600, textTransform: "uppercase", marginBottom: 6 }}>{headerStamp} · {headerTime}</div>
+                    <div style={{ fontSize: 24, fontWeight: 500, letterSpacing: "-0.015em", color: "var(--c-text)" }}>Good morning, Dr. XYZ</div>
+                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginTop: 4, lineHeight: 1.45 }}>{visitCount} synthetic demo patients scheduled · 3 notes awaiting your co-sign · clinic starts at 09:00</div>
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                     <button className="btn lg btn-ghost">{Icon.filter({ s: 14 })} Filter</button>
@@ -45,7 +60,7 @@ export function DashboardScreen({ onOpen, theme, toggleTheme }) {
 
                     {/* Stat cards */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-                        <StatCard tone="red" label="Urgent attention" value="1" sub="James Park · CRPC f/u" />
+                        <StatCard tone="red" label="Urgent attention" value="1" sub={`${featuredPatient.name} · synthetic oncology follow-up`} />
                         <StatCard tone="amber" label="Pending labs" value="3" sub="Results expected today" />
                         <StatCard tone="blue" label="New referrals" value="1" sub="D. Nakamura · biopsy review" />
                         <StatCard tone="neutral" label="To co-sign" value="3" sub="Notes from Dr. Barker" />
@@ -64,7 +79,7 @@ export function DashboardScreen({ onOpen, theme, toggleTheme }) {
                                     }}>{f.k} · {f.count}</span>
                                 ))}
                             </div>
-                            <div style={{ fontSize: 12, color: "var(--c-text-mute)" }}>Today · April 17</div>
+                            <div style={{ fontSize: 12, color: "var(--c-text-mute)" }}>Today · {todayLabel}</div>
                         </div>
 
                         <div className="scroll" style={{ overflowX: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
@@ -92,7 +107,7 @@ export function DashboardScreen({ onOpen, theme, toggleTheme }) {
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <div style={{ padding: "12px 12px", borderRadius: 8, background: "var(--c-red-100)", border: "0.5px solid var(--c-red-300)", fontSize: 12, color: "var(--c-red-deep)", lineHeight: 1.55, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-red)", marginTop: 5, flexShrink: 0 }} />
-                            <div>James Park's PSA came in at 16.2 ng/mL — <b>first decrease in 7 months</b>. Review trajectory in today's 09:00 visit.</div>
+                            <div>{featuredPatient.name}'s PSA came in at 16.2 ng/mL - <b>first decrease in 7 months</b>. Review trajectory in today's 09:00 visit.</div>
                         </div>
                         <div style={{ padding: "12px 12px", borderRadius: 8, background: "var(--c-amber-100)", border: "0.5px solid var(--c-amber-300)", fontSize: 12, color: "var(--c-amber-text)", lineHeight: 1.55, display: "flex", gap: 8 }}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: "var(--c-amber)", marginTop: 5, flexShrink: 0 }} />
@@ -181,12 +196,15 @@ function PatientRow({ p, first, onOpen }) {
 }
 
 function Calendar() {
-    const month = "April 2026";
-    const today = 17;
-    const days = Array.from({ length: 30 }, (_, i) => i + 1);
-    const visits = { 17: 5, 18: 0, 21: 4, 22: 3, 24: 2, 29: 1 };
-    const pad = [2, 3, 4, 5, 6];
-    const leading = 3;
+    const now = new Date();
+    const month = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const today = now.getDate();
+    const year = now.getFullYear();
+    const monthIndex = now.getMonth();
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const visits = { [today]: 5, [Math.min(today + 1, daysInMonth)]: 2, [Math.min(today + 4, daysInMonth)]: 3, [Math.min(today + 7, daysInMonth)]: 1 };
+    const leading = new Date(year, monthIndex, 1).getDay();
     return (
         <div style={{ border: "0.5px solid var(--c-border-faint)", borderRadius: 10, padding: "14px 12px", background: "var(--c-surface)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>

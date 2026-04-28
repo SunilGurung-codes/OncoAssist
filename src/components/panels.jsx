@@ -27,7 +27,7 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", d
                 <div className="avatar lg" style={{ background: d.avatarBg || "var(--c-blue-200)", color: "var(--c-avatar-ink)" }}>{d.initials}</div>
                 <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 500 }}>{d.name}</div>
-                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>{d.demo} · {d.mrn}</div>
+                    <div style={{ fontSize: 11, color: "var(--c-text-mute)", marginTop: 2 }}>{d.demo} · {d.mrn} · Synthetic chart</div>
                 </div>
                 {onToggle && <div onClick={onToggle} className="has-tooltip" data-tooltip="Collapse panel" style={{ cursor: "pointer", color: "var(--c-text-mute)", padding: 4 }}>{Icon.chevLeft({ s: 16 })}</div>}
             </div>
@@ -81,7 +81,7 @@ export function LeftPanel({ collapsed, onToggle, width = 260, state = "ready", d
                             <Chip tone="purple" size="sm">Oncology</Chip>
                             <div style={{ fontSize: 13, fontWeight: 600 }}>{draftNote?.type || "Follow-up · Day 14 Enzalutamide"}</div>
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 6 }}>{draftNote?.author || "Dr. I. Riaz"} · {draftNote?.date || "Today · Draft"}</div>
+                        <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 6 }}>{draftNote?.author || "Dr. XYZ"} · {draftNote?.date || "Today · Draft"}</div>
                         <div style={{ fontSize: 12, color: "var(--c-blue-deep)", lineHeight: 1.55, marginBottom: 10 }}>{draftNote?.preview || "Early response to Enzalutamide confirmed — PSA 18.4 → 16.2…"}</div>
                         <div style={{ display: "flex", gap: 8 }}>
                             <button className="btn btn-primary sm" style={{ flex: 1 }} onClick={onContinueDraft}>Continue</button>

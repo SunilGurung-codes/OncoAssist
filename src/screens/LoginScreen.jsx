@@ -42,9 +42,18 @@ export function LoginScreen({ onLogin }) {
             `}</style>
 
             {/* Absolute Top Left Logo */}
-            <div style={{ position: "absolute", top: 24, left: 24 }}>
-                {/* The user dropped the explicit logo file into public/images/Mayo-Clinic-Logo 1.png */}
-                <img src="/images/Mayo-Clinic-Logo%201.png" alt="Mayo Clinic" style={{ height: 60 }} onError={(e) => { e.target.onerror = null; e.target.src = "https://upload.wikimedia.org/wikipedia/commons/c/cd/Mayo_Clinic_logo.svg"; }} />
+            <div style={{ position: "absolute", top: 4, left: 4 }}>
+                <img
+                    src="/images/OncoLogo.png"
+                    alt="OncoAssist"
+                    style={{
+                        width: 600,
+                        height: 180,
+                        objectFit: "contain",
+                        objectPosition: "left center",
+                        display: "block"
+                    }}
+                />
             </div>
 
             {/* Center Box */}
@@ -116,8 +125,8 @@ export function LoginScreen({ onLogin }) {
                         {/* Doctor Badge UI Element */}
                         <div style={{ zIndex: 10, width: 56, height: 72, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", boxShadow: "0 6px 16px rgba(0,0,0,0.06)", marginBottom: 24 }}>
                             <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 8, width: "100%", textAlign: "center", padding: "3px 0", borderRadius: 3 }}>MAYO</div>
-                            <div style={{ width: 28, height: 28, borderRadius: 14, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
-                            <div style={{ fontSize: 6, color: "var(--c-text-soft)", textAlign: "center" }}>L.Riaz, MD</div>
+                            <div style={{ width: 28, height: 28, borderRadius: 14, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>XY</div>
+                            <div style={{ fontSize: 6, color: "var(--c-text-soft)", textAlign: "center" }}>XYZ, MD</div>
                         </div>
 
                         <div style={{ zIndex: 20, fontWeight: 600, color: "var(--c-text-strong)", fontSize: 16 }}>Waiting for badge...</div>
@@ -127,8 +136,8 @@ export function LoginScreen({ onLogin }) {
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginTop: 40 }}>
                         <div style={{ width: 50, height: 60, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
                             <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 6, width: "100%", textAlign: "center", padding: "2px 0", borderRadius: 2 }}>MAYO</div>
-                            <div style={{ width: 18, height: 18, borderRadius: 9, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 7, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>IR</div>
-                            <div style={{ fontSize: 5, color: "var(--c-text-mute)", textAlign: "center" }}>L.Riaz, MD</div>
+                            <div style={{ width: 18, height: 18, borderRadius: 9, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 7, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>XY</div>
+                            <div style={{ fontSize: 5, color: "var(--c-text-mute)", textAlign: "center" }}>XYZ, MD</div>
                         </div>
                         <div>
                             <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 6 }}>Don't have an NFC badge?</div>

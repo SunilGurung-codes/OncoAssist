@@ -70,6 +70,7 @@ function renderAssistantText(text = "") {
 }
 
 export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNotes, theme, toggleTheme }) {
+    const messageDateLabel = patient.visitDate;
     const savedSession = loadVisitSession(patient);
     const [state, setState] = useState(savedSession.state);
     const [tab, setTab] = useState(savedSession.tab);
@@ -276,7 +277,8 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                 <div className="scroll" ref={ref} style={{ padding: "20px 36px", flex: 1, overflowY: "auto" }}>
                     <div className="label-xs" style={{ marginBottom: 6 }}>VISIT · {patient.visitDate.toUpperCase()} · {patient.visitTime}</div>
                     <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 6, letterSpacing: "-0.01em" }}>{patient.reason}</div>
-                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 24, maxWidth: 560, lineHeight: 1.6 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
+                    <div style={{ fontSize: 14, color: "var(--c-text-mute)", marginBottom: 8, maxWidth: 560, lineHeight: 1.6 }}>OncoAssist preloads relevant oncology notes and surfaces the highest-impact questions for this visit.</div>
+                    <div style={{ fontSize: 12, color: "var(--c-blue-deep)", marginBottom: 24 }}>Synthetic training chart · all patient identities and dates are demo-adjusted</div>
 
                     {/* Ambient Controls */}
                     {state === "ready" && <div style={{ marginBottom: 18, border: "0.5px solid var(--c-red-300)", borderRadius: 10, overflow: "hidden" }}>
@@ -347,7 +349,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                                 <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                                     <div style={{ maxWidth: "74%" }}>
                                         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-                                            <span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span>
+                                            <span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>{messageDateLabel} · {m.t}</span>
                                         </div>
                                         <div style={{ background: "var(--c-surface-alt)", padding: "10px 14px", borderRadius: "10px 10px 0 10px", fontSize: 13, lineHeight: 1.5 }}>
                                         {m.selectedText ? (
@@ -378,7 +380,7 @@ export function InitialScreen({ patient = data.patientProfile, onNav, onEnterNot
                                         setEditingIdx(null);
                                     }} />
                                     : <div key={i} ref={el => msgRefs.current[i] = el} className="fade-in" style={{ marginBottom: 14 }}>
-                                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>Apr 17 · {m.t}</span></div>
+                                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}><Chip tone="blue-solid" size="sm">OncoAssist</Chip><span style={{ fontSize: 11, color: "var(--c-text-ghost)" }}>{messageDateLabel} · {m.t}</span></div>
                                         <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{renderAssistantText(m.text)}</div>
                                         {m.cites && <div style={{ marginTop: 8, fontSize: 11, color: "var(--c-blue-deep)", display: "flex", gap: 4, flexWrap: "wrap" }}>{m.cites.map((c, j) => <span key={j}>[{c}]</span>)}</div>}
                                         <div style={{ display: "flex", gap: 6, marginTop: 8 }}><Micro icon={Icon.copy({ s: 10 })}>Copy</Micro><Micro icon={Icon.edit({ s: 10 })} onClick={() => setEditingIdx(i)}>Edit</Micro><Micro icon={Icon.plus({ s: 10 })} onClick={() => addOrUpdateDraftNote(m.text)}>Add to Note</Micro></div>

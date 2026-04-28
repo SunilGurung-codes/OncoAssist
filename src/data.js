@@ -24,6 +24,95 @@ const imagingStudy = (patientId, suffix, dept, type, date, author, thumb, findin
 const cbcPanel = (date, rows) => ({ date, rows });
 const psaPanel = (date, rows) => ({ date, rows });
 
+const SYNTHETIC_PATIENT_NAMES = [
+  "Demo Patient Alpha",
+  "Demo Patient Bravo",
+  "Demo Patient Charlie",
+  "Demo Patient Delta",
+  "Demo Patient Echo",
+  "Demo Patient Foxtrot",
+  "Demo Patient Gamma",
+  "Demo Patient Helix",
+  "Demo Patient Indigo",
+  "Demo Patient Juniper",
+  "Demo Patient Kilo",
+];
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const BASELINE_APP_DATE = new Date(2026, 3, 17);
+const TODAY = new Date();
+const APP_DAY_OFFSET = Math.round(
+  (new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()) - BASELINE_APP_DATE) / 86400000,
+);
+
+function shiftDate(date, days) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function monthIndex(mon) {
+  return MONTHS.indexOf(mon);
+}
+
+function formatMonthDayYear(date) {
+  return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+function formatMonthDayTime(date, time) {
+  return `${MONTHS[date.getMonth()]} ${date.getDate()} · ${time}`;
+}
+
+function formatIsoDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function shiftDisplayDateString(value) {
+  const match = String(value || "").match(/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4})$/);
+  if (!match) return value;
+  const [, mon, day, year] = match;
+  const date = new Date(Number(year), monthIndex(mon), Number(day));
+  return formatMonthDayYear(shiftDate(date, APP_DAY_OFFSET));
+}
+
+function shiftDateTimeStamp(value) {
+  const match = String(value || "").match(/^([A-Z][a-z]{2}) (\d{1,2}) · (\d{2}:\d{2})$/);
+  if (!match) return value;
+  const [, mon, day, time] = match;
+  const date = new Date(2026, monthIndex(mon), Number(day));
+  return formatMonthDayTime(shiftDate(date, APP_DAY_OFFSET), time);
+}
+
+function normalizeProviderName(value = "") {
+  return String(value)
+    .replace(/\bDr\. I\. Riaz\b/g, "Dr. XYZ")
+    .replace(/\bDr\. Riaz\b/g, "Dr. XYZ")
+    .replace(/\bL\.Riaz, MD\b/g, "XYZ, MD")
+    .replace(/\bIR\b/g, "XY");
+}
+
+function shiftStringDates(value = "") {
+  return String(value)
+    .replace(/\b([A-Z][a-z]{2}) (\d{1,2}), (\d{4})\b/g, (_, mon, day, year) =>
+      formatMonthDayYear(shiftDate(new Date(Number(year), monthIndex(mon), Number(day)), APP_DAY_OFFSET)),
+    )
+    .replace(/\b([A-Z][a-z]{2}) (\d{1,2}) · (\d{2}:\d{2})\b/g, (_, mon, day, time) =>
+      formatMonthDayTime(shiftDate(new Date(2026, monthIndex(mon), Number(day)), APP_DAY_OFFSET), time),
+    );
+}
+
+function deepMapStrings(value, transform) {
+  if (typeof value === "string") return transform(value);
+  if (Array.isArray(value)) return value.map((item) => deepMapStrings(item, transform));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, deepMapStrings(item, transform)]));
+  }
+  return value;
+}
+
 export const patientCharts = [
   {
     id: "james-park",
@@ -1066,6 +1155,59 @@ export const patientCharts = [
     ],
   },
 ];
+
+const originalPatientNames = patientCharts.map((chart) => chart.name);
+const syntheticNameMap = Object.fromEntries(
+  originalPatientNames.map((name, index) => [name, SYNTHETIC_PATIENT_NAMES[index] || `Demo Patient ${index + 1}`]),
+);
+const syntheticMrnMap = Object.fromEntries(
+  patientCharts.map((chart, index) => [chart.mrn, `SYN-${String(index + 1).padStart(4, "0")}`]),
+);
+
+patientCharts.forEach((chart) => {
+  const syntheticName = syntheticNameMap[chart.name];
+  const transformText = (value) => {
+    let next = shiftStringDates(normalizeProviderName(value));
+    originalPatientNames.forEach((originalName) => {
+      next = next.replaceAll(originalName, syntheticNameMap[originalName]);
+    });
+    Object.entries(syntheticMrnMap).forEach(([originalMrn, syntheticMrn]) => {
+      next = next.replaceAll(originalMrn, syntheticMrn);
+    });
+    return next;
+  };
+
+  chart.synthetic = true;
+  chart.name = syntheticName;
+  chart.initials = syntheticName
+    .split(" ")
+    .filter(Boolean)
+    .slice(-2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  chart.mrn = syntheticMrnMap[chart.mrn];
+  chart.demo = `${chart.age}${chart.sex?.[0] || ""} · Synthetic`;
+  chart.dob = chart.dob ? `${chart.dob.slice(0, 7)}-01` : chart.dob;
+  chart.provider = normalizeProviderName(chart.provider);
+  chart.visitDate = shiftDisplayDateString(chart.visitDate);
+  chart.reason = transformText(chart.reason);
+  chart.dx = transformText(chart.dx);
+  chart.flags = chart.flags.map((flag) => ({ ...flag, text: transformText(flag.text) }));
+  chart.notes = chart.notes.map((note) => deepMapStrings(note, transformText));
+  chart.labsCBC.date = shiftDisplayDateString(chart.labsCBC.date);
+  chart.labsPSA.date = shiftDisplayDateString(chart.labsPSA.date);
+  chart.imaging = chart.imaging.map((study) => ({
+    ...deepMapStrings(study, transformText),
+    date: shiftDisplayDateString(study.date),
+    author: normalizeProviderName(study.author),
+  }));
+  chart.transcript = chart.transcript.map((entry) => ({
+    ...entry,
+    speaker: normalizeProviderName(entry.speaker),
+    text: transformText(entry.text),
+  }));
+});
 
 export const patientIndex = Object.fromEntries(patientCharts.map((chart) => [chart.id, chart]));
 

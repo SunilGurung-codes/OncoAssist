@@ -36,6 +36,17 @@ function summarizeImaging(imaging = [], maxStudies = 4) {
     .join("\n\n");
 }
 
+function summarizeNoteStates(notes = []) {
+  const counts = notes.reduce((acc, note) => {
+    const key = note.status || "Unknown";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  return Object.entries(counts)
+    .map(([status, count]) => `${status}: ${count}`)
+    .join(", ");
+}
+
 function buildPrompt({ patient, question, selectedText, conversation = [], context = [] }) {
   const meds = (patient.medications || []).join(", ");
   const problems = (patient.comorbidities || []).join(", ");
@@ -52,9 +63,11 @@ function buildPrompt({ patient, question, selectedText, conversation = [], conte
     `Comorbidities: ${problems}`,
     `Allergies: ${allergies}`,
     `Medications: ${meds}`,
+    `Loaded context in this chat: ${contextLabels}`,
+    `Available chart domains: notes, labs, imaging, medications, orders, transcript, demographics, diagnosis, flags, PSA trend`,
+    `Current note states in chart: ${summarizeNoteStates(patient.notes) || "None"}`,
     selectedText ? `Selected text: ${selectedText}` : null,
     `Question: ${question}`,
-    `Dragged context references: ${contextLabels}`,
     `Recent notes:\n${summarizeNotes(patient.notes)}`,
     `CBC / general labs (${patient.labsCBC.date}):\n${summarizeRows(patient.labsCBC.rows)}`,
     `PSA / disease labs (${patient.labsPSA.date}):\n${summarizeRows(patient.labsPSA.rows)}`,
@@ -116,6 +129,11 @@ export async function askOpenRouter({ patient, question, selectedText, conversat
             "If a value is still abnormal but has improved, say both facts clearly.",
             "Do not describe disease progression unless the supplied context actually supports progression.",
             "If multiple chart facts appear to conflict, acknowledge the ambiguity instead of forcing a conclusion.",
+            "Assume the chart is a synthetic demo EHR, but answer as if the workflow is real.",
+            "You may reference or summarize only the context the user asked for plus any directly relevant loaded chart facts.",
+            "Do not dump the entire chart unless the user explicitly asks for a full summary.",
+            "When the user asks about an order, note update, medication update, or patient-data change, answer with the most relevant suggested action and what part of the chart it affects.",
+            "Be aware of note states such as Draft, Signed, Resulted, and Final when referring to chart documents.",
             "Keep answers concise, clinically literate, and easy to read.",
             "Do not use markdown symbols like #, *, **, backticks, or bullet glyphs in your response.",
             "Write in clean plain text only.",
