@@ -116,6 +116,74 @@ html.dark-theme {
   --c-avatar-border: rgba(215, 235, 255, 0.16);
 }
 
+html.oa-a11y-font-md {
+  font-size: 16px;
+}
+
+html.oa-a11y-font-lg {
+  font-size: 18px;
+}
+
+html.oa-a11y-font-xl {
+  font-size: 20px;
+}
+
+html.oa-a11y-high-contrast {
+  --c-text: #0E1114;
+  --c-text-strong: #000000;
+  --c-text-mute: #2A3138;
+  --c-text-soft: #3B434C;
+  --c-text-faint: #505A64;
+  --c-text-ghost: #65717D;
+  --c-border: #AEB8C2;
+  --c-border-soft: #BFC8D0;
+  --c-border-faint: #CCD4DB;
+}
+
+html.dark-theme.oa-a11y-high-contrast {
+  --c-text: #FFFFFF;
+  --c-text-strong: #FFFFFF;
+  --c-text-mute: #E5EDF5;
+  --c-text-soft: #D4DEE9;
+  --c-text-faint: #C4D0DD;
+  --c-text-ghost: #B2C0CF;
+  --c-border: #768494;
+  --c-border-soft: #677483;
+  --c-border-faint: #5A6674;
+}
+
+html.oa-a11y-reduce-motion *,
+html.oa-a11y-reduce-motion *::before,
+html.oa-a11y-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.oa-a11y-dyslexia-font,
+html.oa-a11y-dyslexia-font body,
+html.oa-a11y-dyslexia-font button,
+html.oa-a11y-dyslexia-font input,
+html.oa-a11y-dyslexia-font textarea,
+html.oa-a11y-dyslexia-font select {
+  font-family: "Verdana", "Trebuchet MS", "Arial", sans-serif !important;
+  letter-spacing: 0.02em;
+  word-spacing: 0.04em;
+}
+
+html.oa-a11y-colorblind-deuteranopia {
+  filter: hue-rotate(-18deg) saturate(1.08);
+}
+
+html.oa-a11y-colorblind-protanopia {
+  filter: hue-rotate(14deg) saturate(1.06);
+}
+
+html.oa-a11y-colorblind-tritanopia {
+  filter: hue-rotate(30deg) saturate(0.95);
+}
+
 :focus-visible {
   outline: 2px solid var(--c-blue);
   outline-offset: 2px;
