@@ -68,13 +68,13 @@ export function LoginScreen({ onLogin }) {
                     </div>
 
                     <div style={{ fontSize: 32, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 16, letterSpacing: "-0.5px" }}>Sign in to your workstation</div>
-                    <div style={{ fontSize: 16, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.55, paddingRight: 20 }}>Use your Mayo Clinic network credentials. You'll be redirected to your patient dashboard.</div>
+                    <div style={{ fontSize: 16, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.55, paddingRight: 20 }}>Use your Onco Clinic network credentials. You'll be redirected to your patient dashboard.</div>
 
                     <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Mayo ID / Username</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Onco ID / Username</div>
                         <div style={{ position: "relative" }}>
                             <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.user({ s: 20 })}</span>
-                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. i.riaz" aria-label="Mayo ID or username" />
+                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. i.riaz" aria-label="Onco ID or username" />
                         </div>
                     </div>
                     <div style={{ marginBottom: 24 }}>
@@ -94,7 +94,7 @@ export function LoginScreen({ onLogin }) {
                         <div style={{ fontSize: 15, color: "var(--c-blue-deep)", fontWeight: 600, cursor: "pointer" }}>Forgot password?</div>
                     </div>
 
-                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 15, marginBottom: 16, lineHeight: 1.45 }}>Invalid credentials. Please use 'mayo' / 'mayo'.</div>}
+                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 15, marginBottom: 16, lineHeight: 1.45 }}>Invalid credentials. Please use 'Onco' / 'Onco'.</div>}
                     <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 600, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
                 </div>
 
@@ -110,7 +110,7 @@ export function LoginScreen({ onLogin }) {
                         </div>
                     </div>
 
-                    <div style={{ fontSize: 24, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 12 }}>Tap your Mayo ID badge</div>
+                    <div style={{ fontSize: 24, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 12 }}>Tap your Onco ID badge</div>
                     <div style={{ fontSize: 16, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
 
                     {/* Scanner Animation Area (Solid white card) */}
@@ -124,7 +124,7 @@ export function LoginScreen({ onLogin }) {
 
                         {/* Doctor Badge UI Element */}
                         <div style={{ zIndex: 10, width: 56, height: 72, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", boxShadow: "0 6px 16px rgba(0,0,0,0.06)", marginBottom: 24 }}>
-                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 8, width: "100%", textAlign: "center", padding: "3px 0", borderRadius: 3 }}>MAYO</div>
+                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 8, width: "100%", textAlign: "center", padding: "3px 0", borderRadius: 3 }}>Onco</div>
                             <div style={{ width: 28, height: 28, borderRadius: 14, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>XY</div>
                             <div style={{ fontSize: 6, color: "var(--c-text-soft)", textAlign: "center" }}>XYZ, MD</div>
                         </div>
@@ -135,13 +135,13 @@ export function LoginScreen({ onLogin }) {
 
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginTop: 40 }}>
                         <div style={{ width: 50, height: 60, background: "var(--c-surface)", border: "1px solid var(--c-border-soft)", borderRadius: 6, padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
-                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 6, width: "100%", textAlign: "center", padding: "2px 0", borderRadius: 2 }}>MAYO</div>
+                            <div style={{ background: "var(--c-blue-deep)", color: "white", fontSize: 6, width: "100%", textAlign: "center", padding: "2px 0", borderRadius: 2 }}>ONCO</div>
                             <div style={{ width: 18, height: 18, borderRadius: 9, background: "var(--c-blue-50)", color: "var(--c-blue-deep)", fontSize: 7, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>XY</div>
                             <div style={{ fontSize: 5, color: "var(--c-text-mute)", textAlign: "center" }}>XYZ, MD</div>
                         </div>
                         <div>
                             <div style={{ fontSize: 15, fontWeight: 600, color: "var(--c-text-strong)", marginBottom: 6 }}>Don't have an NFC badge?</div>
-                            <div style={{ fontSize: 14, color: "var(--c-text-mute)", lineHeight: 1.5 }}>Visit the Mayo ID office (Gonda 2-200) or sign in with your password on the left.</div>
+                            <div style={{ fontSize: 14, color: "var(--c-text-mute)", lineHeight: 1.5 }}>Visit the Onco ID office (Gonda 2-200) or sign in with your password on the left.</div>
                         </div>
                     </div>
                 </div>
@@ -154,7 +154,7 @@ export function LoginScreen({ onLogin }) {
                     .footer-links { display: none !important; }
                   }
                 `}</style>
-                <div>© Mayo Clinic · Authorized users only. Access is monitored and logged for HIPAA compliance.</div>
+                <div>© Onco Clinic · Authorized users only. Access is monitored and logged for HIPAA compliance.</div>
                 <div style={{ display: "flex", gap: 24 }}>
                     <span style={{ cursor: "pointer" }}>Privacy</span>
                     <span style={{ cursor: "pointer" }}>Acceptable Use</span>
