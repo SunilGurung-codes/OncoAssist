@@ -329,7 +329,11 @@ textarea {
   justify-content: center;
   background: var(--c-bg);
   position: relative;
-  padding: 24px;
+  padding: 156px 24px 24px;
+}
+
+.login-brand {
+  pointer-events: none;
 }
 
 .login-card {
@@ -397,7 +401,14 @@ textarea {
   }
 
   .login-container {
-    padding: 16px;
+    padding: 104px 16px 16px;
+  }
+
+  .login-brand {
+    top: 18px !important;
+    left: 18px !important;
+    width: min(62vw, 320px) !important;
+    min-width: 0 !important;
   }
 }
 
