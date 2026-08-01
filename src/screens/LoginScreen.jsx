@@ -1,24 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Icon } from "../components/ui/Icon.jsx";
 
+const DEMO_USERNAME = "onco";
+const DEMO_PASSWORD = "onco";
+const CREDENTIAL_REPLACEMENT_DELAY_MS = 300;
+const AUTHENTICATION_DELAY_MS = 1500;
+
 export function LoginScreen({ onLogin }) {
-    const [usr, setUsr] = useState("onco");
-    const [pwd, setPwd] = useState("onco");
+    const [usr, setUsr] = useState(DEMO_USERNAME);
+    const [pwd, setPwd] = useState(DEMO_PASSWORD);
     const [error, setError] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
+    const submittingRef = useRef(false);
+    const showLoadingTimer = useRef(null);
+    const loginTimer = useRef(null);
 
-    const completeLogin = () => {
+    useEffect(() => {
+        return () => {
+            clearTimeout(showLoadingTimer.current);
+            clearTimeout(loginTimer.current);
+        };
+    }, []);
+
+    const completeLogin = (event) => {
+        event?.preventDefault();
+        if (submittingRef.current) return;
+
+        submittingRef.current = true;
         setError(false);
-        setLoading(true);
-        setTimeout(() => {
-            onLogin();
-        }, 1500);
-    };
+        setSubmitting(true);
+        setUsr(DEMO_USERNAME);
+        setPwd(DEMO_PASSWORD);
 
-    const handleLogin = () => {
-        setUsr("onco");
-        setPwd("onco");
-        completeLogin();
+        showLoadingTimer.current = setTimeout(() => {
+            setLoading(true);
+            loginTimer.current = setTimeout(() => {
+                onLogin();
+            }, AUTHENTICATION_DELAY_MS);
+        }, CREDENTIAL_REPLACEMENT_DELAY_MS);
     };
 
     if (loading) {
@@ -68,32 +88,34 @@ export function LoginScreen({ onLogin }) {
                     <div style={{ fontSize: 32, fontWeight: 500, color: "var(--c-text-strong)", marginBottom: 16, letterSpacing: "-0.5px", marginTop: 18 }}>Sign in to your workstation</div>
                     <div style={{ fontSize: 16, color: "var(--c-text-mute)", marginBottom: 40, lineHeight: 1.55, paddingRight: 20 }}>Use your Onco Clinic network credentials. You'll be redirected to your patient dashboard.</div>
 
-                    <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Onco ID / Username</div>
-                        <div style={{ position: "relative" }}>
-                            <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.user({ s: 20 })}</span>
-                            <input value={usr} onChange={e => setUsr(e.target.value)} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. x.provider" aria-label="Onco ID or username" />
+                    <form onSubmit={completeLogin}>
+                        <div style={{ marginBottom: 24 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Onco ID / Username</div>
+                            <div style={{ position: "relative" }}>
+                                <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.user({ s: 20 })}</span>
+                                <input value={usr} onChange={e => setUsr(e.target.value)} disabled={submitting} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 10px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="e.g. x.provider" aria-label="Onco ID or username" />
+                            </div>
                         </div>
-                    </div>
-                    <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Password</div>
-                        <div style={{ position: "relative" }}>
-                            <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.lock({ s: 20 })}</span>
-                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} onKeyDown={e => e.key === "Enter" && handleLogin()} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="••••••••" aria-label="Password" />
-                            <span style={{ position: "absolute", right: 16, top: 14, color: "var(--c-text-ghost)", cursor: "pointer" }}>{Icon.eye({ s: 20 })}</span>
+                        <div style={{ marginBottom: 24 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "var(--c-text-strong)" }}>Password</div>
+                            <div style={{ position: "relative" }}>
+                                <span style={{ position: "absolute", left: 16, top: 14, color: "var(--c-text-ghost)" }}>{Icon.lock({ s: 20 })}</span>
+                                <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} disabled={submitting} style={{ width: "100%", height: 48, borderRadius: 8, border: "1px solid var(--c-border)", padding: "0 46px 0 46px", fontSize: 16, outline: "none", color: "var(--c-text)", background: "var(--c-surface)" }} placeholder="••••••••" aria-label="Password" />
+                                <span style={{ position: "absolute", right: 16, top: 14, color: "var(--c-text-ghost)", cursor: "pointer" }}>{Icon.eye({ s: 20 })}</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div style={{ marginBottom: 40 }}>
-                        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, color: "var(--c-text-mute)", cursor: "pointer", marginBottom: 16 }}>
-                            <input type="checkbox" defaultChecked style={{ accentColor: "var(--c-blue-deep)", width: 16, height: 16 }} />
-                            Keep me signed in on this workstation
-                        </label>
-                        <div style={{ fontSize: 15, color: "var(--c-blue-deep)", fontWeight: 600, cursor: "pointer" }}>Forgot password?</div>
-                    </div>
+                        <div style={{ marginBottom: 40 }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 15, color: "var(--c-text-mute)", cursor: "pointer", marginBottom: 16 }}>
+                                <input type="checkbox" defaultChecked disabled={submitting} style={{ accentColor: "var(--c-blue-deep)", width: 16, height: 16 }} />
+                                Keep me signed in on this workstation
+                            </label>
+                            <div style={{ fontSize: 15, color: "var(--c-blue-deep)", fontWeight: 600, cursor: "pointer" }}>Forgot password?</div>
+                        </div>
 
-                    {error && <div style={{ color: "var(--c-red-deep)", fontSize: 15, marginBottom: 16, lineHeight: 1.45 }}>Please enter any username and password to continue.</div>}
-                    <button style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 600, cursor: "pointer", border: "none" }} onClick={handleLogin}>Sign in</button>
+                        {error && <div style={{ color: "var(--c-red-deep)", fontSize: 15, marginBottom: 16, lineHeight: 1.45 }}>Please enter any username and password to continue.</div>}
+                        <button type="submit" disabled={submitting} style={{ width: "100%", height: 52, borderRadius: 8, background: "var(--c-blue-deep)", color: "var(--c-surface)", fontSize: 16, fontWeight: 600, cursor: submitting ? "default" : "pointer", border: "none", opacity: submitting ? 0.86 : 1 }}>{submitting ? "Signing in..." : "Sign in"}</button>
+                    </form>
                 </div>
 
                 {/* Right side (Tap/Scanner) */}
@@ -112,7 +134,7 @@ export function LoginScreen({ onLogin }) {
                     <div style={{ fontSize: 16, color: "var(--c-text-mute)", lineHeight: 1.55, marginBottom: 40, paddingRight: 20 }}>Hold your badge against the reader on the right side of this workstation. OncoAssist will sign you in and load your patient list.</div>
 
                     {/* Scanner Animation Area (Solid white card) */}
-                    <div onClick={() => { setUsr("onco"); setPwd("onco"); }} style={{ flex: 1, minHeight: 250, background: "var(--c-surface)", borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.03)", border: "1px solid var(--c-border-faint)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
+                    <div onClick={() => { setUsr(DEMO_USERNAME); setPwd(DEMO_PASSWORD); }} style={{ flex: 1, minHeight: 250, background: "var(--c-surface)", borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(0,0,0,0.03)", border: "1px solid var(--c-border-faint)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
 
                         {/* Concentric rings */}
                         <div style={{ position: "absolute", width: 280, height: 280, borderRadius: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
